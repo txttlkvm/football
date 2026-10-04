@@ -2,6 +2,7 @@ import { useFeatureSupport } from "@canva/app-hooks";
 import { Button, Rows, Text } from "@canva/app-ui-kit";
 import { addElementAtCursor, addElementAtPoint } from "@canva/design";
 import { requestOpenExternalUrl } from "@canva/platform";
+import { useState } from "react";
 import { useIntl } from "react-intl";
 import * as styles from "styles/components.css";
 
@@ -12,6 +13,7 @@ export const COURSE_URL = "https://two-shares-web.vercel.app/";
 
 export const App = () => {
   const intl = useIntl();
+  const [status, setStatus] = useState("");
   const isSupported = useFeatureSupport();
   const addElement = [addElementAtPoint, addElementAtCursor].find((fn) =>
     isSupported(fn),
@@ -28,7 +30,15 @@ export const App = () => {
         <Button
           variant="primary"
           disabled={!addElement}
-          onClick={() => addElement?.({ type: "embed", url: COURSE_URL })}
+          onClick={async () => {
+            try {
+              setStatus("Adding…");
+              await addElement?.({ type: "embed", url: COURSE_URL });
+              setStatus("Added to design.");
+            } catch (e) {
+              setStatus("Canva rejected the embed: " + String(e));
+            }
+          }}
         >
           {intl.formatMessage({
             defaultMessage: "Add course to design",
@@ -44,6 +54,7 @@ export const App = () => {
             description: "Button: open the course in a new tab",
           })}
         </Button>
+        <Text size="small">{status}</Text>
       </Rows>
     </div>
   );
