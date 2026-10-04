@@ -2,39 +2,48 @@ import { useFeatureSupport } from "@canva/app-hooks";
 import { Button, Rows, Text } from "@canva/app-ui-kit";
 import { addElementAtCursor, addElementAtPoint } from "@canva/design";
 import { requestOpenExternalUrl } from "@canva/platform";
+import { useIntl } from "react-intl";
 import * as styles from "styles/components.css";
 
+// The full, unmodified course is hosted here (index.html + original PNG artwork).
+// Canva Apps may not contain iframes, so the app adds it to the design as an
+// embed element, or opens it full size.
 export const COURSE_URL = "https://two-shares-web.vercel.app/";
 
 export const App = () => {
+  const intl = useIntl();
   const isSupported = useFeatureSupport();
   const addElement = [addElementAtPoint, addElementAtCursor].find((fn) =>
     isSupported(fn),
   );
   return (
     <div className={styles.scrollContainer}>
-      <Rows spacing="1u">
-        <Text>Finish the Tackle · Coach Lab</Text>
+      <Rows spacing="2u">
+        <Text>
+          {intl.formatMessage({
+            defaultMessage: "Finish the Tackle · Coach Lab",
+            description: "Name of the interactive coaching course",
+          })}
+        </Text>
         <Button
           variant="primary"
           disabled={!addElement}
-          onClick={() =>
-            addElement?.({ type: "embed", url: COURSE_URL })
-          }
+          onClick={() => addElement?.({ type: "embed", url: COURSE_URL })}
         >
-          Add course to design
+          {intl.formatMessage({
+            defaultMessage: "Add course to design",
+            description: "Button: insert the course as an embed element",
+          })}
         </Button>
         <Button
           variant="secondary"
           onClick={() => requestOpenExternalUrl({ url: COURSE_URL })}
         >
-          Open full screen
+          {intl.formatMessage({
+            defaultMessage: "Open full size",
+            description: "Button: open the course in a new tab",
+          })}
         </Button>
-        <iframe
-          title="Finish the Tackle course"
-          src={COURSE_URL}
-          style={{ width: "100%", height: "420px", border: 0, borderRadius: 8 }}
-        />
       </Rows>
     </div>
   );
