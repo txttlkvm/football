@@ -26,7 +26,10 @@ updateUI=function(){
  scoreReadout.textContent=state.score+' / 100 pts';
  finalScore.textContent=state.score+' / 100';
  prevButton.disabled=current===0;nextButton.disabled=current===slides.length-1;
- nextButton.setAttribute('aria-label',current===slides.length-2?'View coaching scorecard':'Next slide');
+ const finished=current===slides.length-1;
+ nextButton.innerHTML=finished?'Course complete':'Next <span aria-hidden="true">→</span>';
+ nextButton.classList.toggle('course-complete',finished);
+ nextButton.setAttribute('aria-label',finished?'Course complete':current===slides.length-2?'View coaching scorecard':'Next slide');
  document.querySelectorAll('.navbutton').forEach((b,i)=>{const selected=current>=sectionStarts[i]&&(i===sectionStarts.length-1||current<sectionStarts[i+1]);b.classList.toggle('current',selected);if(selected)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current')});
  const count=activityIds.filter(id=>state.completed.has(id)).length;
  completionCount.textContent=count+' / 10 challenges completed';

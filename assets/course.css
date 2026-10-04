@@ -50,3 +50,18 @@ img.football-player.rendered-player{display:block;width:100%;height:auto;aspect-
 #gameScenarios .scenario-card>:not(.field){flex-shrink:0}
 #gameScenarios .field .player-actor:not(.contact-pair){width:42%;left:4%!important;right:auto!important}
 #gameScenarios .field .player-actor.runner{left:auto!important;right:4%!important}
+
+/* Separate identity, sections, and playback into three comfortably spaced rows. */
+.app-shell{grid-template-rows:100px 64px minmax(0,1fr) 36px}
+.topbar .course-width{padding-top:14px!important;padding-bottom:10px!important;display:flex;flex-direction:column;justify-content:space-between}
+.section-nav{margin-top:12px;gap:20px;align-items:center}
+.navbutton{padding:7px 12px}
+.playerbar .course-width{justify-content:space-between;gap:32px}
+.playerbar .course-width>.flex-1{max-width:60%;gap:16px}
+.playerbar .course-complete{background:transparent!important;color:var(--mint)!important;opacity:1;box-shadow:none;cursor:default}
+.slide{padding:10px 0}
+.slide:last-child article{padding:24px!important}
+.slide:last-child .grid{margin-top:16px;grid-template-columns:repeat(3,minmax(0,1fr))}
+.slide:last-child .grid>div{padding:16px}
+.slide:last-child .cta{margin-top:14px}
+@media(max-width:1399px),(max-height:789px){.app-shell{grid-template-rows:92px 56px minmax(0,1fr) 32px}.slide{padding:6px 0}}
