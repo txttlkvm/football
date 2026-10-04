@@ -43,18 +43,40 @@ function installInlineHandlerShim() {
   );
 }
 
+function report(container: HTMLElement, msg: string) {
+  const pre = document.createElement("pre");
+  pre.style.cssText =
+    "position:absolute;left:0;right:0;top:0;z-index:99;margin:0;padding:8px;color:#fff;background:#a00;font:11px monospace;white-space:pre-wrap";
+  pre.textContent = msg;
+  container.appendChild(pre);
+}
+
+// Mounts the original course (markup, CSS, JS) as the app's own page.
 export function mountCourse(container: HTMLElement) {
   if (mounted) {
     return;
   }
   mounted = true;
-  installInlineHandlerShim();
-  const style = document.createElement("style");
-  style.textContent = courseCss;
-  document.head.appendChild(style);
-  // Same centering/background the original page applied to <body>.
-  container.style.cssText +=
-    ";display:grid;place-items:center;background:#040e19;";
-  container.innerHTML = courseBody;
-  startCourse();
+  try {
+    installInlineHandlerShim();
+    const style = document.createElement("style");
+    style.textContent = courseCss;
+    document.head.appendChild(style);
+    // Same centering/background the original page applied to <body>.
+    container.style.cssText +=
+      ";display:grid;place-items:center;background:#040e19;";
+    container.innerHTML = courseBody;
+    startCourse();
+    const shell = container.querySelector(".app-shell");
+    const r = shell?.getBoundingClientRect();
+    const grid = shell ? getComputedStyle(shell).display : "none";
+    if (!shell || grid !== "grid" || !r || r.width < 50 || r.height < 50) {
+      report(
+        container,
+        `Course mounted but not visible: shell=${!!shell} display=${grid} size=${r?.width}x${r?.height} viewport=${window.innerWidth}x${window.innerHeight} styles=${document.styleSheets.length}`,
+      );
+    }
+  } catch (err) {
+    report(container, "Course failed to start: " + String(err));
+  }
 }
