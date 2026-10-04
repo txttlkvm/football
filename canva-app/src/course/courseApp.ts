@@ -15,273 +15,894 @@ import a10 from "./artwork/pair-stopped.png";
 import a11 from "./artwork/pair-wrap.png";
 import a12 from "./artwork/runner-carry.png";
 import a13 from "./artwork/runner-carry-9.png";
-const ART = {"defender-balanced": a0,"defender-eyes": a1,"defender-eyes-3": a2,"defender-lunge": a3,"defender-open": a4,"defender-pursuit": a5,"defender-upright": a6,"pair-drive": a7,"pair-fit": a8,"pair-fit-3-9": a9,"pair-stopped": a10,"pair-wrap": a11,"runner-carry": a12,"runner-carry-9": a13};
+const ART = {
+  "defender-balanced": a0,
+  "defender-eyes": a1,
+  "defender-eyes-3": a2,
+  "defender-lunge": a3,
+  "defender-open": a4,
+  "defender-pursuit": a5,
+  "defender-upright": a6,
+  "pair-drive": a7,
+  "pair-fit": a8,
+  "pair-fit-3-9": a9,
+  "pair-stopped": a10,
+  "pair-wrap": a11,
+  "runner-carry": a12,
+  "runner-carry-9": a13,
+};
 export function startCourse() {
-var checkSequence,chooseAngle,chooseBreakdown,chooseDrill,chooseFeet,chooseFinish,coachRep,gameAnswer,moveSequence,renderCueScenarios,renderDiagnostics,renderGame,renderSequence,replayRep,resetAngle,resetCourse,resetDrill,resetSequence,resetSimple;
-/* Original rendered youth-football artwork. All assets are local and portable. */
-let playerSerial = 0;
-const playerArtwork = Object.freeze({
-  defender: Object.freeze({
-    pursuit:ART["defender-pursuit"],
-    balanced:ART["defender-balanced"],
-    breakdown:ART["defender-balanced"],
-    coach:ART["defender-balanced"],
-    upright:ART["defender-upright"],
-    eyes:ART["defender-eyes"],
-    lunge:ART["defender-lunge"],
-    nowrap:ART["defender-open"],
-    hit:ART["defender-open"],
-    overrun:ART["defender-pursuit"]
-  }),
-  runner:ART["runner-carry"],
-  coachEyes:ART["defender-eyes-3"],
-  coachRunner:ART["runner-carry-9"],
-  contact:Object.freeze({
-    fit:ART["pair-fit"],
-    wrap:ART["pair-wrap"],
-    drive:ART["pair-drive"],
-    stopped:ART["pair-stopped"]
-  }),
-  coachFit:ART["pair-fit-3-9"]
-});
-const playerPoseLabels=Object.freeze({
-  pursuit:'pursuing the runner',balanced:'low, balanced ready position',
-  breakdown:'low, balanced breakdown',upright:'poor upright arrival',
-  eyes:'eyes and head down',lunge:'overextended forward lunge',
-  nowrap:'arms open without a secure wrap',hit:'arms open as the runner escapes',
-  overrun:'running beyond the near hip',fit:'controlled shoulder fit',
-  wrap:'secured wrap',drive:'secured wrap with driving feet',
-  stopped:'secured wrap with feet stopped at contact'
-});
-function contactPose(role,pose) {
-  return role==='defender'&&Object.prototype.hasOwnProperty.call(playerArtwork.contact,pose);
-}
-// Keep the retained activity factory name: the result is rendered artwork, not SVG.
-function playerSVG(role='defender',pose='balanced',number=role==='runner'?'1':'5') {
-  playerSerial++;
-  const pair=contactPose(role,pose),coach=String(number)==='3';
-  const src=pair?(coach&&pose==='fit'?playerArtwork.coachFit:playerArtwork.contact[pose]):
-    role==='runner'?(String(number)==='9'?playerArtwork.coachRunner:playerArtwork.runner):
-    coach&&pose==='eyes'?playerArtwork.coachEyes:playerArtwork.defender[pose]||playerArtwork.defender.balanced;
-  // Paired poses are authored as one composition; their hands and contact stay aligned.
-  const defenderNumber=coach&&pose==='fit'?'3':'5';
-  const runnerNumber=coach&&pose==='fit'?'9':'1';
-  const alt=pair?`Defender number ${defenderNumber} and runner number ${runnerNumber}: ${playerPoseLabels[pose]}`:
-    role==='runner'?`Runner number ${String(number)==='9'?'9':'1'} carrying the football`:
-    `Defender number ${coach&&pose==='eyes'?'3':'5'}: ${playerPoseLabels[pose]||playerPoseLabels.balanced}`;
-  return `<img class="football-player rendered-player${pair?' rendered-pair':''}" src="${src}" width="${pair?300:150}" height="184" alt="${alt}" data-artwork-pose="${pose}" decoding="async" draggable="false">`;
-}
-function actor(role,pose,number,style='',extra='') {
-  return `<div class="player-actor ${role}${contactPose(role,pose)?' contact-pair':''} ${extra}" style="${style}" data-pose="${pose}" data-number="${number}">${playerSVG(role,pose,number)}</div>`;
-}
-function sceneMarkup(scene='pursuit',mini=false) {
-  let pose=scene;
-  let runner=true;
-  let defenderStyle='left:14%;bottom:12%;', runnerStyle='right:13%;bottom:31%;';
-  let label='TRACK THE NEAR HIP', note='Inside-out. Stay connected.',path=true;
-  if(['upright','balanced','lunge','breakdown','eyes','coach'].includes(scene)) {
-    runner=false;defenderStyle='left:35%;bottom:14%;';path=false;
-    label={upright:'HIPS HIGH',balanced:'FEET UNDER HIPS',lunge:'WEIGHT TOO FAR FORWARD',breakdown:'SHORT STEPS · LOW HIPS',eyes:'PAUSE · EYES DROP',coach:'WATCH → ONE CUE → REPLAY'}[scene];
-    note={upright:'Little room to react.',balanced:'Ready to change direction.',lunge:'A long stride costs balance.',breakdown:'Stay low. Stay balanced.',eyes:'Restore visual connection.',coach:'Coach the next action.'}[scene];
-    if(scene==='coach')pose='balanced';
+  var checkSequence,
+    chooseAngle,
+    chooseBreakdown,
+    chooseDrill,
+    chooseFeet,
+    chooseFinish,
+    coachRep,
+    gameAnswer,
+    moveSequence,
+    renderCueScenarios,
+    renderDiagnostics,
+    renderGame,
+    renderSequence,
+    replayRep,
+    resetAngle,
+    resetCourse,
+    resetDrill,
+    resetSequence,
+    resetSimple;
+  /* Original rendered youth-football artwork. All assets are local and portable. */
+  let playerSerial = 0;
+  const playerArtwork = Object.freeze({
+    defender: Object.freeze({
+      pursuit: ART["defender-pursuit"],
+      balanced: ART["defender-balanced"],
+      breakdown: ART["defender-balanced"],
+      coach: ART["defender-balanced"],
+      upright: ART["defender-upright"],
+      eyes: ART["defender-eyes"],
+      lunge: ART["defender-lunge"],
+      nowrap: ART["defender-open"],
+      hit: ART["defender-open"],
+      overrun: ART["defender-pursuit"],
+    }),
+    runner: ART["runner-carry"],
+    coachEyes: ART["defender-eyes-3"],
+    coachRunner: ART["runner-carry-9"],
+    contact: Object.freeze({
+      fit: ART["pair-fit"],
+      wrap: ART["pair-wrap"],
+      drive: ART["pair-drive"],
+      stopped: ART["pair-stopped"],
+    }),
+    coachFit: ART["pair-fit-3-9"],
+  });
+  const playerPoseLabels = Object.freeze({
+    pursuit: "pursuing the runner",
+    balanced: "low, balanced ready position",
+    breakdown: "low, balanced breakdown",
+    upright: "poor upright arrival",
+    eyes: "eyes and head down",
+    lunge: "overextended forward lunge",
+    nowrap: "arms open without a secure wrap",
+    hit: "arms open as the runner escapes",
+    overrun: "running beyond the near hip",
+    fit: "controlled shoulder fit",
+    wrap: "secured wrap",
+    drive: "secured wrap with driving feet",
+    stopped: "secured wrap with feet stopped at contact",
+  });
+  function contactPose(role, pose) {
+    return (
+      role === "defender" &&
+      Object.prototype.hasOwnProperty.call(playerArtwork.contact, pose)
+    );
   }
-  if(['wrap','drive','fit','stopped','hit','nowrap'].includes(scene)) {
-    defenderStyle='left:28%;bottom:17%;';runnerStyle='left:48%;bottom:19%;';path=false;
-    label={nowrap:'PAUSE · ARMS OPEN',wrap:'SECURE THE WRAP',fit:'ARRIVE UNDER CONTROL',drive:'WRAP AND RUN',stopped:'PAUSE · FEET STOP',hit:'ARMS OPEN · RUNNER ESCAPES'}[scene];
-    note={nowrap:'One clear correction.',wrap:'Finish the tackle.',fit:'Near foot, near shoulder.',drive:'Drive your feet.',stopped:'Contact is not the finish.',hit:'Don’t chase the hit.'}[scene];
-    if(scene==='hit')runnerStyle='right:8%;bottom:22%;';
+  // Keep the retained activity factory name: the result is rendered artwork, not SVG.
+  function playerSVG(
+    role = "defender",
+    pose = "balanced",
+    number = role === "runner" ? "1" : "5",
+  ) {
+    playerSerial++;
+    const pair = contactPose(role, pose),
+      coach = String(number) === "3";
+    const src = pair
+      ? coach && pose === "fit"
+        ? playerArtwork.coachFit
+        : playerArtwork.contact[pose]
+      : role === "runner"
+        ? String(number) === "9"
+          ? playerArtwork.coachRunner
+          : playerArtwork.runner
+        : coach && pose === "eyes"
+          ? playerArtwork.coachEyes
+          : playerArtwork.defender[pose] || playerArtwork.defender.balanced;
+    // Paired poses are authored as one composition; their hands and contact stay aligned.
+    const defenderNumber = coach && pose === "fit" ? "3" : "5";
+    const runnerNumber = coach && pose === "fit" ? "9" : "1";
+    const alt = pair
+      ? `Defender number ${defenderNumber} and runner number ${runnerNumber}: ${playerPoseLabels[pose]}`
+      : role === "runner"
+        ? `Runner number ${String(number) === "9" ? "9" : "1"} carrying the football`
+        : `Defender number ${coach && pose === "eyes" ? "3" : "5"}: ${playerPoseLabels[pose] || playerPoseLabels.balanced}`;
+    return `<img class="football-player rendered-player${pair ? " rendered-pair" : ""}" src="${src}" width="${pair ? 300 : 150}" height="184" alt="${alt}" data-artwork-pose="${pose}" decoding="async" draggable="false">`;
   }
-  if(scene==='overrun'){label='RUNNER TURNS THE CORNER';note='The first failure is the angle.';defenderStyle='left:57%;bottom:17%;';runnerStyle='right:13%;bottom:32%;';}
-  if(scene==='pursuit')pose='pursuit';
-  if(contactPose('defender',pose))runner=false;
-  return `<span class="field-caption">${label||'CONTROLLED REP'}</span>${path?`<svg class="route-overlay" viewBox="0 0 600 340" preserveAspectRatio="none" aria-hidden="true"><defs><marker id="arrow-${scene}-${playerSerial}" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6" fill="#ffc83d"/></marker></defs><path d="M135 254 Q230 180 435 159" fill="none" stroke="#ffc83d" stroke-width="4" stroke-dasharray="10 7"/><path d="M430 135 L510 110" fill="none" stroke="#fff9e9" stroke-width="3"/><path d="M499 106 L511 110 L504 122" fill="none" stroke="#fff9e9" stroke-width="3"/></svg>`:''}${actor('defender',pose,'5',defenderStyle)}${runner?actor('runner','runner','1',runnerStyle):''}<span class="field-note">${note||'Track the hip.'}</span>${mini?'':'<div class="field-legend"><span><i></i> DEFENDER · 5</span><span><i></i> RUNNER · 1</span></div>'}`;
-}
-function paintScene(field,scene,mini=false){field.dataset.scene=scene;field.innerHTML=sceneMarkup(scene,mini);}
+  function actor(role, pose, number, style = "", extra = "") {
+    return `<div class="player-actor ${role}${contactPose(role, pose) ? " contact-pair" : ""} ${extra}" style="${style}" data-pose="${pose}" data-number="${number}">${playerSVG(role, pose, number)}</div>`;
+  }
+  function sceneMarkup(scene = "pursuit", mini = false) {
+    let pose = scene;
+    let runner = true;
+    let defenderStyle = "left:14%;bottom:12%;",
+      runnerStyle = "right:13%;bottom:31%;";
+    let label = "TRACK THE NEAR HIP",
+      note = "Inside-out. Stay connected.",
+      path = true;
+    if (
+      ["upright", "balanced", "lunge", "breakdown", "eyes", "coach"].includes(
+        scene,
+      )
+    ) {
+      runner = false;
+      defenderStyle = "left:35%;bottom:14%;";
+      path = false;
+      label = {
+        upright: "HIPS HIGH",
+        balanced: "FEET UNDER HIPS",
+        lunge: "WEIGHT TOO FAR FORWARD",
+        breakdown: "SHORT STEPS · LOW HIPS",
+        eyes: "PAUSE · EYES DROP",
+        coach: "WATCH → ONE CUE → REPLAY",
+      }[scene];
+      note = {
+        upright: "Little room to react.",
+        balanced: "Ready to change direction.",
+        lunge: "A long stride costs balance.",
+        breakdown: "Stay low. Stay balanced.",
+        eyes: "Restore visual connection.",
+        coach: "Coach the next action.",
+      }[scene];
+      if (scene === "coach") pose = "balanced";
+    }
+    if (["wrap", "drive", "fit", "stopped", "hit", "nowrap"].includes(scene)) {
+      defenderStyle = "left:28%;bottom:17%;";
+      runnerStyle = "left:48%;bottom:19%;";
+      path = false;
+      label = {
+        nowrap: "PAUSE · ARMS OPEN",
+        wrap: "SECURE THE WRAP",
+        fit: "ARRIVE UNDER CONTROL",
+        drive: "WRAP AND RUN",
+        stopped: "PAUSE · FEET STOP",
+        hit: "ARMS OPEN · RUNNER ESCAPES",
+      }[scene];
+      note = {
+        nowrap: "One clear correction.",
+        wrap: "Finish the tackle.",
+        fit: "Near foot, near shoulder.",
+        drive: "Drive your feet.",
+        stopped: "Contact is not the finish.",
+        hit: "Don’t chase the hit.",
+      }[scene];
+      if (scene === "hit") runnerStyle = "right:8%;bottom:22%;";
+    }
+    if (scene === "overrun") {
+      label = "RUNNER TURNS THE CORNER";
+      note = "The first failure is the angle.";
+      defenderStyle = "left:57%;bottom:17%;";
+      runnerStyle = "right:13%;bottom:32%;";
+    }
+    if (scene === "pursuit") pose = "pursuit";
+    if (contactPose("defender", pose)) runner = false;
+    return `<span class="field-caption">${label || "CONTROLLED REP"}</span>${path ? `<svg class="route-overlay" viewBox="0 0 600 340" preserveAspectRatio="none" aria-hidden="true"><defs><marker id="arrow-${scene}-${playerSerial}" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6" fill="#ffc83d"/></marker></defs><path d="M135 254 Q230 180 435 159" fill="none" stroke="#ffc83d" stroke-width="4" stroke-dasharray="10 7"/><path d="M430 135 L510 110" fill="none" stroke="#fff9e9" stroke-width="3"/><path d="M499 106 L511 110 L504 122" fill="none" stroke="#fff9e9" stroke-width="3"/></svg>` : ""}${actor("defender", pose, "5", defenderStyle)}${runner ? actor("runner", "runner", "1", runnerStyle) : ""}<span class="field-note">${note || "Track the hip."}</span>${mini ? "" : '<div class="field-legend"><span><i></i> DEFENDER · 5</span><span><i></i> RUNNER · 1</span></div>'}`;
+  }
+  function paintScene(field, scene, mini = false) {
+    field.dataset.scene = scene;
+    field.innerHTML = sceneMarkup(scene, mini);
+  }
 
+  const slides = [...document.querySelectorAll(".slide")];
+  let current = 0;
+  const state = {
+    score: 0,
+    completed: new Set(),
+    visited: new Set([0]),
+    cues: [],
+    priority: "Not selected",
+  };
+  let sequence = ["WRAP", "TRACK", "DRIVE", "BREAK DOWN", "FIT"];
+  const requiredSequence = ["TRACK", "BREAK DOWN", "FIT", "WRAP", "DRIVE"];
+  const diagnosisData = [
+    ["Overrun angle", "ANGLE", "Track the near hip."],
+    ["Upright level", "LEVEL", "Shorten steps. Lower hips."],
+    ["Lost eyes", "EYES", "Eyes up. See the hip."],
+    ["No wrap", "WRAP", "Secure the wrap before the finish."],
+  ];
+  const gameData = [
+    [
+      "Runner turns the corner; defender closes from inside.",
+      "Track the near hip. Keep the edge.",
+      "Sprint to where the runner was.",
+      "Track the hip",
+    ],
+    [
+      "Player is balanced, but arms are wide.",
+      "Coach one controlled wrap-and-drive rep.",
+      "Launch through contact.",
+      "Wrap up",
+    ],
+    [
+      "Player secures the runner, then stops feet.",
+      "Wrap and run on the next rep.",
+      "Add full-speed open-field contact.",
+      "Drive your feet",
+    ],
+  ];
 
-    const slides=[...document.querySelectorAll(".slide")];let current=0;
-    const state={score:0,completed:new Set(),visited:new Set([0]),cues:[],priority:"Not selected"};
-    let sequence=["WRAP","TRACK","DRIVE","BREAK DOWN","FIT"];const requiredSequence=["TRACK","BREAK DOWN","FIT","WRAP","DRIVE"];
-    const diagnosisData=[["Overrun angle","ANGLE","Track the near hip."],["Upright level","LEVEL","Shorten steps. Lower hips."],["Lost eyes","EYES","Eyes up. See the hip."],["No wrap","WRAP","Secure the wrap before the finish."]];
-    const gameData=[["Runner turns the corner; defender closes from inside.","Track the near hip. Keep the edge.","Sprint to where the runner was.","Track the hip"],["Player is balanced, but arms are wide.","Coach one controlled wrap-and-drive rep.","Launch through contact.","Wrap up"],["Player secures the runner, then stops feet.","Wrap and run on the next rep.","Add full-speed open-field contact.","Drive your feet"]];
+  function updateUI() {
+    courseProgress.style.width =
+      (state.visited.size / slides.length) * 100 + "%";
+    progressText.textContent = current + 1 + " / " + slides.length;
+    scoreReadout.textContent = state.score + " pts";
+    finalScore.textContent = state.score + " pts";
+    prevButton.disabled = current === 0;
+    nextButton.disabled = current === slides.length - 1;
+    document
+      .querySelectorAll(".navbutton")
+      .forEach((b) => b.classList.remove("current"));
+  }
+  function goTo(index) {
+    current = Math.max(0, Math.min(index, slides.length - 1));
+    slides.forEach((s, i) => s.classList.toggle("active", i === current));
+    state.visited.add(current);
+    updateUI();
+  }
+  function nextSlide() {
+    if (current < slides.length - 1) goTo(current + 1);
+  }
+  function previousSlide() {
+    if (current > 0) goTo(current - 1);
+  }
+  function complete(id, points = 8) {
+    if (!state.completed.has(id)) {
+      state.completed.add(id);
+      state.score += points;
+      updateUI();
+    }
+  }
+  function addCue(cue) {
+    if (!state.cues.includes(cue)) state.cues.push(cue);
+  }
 
-    function updateUI(){courseProgress.style.width=(state.visited.size/slides.length*100)+"%";progressText.textContent=(current+1)+" / "+slides.length;scoreReadout.textContent=state.score+" pts";finalScore.textContent=state.score+" pts";prevButton.disabled=current===0;nextButton.disabled=current===slides.length-1;document.querySelectorAll(".navbutton").forEach(b=>b.classList.remove("current"))}
-    function goTo(index){current=Math.max(0,Math.min(index,slides.length-1));slides.forEach((s,i)=>s.classList.toggle("active",i===current));state.visited.add(current);updateUI()}
-    function nextSlide(){if(current<slides.length-1)goTo(current+1)}function previousSlide(){if(current>0)goTo(current-1)}
-    function complete(id,points=8){if(!state.completed.has(id)){state.completed.add(id);state.score+=points;updateUI()}}function addCue(cue){if(!state.cues.includes(cue))state.cues.push(cue)}
+  // Preserve the original keyboard navigation, with form controls left to native keyboard behavior.
+  document.addEventListener("keydown", (e) => {
+    if (e.target.matches("button,input,select,textarea")) return;
+    if (e.key === "ArrowRight") nextSlide();
+    if (e.key === "ArrowLeft") previousSlide();
+  });
 
-// Preserve the original keyboard navigation, with form controls left to native keyboard behavior.
-document.addEventListener("keydown",e=>{if(e.target.matches("button,input,select,textarea"))return;if(e.key==="ArrowRight")nextSlide();if(e.key==="ArrowLeft")previousSlide()});
+  /* Extend the supplied course's navigation, state, and activity hooks. */
+  const activityIds = [
+    "angle",
+    "breakdown",
+    "rep",
+    "sequence",
+    "diagnose",
+    "finish",
+    "feet",
+    "cues",
+    "drill",
+    "gameday",
+  ];
+  const sectionStarts = [0, 1, 9, 15, 17, 19];
+  const pairNames = [
+    "Pursuit",
+    "Breakdown",
+    "Eyes",
+    "Sequence",
+    "Diagnosis",
+    "Completion",
+    "Leg drive",
+    "Feedback",
+    "Practice data",
+    "Game day",
+  ];
+  const initialNotes = {
+    breakdown: "Read the hips and feet before you choose.",
+    finish: "Reward the action that makes the finish repeatable.",
+    feet: "The first four actions are present. What is missing?",
+  };
+  const cueData = [
+    {
+      scene: "overrun",
+      title: "The runner turns the corner.",
+      copy: "The defender runs past the near hip before getting into position.",
+      choices: ["Wrap up.", "Track the hip.", "Drive your feet."],
+      correct: 1,
+      cue: "Track the hip.",
+      note: "Fix the approach first. Replay a controlled inside-out tracking rep.",
+    },
+    {
+      scene: "upright",
+      title: "The hips stay high.",
+      copy: "The angle is good, but the defender arrives upright and unbalanced.",
+      choices: ["Stay low.", "Wrap up.", "Good angle."],
+      correct: 0,
+      cue: "Stay low.",
+      note: "Lower the hips and shorten the steps. Check balance on the next rep.",
+    },
+    {
+      scene: "eyes",
+      title: "The movement picture disappears.",
+      copy: "Position and balance are there. Then the eyes drop before the fit.",
+      choices: ["Drive your feet.", "Shoot the hips.", "Eyes up."],
+      correct: 2,
+      cue: "Eyes up.",
+      note: "Restore visual connection. See what you hit on the controlled replay.",
+    },
+  ];
+  const diagnosticCases = [
+    {
+      scene: "overrun",
+      title: "Runner turns the corner",
+      copy: "The defender crosses past the near hip before setting up the fit.",
+      category: "ANGLE",
+      cue: "Track the hip. Replay the inside-out path.",
+    },
+    {
+      scene: "upright",
+      title: "Arrives tall",
+      copy: "The angle is sound. Hips stay high and the player cannot settle.",
+      category: "LEVEL",
+      cue: "Stay low. Shorten the steps.",
+    },
+    {
+      scene: "eyes",
+      title: "Loses the movement picture",
+      copy: "Balanced feet, good position—then the player looks down.",
+      category: "EYES",
+      cue: "Eyes up. See what you hit.",
+    },
+    {
+      scene: "hit",
+      title: "Runner slips free",
+      copy: "The approach and fit are controlled, but the arms never secure.",
+      category: "WRAP",
+      cue: "Wrap up before the finish.",
+    },
+    {
+      scene: "stopped",
+      title: "Finish stalls",
+      copy: "The runner is secured. The defender’s feet stop at contact.",
+      category: "FEET",
+      cue: "Drive your feet. Wrap and run.",
+    },
+  ];
+  function note(el, text, status = "") {
+    el.textContent = text;
+    el.classList.remove("success", "error");
+    if (status) el.classList.add(status);
+  }
+  function selectWithin(container, button, good) {
+    container.querySelectorAll("button").forEach((b) => {
+      b.classList.remove("correct", "wrong");
+      b.setAttribute("aria-pressed", "false");
+    });
+    button.classList.add(good ? "correct" : "wrong");
+    button.setAttribute("aria-pressed", "true");
+  }
+  updateUI = function () {
+    courseProgress.style.width = ((current + 1) / slides.length) * 100 + "%";
+    progressText.textContent = current + 1 + " / " + slides.length;
+    scoreReadout.textContent = state.score + " / 100 pts";
+    finalScore.textContent = state.score + " / 100";
+    prevButton.disabled = current === 0;
+    nextButton.disabled = current === slides.length - 1;
+    nextButton.setAttribute(
+      "aria-label",
+      current === slides.length - 2 ? "View coaching scorecard" : "Next slide",
+    );
+    document.querySelectorAll(".navbutton").forEach((b, i) => {
+      const selected =
+        current >= sectionStarts[i] &&
+        (i === sectionStarts.length - 1 || current < sectionStarts[i + 1]);
+      b.classList.toggle("current", selected);
+      if (selected) b.setAttribute("aria-current", "step");
+      else b.removeAttribute("aria-current");
+    });
+    const count = activityIds.filter((id) => state.completed.has(id)).length;
+    completionCount.textContent = count + " / 10 challenges completed";
+    completionCount.classList.toggle("completion-warning", count < 10);
+    selectedCues.textContent = state.cues.length
+      ? state.cues.join(" · ")
+      : "Choose a cue in a coaching challenge.";
+    selectedPriority.textContent =
+      state.priority === "Not selected"
+        ? "Use the practice dashboard to set your priority."
+        : state.priority;
+    const active = slides[current];
+    if (active) {
+      document.title =
+        "Finish the Tackle · " +
+        (current === 0
+          ? "Coach Lab"
+          : current === slides.length - 1
+            ? "Scorecard"
+            : pairNames[Math.floor((current - 1) / 2)]);
+    }
+  };
+  complete = function (id, points = 10) {
+    if (!state.completed.has(id)) {
+      state.completed.add(id);
+      state.score += points;
+      updateUI();
+    }
+  };
+  addCue = function (cue) {
+    cue = cue.replace(/\.$/, "");
+    if (!state.cues.includes(cue)) state.cues.push(cue);
+    updateUI();
+  };
+  chooseAngle = function (answer) {
+    const good = answer === "b";
+    const button = document.querySelector(
+      `#angleChoices button:nth-child(${["a", "b", "c"].indexOf(answer) + 1})`,
+    );
+    selectWithin(angleChoices, button, good);
+    const routes = {
+      a: ["65%", "17%", "24%", "40%"],
+      b: ["46%", "23%", "28%", "25%"],
+      c: ["24%", "32%", "12%", "28%"],
+    };
+    const r = routes[answer];
+    angleDefender.style.left = r[0];
+    angleDefender.style.setProperty("bottom", r[1], "important");
+    angleRunner.style.right = r[2];
+    angleRunner.style.bottom = r[3];
+    angleDefender.innerHTML = playerSVG(
+      "defender",
+      good ? "pursuit" : answer === "a" ? "overrun" : "upright",
+      "5",
+    );
+    note(
+      angleFeedback,
+      good
+        ? "Containment won. Track the near hip, keep the inside-out path, and arrive connected."
+        : answer === "a"
+          ? "Overrun. The runner cuts away as the defender races past the hip. Reset and take the inside-out path."
+          : "Too steep. The defender closes upfield and loses the movement picture. Be patient and track inside-out.",
+      good ? "success" : "error",
+    );
+    document
+      .querySelectorAll("#angleRoutes .route")
+      .forEach((p) =>
+        p.classList.toggle("selected", p.dataset.route === answer),
+      );
+    if (good) {
+      complete("angle");
+      addCue("Track the hip");
+    }
+  };
+  resetAngle = function () {
+    angleDefender.style.left = "13%";
+    angleDefender.style.setProperty("bottom", "15%", "important");
+    angleRunner.style.right = "15%";
+    angleRunner.style.bottom = "25%";
+    angleDefender.innerHTML = playerSVG("defender", "pursuit", "5");
+    note(
+      angleFeedback,
+      "Choose a path. Watch the runner and defender respond.",
+    );
+    angleChoices.querySelectorAll("button").forEach((b) => {
+      b.classList.remove("correct", "wrong");
+      b.setAttribute("aria-pressed", "false");
+    });
+    document
+      .querySelectorAll("#angleRoutes .route")
+      .forEach((p) => p.classList.remove("selected"));
+  };
+  chooseBreakdown = function (button, answer) {
+    const good = answer === "balanced";
+    selectWithin(breakdownChoices, button, good);
+    note(
+      breakdownFeedback,
+      good
+        ? "Low and balanced. Short steps and feet under the hips leave room to react. Low man wins."
+        : answer === "upright"
+          ? "Too tall. The hips need to settle before the player can adjust. Find the low, balanced position."
+          : "Too long a stride. The player is reaching beyond the base. Shorten the steps and keep the feet underneath.",
+      good ? "success" : "error",
+    );
+    if (good) {
+      complete("breakdown");
+      addCue("Stay low");
+    }
+  };
+  chooseFinish = function (button, answer) {
+    const good = answer === "wrap";
+    selectWithin(finishChoices, button, good);
+    note(
+      finishFeedback,
+      good
+        ? "Reinforce the completed finish: controlled fit, secure wrap, then run the feet. Don’t chase the hit. Finish the tackle."
+        : "The collision is not completion. Open arms leave the runner free. Reinforce a secured wrap and controlled finish.",
+      good ? "success" : "error",
+    );
+    if (good) {
+      complete("finish");
+      addCue("Wrap up");
+      addCue("Wrap and run");
+    }
+  };
+  chooseFeet = function (button, answer) {
+    const good = answer === "drive";
+    selectWithin(feetChoices, button, good);
+    note(
+      feetFeedback,
+      good
+        ? "Drive your feet. The wrap is already secured; continuous leg drive is the missing finish. Replay it under control."
+        : answer === "angle"
+          ? "The approach is already sound. Coach the first missing action at this pause: keep the feet moving."
+          : "A bigger collision does not fix stopped feet. Coach continuous leg drive through the controlled finish.",
+      good ? "success" : "error",
+    );
+    paintScene(feetField, good ? "drive" : "stopped");
+    if (good) {
+      complete("feet");
+      addCue("Drive your feet");
+    }
+  };
+  resetSimple = function (id) {
+    const container = document.getElementById(
+      id === "breakdown"
+        ? "breakdownChoices"
+        : id === "finish"
+          ? "finishChoices"
+          : "feetChoices",
+    );
+    container.querySelectorAll("button").forEach((b) => {
+      b.classList.remove("correct", "wrong");
+      b.setAttribute("aria-pressed", "false");
+    });
+    note(document.getElementById(id + "Feedback"), initialNotes[id]);
+    if (id === "feet") paintScene(feetField, "stopped");
+  };
+  coachRep = function (button, cue) {
+    const good = cue === "eyes";
+    selectWithin(repChoices, button, good);
+    note(
+      repFeedback,
+      good
+        ? "One useful cue: Eyes up. The player restores visual connection, stays balanced, and replays under control."
+        : "Position is already there. Restore the movement picture first: Eyes up. See what you hit.",
+      good ? "success" : "error",
+    );
+    repCaption.textContent = good
+      ? "EYES UP → CONTROLLED REPLAY"
+      : "PAUSE · EYES DROP";
+    repDefender.innerHTML = playerSVG("defender", good ? "fit" : "eyes", "3");
+    const field = repDefender.closest(".field");
+    field.classList.toggle("rep-motion", good);
+    if (good) {
+      addCue("Eyes up");
+      complete("rep");
+      replayButton.classList.remove("hidden");
+      replayButton.classList.add("available");
+    }
+  };
+  replayRep = function () {
+    repCaption.textContent = "PAUSE · EYES DROP";
+    repDefender.innerHTML = playerSVG("defender", "eyes", "3");
+    repDefender.closest(".field").classList.remove("rep-motion");
+    repChoices.querySelectorAll("button").forEach((b) => {
+      b.classList.remove("correct", "wrong");
+      b.setAttribute("aria-pressed", "false");
+    });
+    note(
+      repFeedback,
+      "The coach pauses before the player reaches. Choose one cue.",
+    );
+  };
+  renderSequence = function () {
+    sortList.innerHTML = "";
+    sequence.forEach((item, index) => {
+      const row = document.createElement("div");
+      row.className = "sequence-row";
+      row.innerHTML = `<span class="sequence-index">${index + 1}</span><strong>${item}</strong><button type="button" aria-label="Move ${item} up" ${index === 0 ? "disabled" : ""}>↑</button><button type="button" aria-label="Move ${item} down" ${index === sequence.length - 1 ? "disabled" : ""}>↓</button>`;
+      const buttons = row.querySelectorAll("button");
+      buttons[0].onclick = () => moveSequence(index, -1);
+      buttons[1].onclick = () => moveSequence(index, 1);
+      sortList.appendChild(row);
+    });
+  };
+  moveSequence = function (i, d) {
+    if (i + d < 0 || i + d >= sequence.length) return;
+    [sequence[i], sequence[i + d]] = [sequence[i + d], sequence[i]];
+    renderSequence();
+    note(
+      sequenceFeedback,
+      "Sequence updated. Check when all five actions are in order.",
+    );
+  };
+  checkSequence = function () {
+    const good = sequence.join("|") === requiredSequence.join("|");
+    note(
+      sequenceFeedback,
+      good
+        ? "Sequence built. Track → break down → fit → wrap → drive. Pursuit and balance set up the controlled finish."
+        : "Start with pursuit, then break down before the fit. Secure the wrap before you drive.",
+      good ? "success" : "error",
+    );
+    if (good) complete("sequence");
+  };
+  resetSequence = function () {
+    sequence = ["WRAP", "TRACK", "DRIVE", "BREAK DOWN", "FIT"];
+    renderSequence();
+    note(sequenceFeedback, "Use the arrows to build the coaching order.");
+  };
+  renderDiagnostics = function () {
+    diagnosticGrid.classList.add("diagnostic-grid");
+    diagnosticGrid.innerHTML = "";
+    diagnosticCases.forEach((item, index) => {
+      const card = document.createElement("article");
+      card.className = "diagnostic-card";
+      card.innerHTML = `<span class="frame-label">FREEZE-FRAME ${index + 1}</span><div class="field">${sceneMarkup(item.scene, true)}</div><h3>${item.title}</h3><p class="observation">${item.copy}</p><div class="category-choices" role="group" aria-label="Diagnosis for frame ${index + 1}">${["ANGLE", "LEVEL", "EYES", "WRAP", "FEET"].map((c) => `<button type="button" data-choice="${c}" aria-pressed="false">${c}</button>`).join("")}</div><p class="feedback dark-feedback" aria-live="polite">Name the first breakdown.</p>`;
+      card.querySelectorAll("button").forEach(
+        (b) =>
+          (b.onclick = () => {
+            const good = b.dataset.choice === item.category;
+            selectWithin(card.querySelector(".category-choices"), b, good);
+            note(
+              card.querySelector(".feedback"),
+              good ? item.cue : "Read the first failure. " + item.copy,
+              good ? "success" : "error",
+            );
+            if (good) {
+              card.dataset.solved = "1";
+              complete("diagnose-" + index, 2);
+            } else delete card.dataset.solved;
+            if (
+              diagnosticCases.every((_, i) =>
+                state.completed.has("diagnose-" + i),
+              )
+            )
+              complete("diagnose", 0);
+          }),
+      );
+      diagnosticGrid.appendChild(card);
+    });
+  };
+  renderCueScenarios = function () {
+    cueScenarios.innerHTML = "";
+    cueData.forEach((item, index) => {
+      const card = document.createElement("article");
+      card.className = "scenario-card";
+      card.innerHTML = `<div class="field">${sceneMarkup(item.scene, true)}</div><h3>${item.title}</h3><p class="scenario-copy">${item.copy}</p><div class="choice-list">${item.choices.map((c, i) => `<button class="choice" data-answer="${i}" aria-pressed="false">${c}</button>`).join("")}</div><p class="feedback dark-feedback" aria-live="polite">One correction. Another rep.</p>`;
+      card.querySelectorAll("button").forEach(
+        (b) =>
+          (b.onclick = () => {
+            const good = Number(b.dataset.answer) === item.correct;
+            selectWithin(card.querySelector(".choice-list"), b, good);
+            note(
+              card.querySelector(".feedback"),
+              good
+                ? item.note
+                : "That cue does not fix the earliest failure. " + item.copy,
+              good ? "success" : "error",
+            );
+            if (good) {
+              card.dataset.solved = "1";
+              complete("cue-" + index, index === 2 ? 4 : 3);
+              addCue(item.cue);
+            } else delete card.dataset.solved;
+            cueProgress.textContent =
+              cueScenarios.querySelectorAll('[data-solved="1"]').length +
+              " / 3 useful corrections";
+            if (cueData.every((_, i) => state.completed.has("cue-" + i)))
+              complete("cues", 0);
+          }),
+      );
+      cueScenarios.appendChild(card);
+    });
+    cueProgress.textContent = "0 / 3 useful corrections";
+  };
+  chooseDrill = function (button, answer) {
+    const good = answer === "lane";
+    selectWithin(drillChoices, button, good);
+    note(
+      drillFeedback,
+      good
+        ? "Angle is the largest category: 12 of 30 misses. Start with predetermined-lane tracking, then remeasure before adding speed or choice."
+        : answer === "fit"
+          ? "Wrap accounts for 4 misses; angle accounts for 12. Train the largest first failure with a controlled tracking picture."
+          : "More speed and contact add complexity before the leverage problem is fixed. Start with a repeatable lane-tracking picture.",
+      good ? "success" : "error",
+    );
+    drillCaption.textContent = good
+      ? "PRIORITY SET · ANGLE / LEVERAGE"
+      : "READ THE EVIDENCE";
+    if (good) {
+      state.priority = "Angle / leverage · predetermined-lane tracking";
+      complete("drill");
+      addCue("Track the hip");
+    }
+  };
+  resetDrill = function () {
+    drillChoices.querySelectorAll("button").forEach((b) => {
+      b.classList.remove("correct", "wrong");
+      b.setAttribute("aria-pressed", "false");
+    });
+    note(drillFeedback, "Choose the next drill, not the biggest drill.");
+    drillCaption.textContent = "READ THE EVIDENCE";
+  };
+  renderGame = function () {
+    gameScenarios.innerHTML = "";
+    const scenes = ["pursuit", "nowrap", "stopped"];
+    gameData.forEach((item, index) => {
+      const card = document.createElement("article");
+      card.className = "scenario-card";
+      card.innerHTML = `<span class="badge try-badge">DECISION ${index + 1}</span><div class="field">${sceneMarkup(scenes[index], true)}</div><h3>${item[0]}</h3><div class="choice-list"><button class="choice" type="button" data-correct="true" aria-pressed="false">${item[1]}</button><button class="choice" type="button" data-correct="false" aria-pressed="false">${item[2]}</button></div><p class="feedback dark-feedback" aria-live="polite">Choose the next controlled action.</p>`;
+      card
+        .querySelectorAll("button")
+        .forEach(
+          (b) =>
+            (b.onclick = () =>
+              gameAnswer(card, index, b.dataset.correct === "true", item, b)),
+        );
+      gameScenarios.appendChild(card);
+    });
+    gameScore.textContent = "0 / 3";
+    gameMeter.style.width = "0%";
+  };
+  gameAnswer = function (card, index, good, item, button) {
+    const b = button || card.querySelectorAll("button")[good ? 0 : 1];
+    selectWithin(card.querySelector(".choice-list"), b, good);
+    const notes = [
+      "Leverage protected. Track the near hip on a controlled replay.",
+      "One clear correction. Secure the wrap before adding speed or choice.",
+      "The wrap is present. Keep the feet running through the finish.",
+    ];
+    note(
+      card.querySelector(".feedback"),
+      good
+        ? notes[index]
+        : "Reset the decision. Choose the smaller, technique-first correction; then replay under control.",
+      good ? "success" : "error",
+    );
+    if (good) {
+      if (index > 0)
+        paintScene(
+          card.querySelector(".field"),
+          index === 1 ? "wrap" : "drive",
+          true,
+        );
+      card.dataset.done = "1";
+      complete("game-" + index, index === 2 ? 4 : 3);
+      addCue(item[3]);
+      card.querySelector(".field").classList.add("rep-motion");
+    } else {
+      delete card.dataset.done;
+      card.querySelector(".field").classList.remove("rep-motion");
+    }
+    const finished = gameScenarios.querySelectorAll('[data-done="1"]').length;
+    gameScore.textContent = finished + " / 3";
+    gameMeter.style.width = (finished / 3) * 100 + "%";
+    if (gameData.every((_, i) => state.completed.has("game-" + i)))
+      complete("gameday", 0);
+    updateUI();
+  };
+  resetCourse = function () {
+    state.score = 0;
+    state.completed = new Set();
+    state.visited = new Set([0]);
+    state.cues = [];
+    state.priority = "Not selected";
+    resetAngle();
+    replayRep();
+    replayButton.classList.remove("available");
+    replayButton.classList.add("hidden");
+    resetSequence();
+    renderDiagnostics();
+    resetDrill();
+    renderGame();
+    renderCueScenarios();
+    ["breakdown", "finish", "feet"].forEach(resetSimple);
+    goTo(0);
+  };
+  function initializeArtwork() {
+    // Upgrade retained diagrams in place, keeping all original functional element IDs.
+    document.querySelectorAll("[data-player-role]").forEach((el) => {
+      const role = el.dataset.playerRole;
+      const number = el.dataset.number;
+      el.classList.add("player-actor", role);
+      el.innerHTML = playerSVG(
+        role,
+        role === "runner" ? "runner" : "pursuit",
+        number,
+      );
+    });
+    const scenes = {
+      0: "pursuit",
+      1: "pursuit",
+      3: "breakdown",
+      5: "eyes",
+      9: "overrun",
+      19: "fit",
+    };
+    Object.entries(scenes).forEach(([index, scene]) => {
+      const field = slides[index].querySelector(".field");
+      if (field) paintScene(field, scene);
+    });
+    document
+      .querySelectorAll(".field[data-scene]")
+      .forEach((field) => paintScene(field, field.dataset.scene));
+    const routes = document.createElement("div");
+    routes.id = "angleRoutes";
+    routes.innerHTML = `<svg class="route-overlay" viewBox="0 0 1000 300" preserveAspectRatio="none" aria-label="Three pursuit paths: A overruns, B tracks inside-out, C closes too steeply"><path class="route route-a" data-route="a" d="M190 245 Q520 210 845 170"/><path class="route route-b" data-route="b" d="M190 245 Q360 195 745 140"/><path class="route route-c" data-route="c" d="M190 245 L310 105"/><path class="runner-direction" d="M820 130 L915 95 M903 93 L915 95 L908 105"/></svg>`;
+    angleDefender.closest(".field").appendChild(routes);
+    repDefender.innerHTML = playerSVG("defender", "eyes", "3");
+    repDefender.style.left = "24%";
+    repDefender.style.bottom = "15%";
+    repRunner.style.right = "12%";
+    repRunner.style.top = "auto";
+    repRunner.style.bottom = "20%";
+    sequenceScenes.innerHTML = ["pursuit", "breakdown", "fit", "wrap", "drive"]
+      .map(
+        (scene) =>
+          `<div class="field">${actor("defender", scene, "5", "")}</div>`,
+      )
+      .join("");
+  }
+  // Annotate the true slide array, never a separately hardcoded display count.
+  slides.forEach((slide, i) => {
+    slide.dataset.kind =
+      i === 0
+        ? "intro"
+        : i === slides.length - 1
+          ? "completion"
+          : i % 2 === 1
+            ? "teach"
+            : "try";
+    if (i > 0 && i < slides.length - 1) {
+      slide.dataset.pair = String(Math.ceil(i / 2));
+      const badge = slide.querySelector(".badge");
+      if (badge)
+        badge.textContent =
+          (i % 2 === 1 ? "TEACH" : "TRY") +
+          " / " +
+          String(Math.ceil(i / 2)).padStart(2, "0");
+    }
+  });
+  initializeArtwork();
+  renderSequence();
+  renderDiagnostics();
+  renderGame();
+  renderCueScenarios();
+  updateUI();
+  // Feedback, active slides, and points are announced without forcing focus off choices.
+  document
+    .querySelectorAll(".feedback")
+    .forEach((el) => el.setAttribute("role", "status"));
 
-/* Extend the supplied course's navigation, state, and activity hooks. */
-const activityIds=['angle','breakdown','rep','sequence','diagnose','finish','feet','cues','drill','gameday'];
-const sectionStarts=[0,1,9,15,17,19];
-const pairNames=['Pursuit','Breakdown','Eyes','Sequence','Diagnosis','Completion','Leg drive','Feedback','Practice data','Game day'];
-const initialNotes={breakdown:'Read the hips and feet before you choose.',finish:'Reward the action that makes the finish repeatable.',feet:'The first four actions are present. What is missing?'};
-const cueData=[
- {scene:'overrun',title:'The runner turns the corner.',copy:'The defender runs past the near hip before getting into position.',choices:['Wrap up.','Track the hip.','Drive your feet.'],correct:1,cue:'Track the hip.',note:'Fix the approach first. Replay a controlled inside-out tracking rep.'},
- {scene:'upright',title:'The hips stay high.',copy:'The angle is good, but the defender arrives upright and unbalanced.',choices:['Stay low.','Wrap up.','Good angle.'],correct:0,cue:'Stay low.',note:'Lower the hips and shorten the steps. Check balance on the next rep.'},
- {scene:'eyes',title:'The movement picture disappears.',copy:'Position and balance are there. Then the eyes drop before the fit.',choices:['Drive your feet.','Shoot the hips.','Eyes up.'],correct:2,cue:'Eyes up.',note:'Restore visual connection. See what you hit on the controlled replay.'}
-];
-const diagnosticCases=[
- {scene:'overrun',title:'Runner turns the corner',copy:'The defender crosses past the near hip before setting up the fit.',category:'ANGLE',cue:'Track the hip. Replay the inside-out path.'},
- {scene:'upright',title:'Arrives tall',copy:'The angle is sound. Hips stay high and the player cannot settle.',category:'LEVEL',cue:'Stay low. Shorten the steps.'},
- {scene:'eyes',title:'Loses the movement picture',copy:'Balanced feet, good position—then the player looks down.',category:'EYES',cue:'Eyes up. See what you hit.'},
- {scene:'hit',title:'Runner slips free',copy:'The approach and fit are controlled, but the arms never secure.',category:'WRAP',cue:'Wrap up before the finish.'},
- {scene:'stopped',title:'Finish stalls',copy:'The runner is secured. The defender’s feet stop at contact.',category:'FEET',cue:'Drive your feet. Wrap and run.'}
-];
-function note(el,text,status='') { el.textContent=text;el.classList.remove('success','error');if(status)el.classList.add(status); }
-function selectWithin(container,button,good) {
- container.querySelectorAll('button').forEach(b=>{b.classList.remove('correct','wrong');b.setAttribute('aria-pressed','false')});
- button.classList.add(good?'correct':'wrong');button.setAttribute('aria-pressed','true');
-}
-updateUI=function(){
- courseProgress.style.width=((current+1)/slides.length*100)+'%';
- progressText.textContent=(current+1)+' / '+slides.length;
- scoreReadout.textContent=state.score+' / 100 pts';
- finalScore.textContent=state.score+' / 100';
- prevButton.disabled=current===0;nextButton.disabled=current===slides.length-1;
- nextButton.setAttribute('aria-label',current===slides.length-2?'View coaching scorecard':'Next slide');
- document.querySelectorAll('.navbutton').forEach((b,i)=>{const selected=current>=sectionStarts[i]&&(i===sectionStarts.length-1||current<sectionStarts[i+1]);b.classList.toggle('current',selected);if(selected)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current')});
- const count=activityIds.filter(id=>state.completed.has(id)).length;
- completionCount.textContent=count+' / 10 challenges completed';
- completionCount.classList.toggle('completion-warning',count<10);
- selectedCues.textContent=state.cues.length?state.cues.join(' · '):'Choose a cue in a coaching challenge.';
- selectedPriority.textContent=state.priority==='Not selected'?'Use the practice dashboard to set your priority.':state.priority;
- const active=slides[current];
- if(active){document.title='Finish the Tackle · '+(current===0?'Coach Lab':current===slides.length-1?'Scorecard':pairNames[Math.floor((current-1)/2)]);}
-};
-complete=function(id,points=10){if(!state.completed.has(id)){state.completed.add(id);state.score+=points;updateUI()}};
-addCue=function(cue){cue=cue.replace(/\.$/,'');if(!state.cues.includes(cue))state.cues.push(cue);updateUI()};
-chooseAngle=function(answer){
- const good=answer==='b';
- const button=document.querySelector(`#angleChoices button:nth-child(${['a','b','c'].indexOf(answer)+1})`);
- selectWithin(angleChoices,button,good);
- const routes={a:['65%','17%','24%','40%'],b:['46%','23%','28%','25%'],c:['24%','32%','12%','28%']};
- const r=routes[answer];angleDefender.style.left=r[0];angleDefender.style.setProperty('bottom',r[1],'important');angleRunner.style.right=r[2];angleRunner.style.bottom=r[3];
- angleDefender.innerHTML=playerSVG('defender',good?'pursuit':answer==='a'?'overrun':'upright','5');
- note(angleFeedback,good?'Containment won. Track the near hip, keep the inside-out path, and arrive connected.':answer==='a'?'Overrun. The runner cuts away as the defender races past the hip. Reset and take the inside-out path.':'Too steep. The defender closes upfield and loses the movement picture. Be patient and track inside-out.',good?'success':'error');
- document.querySelectorAll('#angleRoutes .route').forEach(p=>p.classList.toggle('selected',p.dataset.route===answer));
- if(good){complete('angle');addCue('Track the hip')}
-};
-resetAngle=function(){
- angleDefender.style.left='13%';angleDefender.style.setProperty('bottom','15%','important');angleRunner.style.right='15%';angleRunner.style.bottom='25%';
- angleDefender.innerHTML=playerSVG('defender','pursuit','5');
- note(angleFeedback,'Choose a path. Watch the runner and defender respond.');
- angleChoices.querySelectorAll('button').forEach(b=>{b.classList.remove('correct','wrong');b.setAttribute('aria-pressed','false')});
- document.querySelectorAll('#angleRoutes .route').forEach(p=>p.classList.remove('selected'));
-};
-chooseBreakdown=function(button,answer){const good=answer==='balanced';selectWithin(breakdownChoices,button,good);note(breakdownFeedback,good?'Low and balanced. Short steps and feet under the hips leave room to react. Low man wins.':answer==='upright'?'Too tall. The hips need to settle before the player can adjust. Find the low, balanced position.':'Too long a stride. The player is reaching beyond the base. Shorten the steps and keep the feet underneath.',good?'success':'error');if(good){complete('breakdown');addCue('Stay low')}};
-chooseFinish=function(button,answer){const good=answer==='wrap';selectWithin(finishChoices,button,good);note(finishFeedback,good?'Reinforce the completed finish: controlled fit, secure wrap, then run the feet. Don’t chase the hit. Finish the tackle.':'The collision is not completion. Open arms leave the runner free. Reinforce a secured wrap and controlled finish.',good?'success':'error');if(good){complete('finish');addCue('Wrap up');addCue('Wrap and run')}};
-chooseFeet=function(button,answer){const good=answer==='drive';selectWithin(feetChoices,button,good);note(feetFeedback,good?'Drive your feet. The wrap is already secured; continuous leg drive is the missing finish. Replay it under control.':answer==='angle'?'The approach is already sound. Coach the first missing action at this pause: keep the feet moving.':'A bigger collision does not fix stopped feet. Coach continuous leg drive through the controlled finish.',good?'success':'error');paintScene(feetField,good?'drive':'stopped');if(good){complete('feet');addCue('Drive your feet')}};
-resetSimple=function(id){
- const container=document.getElementById(id==='breakdown'?'breakdownChoices':id==='finish'?'finishChoices':'feetChoices');
- container.querySelectorAll('button').forEach(b=>{b.classList.remove('correct','wrong');b.setAttribute('aria-pressed','false')});
- note(document.getElementById(id+'Feedback'),initialNotes[id]);
- if(id==='feet')paintScene(feetField,'stopped');
-};
-coachRep=function(button,cue){
- const good=cue==='eyes';selectWithin(repChoices,button,good);
- note(repFeedback,good?'One useful cue: Eyes up. The player restores visual connection, stays balanced, and replays under control.':'Position is already there. Restore the movement picture first: Eyes up. See what you hit.',good?'success':'error');
- repCaption.textContent=good?'EYES UP → CONTROLLED REPLAY':'PAUSE · EYES DROP';
- repDefender.innerHTML=playerSVG('defender',good?'fit':'eyes','3');
- const field=repDefender.closest('.field');field.classList.toggle('rep-motion',good);
- if(good){addCue('Eyes up');complete('rep');replayButton.classList.remove('hidden');replayButton.classList.add('available')}
-};
-replayRep=function(){
- repCaption.textContent='PAUSE · EYES DROP';repDefender.innerHTML=playerSVG('defender','eyes','3');repDefender.closest('.field').classList.remove('rep-motion');
- repChoices.querySelectorAll('button').forEach(b=>{b.classList.remove('correct','wrong');b.setAttribute('aria-pressed','false')});
- note(repFeedback,'The coach pauses before the player reaches. Choose one cue.');
-};
-renderSequence=function(){
- sortList.innerHTML='';
- sequence.forEach((item,index)=>{const row=document.createElement('div');row.className='sequence-row';row.innerHTML=`<span class="sequence-index">${index+1}</span><strong>${item}</strong><button type="button" aria-label="Move ${item} up" ${index===0?'disabled':''}>↑</button><button type="button" aria-label="Move ${item} down" ${index===sequence.length-1?'disabled':''}>↓</button>`;const buttons=row.querySelectorAll('button');buttons[0].onclick=()=>moveSequence(index,-1);buttons[1].onclick=()=>moveSequence(index,1);sortList.appendChild(row)});
-};
-moveSequence=function(i,d){if(i+d<0||i+d>=sequence.length)return;[sequence[i],sequence[i+d]]=[sequence[i+d],sequence[i]];renderSequence();note(sequenceFeedback,'Sequence updated. Check when all five actions are in order.')};
-checkSequence=function(){const good=sequence.join('|')===requiredSequence.join('|');note(sequenceFeedback,good?'Sequence built. Track → break down → fit → wrap → drive. Pursuit and balance set up the controlled finish.':'Start with pursuit, then break down before the fit. Secure the wrap before you drive.',good?'success':'error');if(good)complete('sequence')};
-resetSequence=function(){sequence=['WRAP','TRACK','DRIVE','BREAK DOWN','FIT'];renderSequence();note(sequenceFeedback,'Use the arrows to build the coaching order.')};
-renderDiagnostics=function(){
- diagnosticGrid.classList.add('diagnostic-grid');diagnosticGrid.innerHTML='';
- diagnosticCases.forEach((item,index)=>{
-  const card=document.createElement('article');card.className='diagnostic-card';
-  card.innerHTML=`<span class="frame-label">FREEZE-FRAME ${index+1}</span><div class="field">${sceneMarkup(item.scene,true)}</div><h3>${item.title}</h3><p class="observation">${item.copy}</p><div class="category-choices" role="group" aria-label="Diagnosis for frame ${index+1}">${['ANGLE','LEVEL','EYES','WRAP','FEET'].map(c=>`<button type="button" data-choice="${c}" aria-pressed="false">${c}</button>`).join('')}</div><p class="feedback dark-feedback" aria-live="polite">Name the first breakdown.</p>`;
-  card.querySelectorAll('button').forEach(b=>b.onclick=()=>{
-   const good=b.dataset.choice===item.category;selectWithin(card.querySelector('.category-choices'),b,good);
-   note(card.querySelector('.feedback'),good?item.cue:'Read the first failure. '+item.copy,good?'success':'error');
-   if(good){card.dataset.solved='1';complete('diagnose-'+index,2)}else delete card.dataset.solved;
-   if(diagnosticCases.every((_,i)=>state.completed.has('diagnose-'+i)))complete('diagnose',0);
-  });diagnosticGrid.appendChild(card);
- });
-};
-renderCueScenarios=function(){
- cueScenarios.innerHTML='';
- cueData.forEach((item,index)=>{
-  const card=document.createElement('article');card.className='scenario-card';
-  card.innerHTML=`<div class="field">${sceneMarkup(item.scene,true)}</div><h3>${item.title}</h3><p class="scenario-copy">${item.copy}</p><div class="choice-list">${item.choices.map((c,i)=>`<button class="choice" data-answer="${i}" aria-pressed="false">${c}</button>`).join('')}</div><p class="feedback dark-feedback" aria-live="polite">One correction. Another rep.</p>`;
-  card.querySelectorAll('button').forEach(b=>b.onclick=()=>{
-   const good=Number(b.dataset.answer)===item.correct;selectWithin(card.querySelector('.choice-list'),b,good);
-   note(card.querySelector('.feedback'),good?item.note:'That cue does not fix the earliest failure. '+item.copy,good?'success':'error');
-   if(good){card.dataset.solved='1';complete('cue-'+index,index===2?4:3);addCue(item.cue)}else delete card.dataset.solved;
-   cueProgress.textContent=cueScenarios.querySelectorAll('[data-solved="1"]').length+' / 3 useful corrections';
-   if(cueData.every((_,i)=>state.completed.has('cue-'+i)))complete('cues',0);
-  });cueScenarios.appendChild(card);
- });cueProgress.textContent='0 / 3 useful corrections';
-};
-chooseDrill=function(button,answer){
- const good=answer==='lane';selectWithin(drillChoices,button,good);
- note(drillFeedback,good?'Angle is the largest category: 12 of 30 misses. Start with predetermined-lane tracking, then remeasure before adding speed or choice.':answer==='fit'?'Wrap accounts for 4 misses; angle accounts for 12. Train the largest first failure with a controlled tracking picture.':'More speed and contact add complexity before the leverage problem is fixed. Start with a repeatable lane-tracking picture.',good?'success':'error');
- drillCaption.textContent=good?'PRIORITY SET · ANGLE / LEVERAGE':'READ THE EVIDENCE';
- if(good){state.priority='Angle / leverage · predetermined-lane tracking';complete('drill');addCue('Track the hip')}
-};
-resetDrill=function(){drillChoices.querySelectorAll('button').forEach(b=>{b.classList.remove('correct','wrong');b.setAttribute('aria-pressed','false')});note(drillFeedback,'Choose the next drill, not the biggest drill.');drillCaption.textContent='READ THE EVIDENCE'};
-renderGame=function(){
- gameScenarios.innerHTML='';
- const scenes=['pursuit','nowrap','stopped'];
- gameData.forEach((item,index)=>{
-  const card=document.createElement('article');card.className='scenario-card';
-  card.innerHTML=`<span class="badge try-badge">DECISION ${index+1}</span><div class="field">${sceneMarkup(scenes[index],true)}</div><h3>${item[0]}</h3><div class="choice-list"><button class="choice" type="button" data-correct="true" aria-pressed="false">${item[1]}</button><button class="choice" type="button" data-correct="false" aria-pressed="false">${item[2]}</button></div><p class="feedback dark-feedback" aria-live="polite">Choose the next controlled action.</p>`;
-  card.querySelectorAll('button').forEach(b=>b.onclick=()=>gameAnswer(card,index,b.dataset.correct==='true',item,b));gameScenarios.appendChild(card);
- });gameScore.textContent='0 / 3';gameMeter.style.width='0%';
-};
-gameAnswer=function(card,index,good,item,button){
- const b=button||card.querySelectorAll('button')[good?0:1];selectWithin(card.querySelector('.choice-list'),b,good);
- const notes=['Leverage protected. Track the near hip on a controlled replay.','One clear correction. Secure the wrap before adding speed or choice.','The wrap is present. Keep the feet running through the finish.'];
- note(card.querySelector('.feedback'),good?notes[index]:'Reset the decision. Choose the smaller, technique-first correction; then replay under control.',good?'success':'error');
- if(good){if(index>0)paintScene(card.querySelector('.field'),index===1?'wrap':'drive',true);card.dataset.done='1';complete('game-'+index,index===2?4:3);addCue(item[3]);card.querySelector('.field').classList.add('rep-motion')}else{delete card.dataset.done;card.querySelector('.field').classList.remove('rep-motion')}
- const finished=gameScenarios.querySelectorAll('[data-done="1"]').length;gameScore.textContent=finished+' / 3';gameMeter.style.width=finished/3*100+'%';
- if(gameData.every((_,i)=>state.completed.has('game-'+i)))complete('gameday',0);updateUI();
-};
-resetCourse=function(){
- state.score=0;state.completed=new Set();state.visited=new Set([0]);state.cues=[];state.priority='Not selected';
- resetAngle();replayRep();replayButton.classList.remove('available');replayButton.classList.add('hidden');resetSequence();renderDiagnostics();resetDrill();renderGame();renderCueScenarios();
- ['breakdown','finish','feet'].forEach(resetSimple);goTo(0);
-};
-function initializeArtwork(){
- // Upgrade retained diagrams in place, keeping all original functional element IDs.
- document.querySelectorAll('[data-player-role]').forEach(el=>{
-  const role=el.dataset.playerRole;
-  const number=el.dataset.number;
-  el.classList.add('player-actor',role);
-  el.innerHTML=playerSVG(role,role==='runner'?'runner':'pursuit',number);
- });
- const scenes={0:'pursuit',1:'pursuit',3:'breakdown',5:'eyes',9:'overrun',19:'fit'};
- Object.entries(scenes).forEach(([index,scene])=>{const field=slides[index].querySelector('.field');if(field)paintScene(field,scene)});
- document.querySelectorAll('.field[data-scene]').forEach(field=>paintScene(field,field.dataset.scene));
- const routes=document.createElement('div');routes.id='angleRoutes';
- routes.innerHTML=`<svg class="route-overlay" viewBox="0 0 1000 300" preserveAspectRatio="none" aria-label="Three pursuit paths: A overruns, B tracks inside-out, C closes too steeply"><path class="route route-a" data-route="a" d="M190 245 Q520 210 845 170"/><path class="route route-b" data-route="b" d="M190 245 Q360 195 745 140"/><path class="route route-c" data-route="c" d="M190 245 L310 105"/><path class="runner-direction" d="M820 130 L915 95 M903 93 L915 95 L908 105"/></svg>`;
- angleDefender.closest('.field').appendChild(routes);
- repDefender.innerHTML=playerSVG('defender','eyes','3');
- repDefender.style.left='24%';repDefender.style.bottom='15%';repRunner.style.right='12%';repRunner.style.top='auto';repRunner.style.bottom='20%';
- sequenceScenes.innerHTML=['pursuit','breakdown','fit','wrap','drive'].map(scene=>`<div class="field">${actor('defender',scene,'5','')}</div>`).join('');
-}
-// Annotate the true slide array, never a separately hardcoded display count.
-slides.forEach((slide,i)=>{
- slide.dataset.kind=i===0?'intro':i===slides.length-1?'completion':i%2===1?'teach':'try';
- if(i>0&&i<slides.length-1){slide.dataset.pair=String(Math.ceil(i/2));const badge=slide.querySelector('.badge');if(badge)badge.textContent=(i%2===1?'TEACH':'TRY')+' / '+String(Math.ceil(i/2)).padStart(2,'0');}
-});
-initializeArtwork();renderSequence();renderDiagnostics();renderGame();renderCueScenarios();updateUI();
-// Feedback, active slides, and points are announced without forcing focus off choices.
-document.querySelectorAll('.feedback').forEach(el=>el.setAttribute('role','status'));
-
-Object.assign(window, {checkSequence,chooseAngle,chooseBreakdown,chooseDrill,chooseFeet,chooseFinish,coachRep,goTo,nextSlide,previousSlide,renderCueScenarios,renderDiagnostics,replayRep,resetAngle,resetCourse,resetDrill,resetSequence,resetSimple});
+  Object.assign(window, {
+    checkSequence,
+    chooseAngle,
+    chooseBreakdown,
+    chooseDrill,
+    chooseFeet,
+    chooseFinish,
+    coachRep,
+    goTo,
+    nextSlide,
+    previousSlide,
+    renderCueScenarios,
+    renderDiagnostics,
+    replayRep,
+    resetAngle,
+    resetCourse,
+    resetDrill,
+    resetSequence,
+    resetSimple,
+  });
 }
