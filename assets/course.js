@@ -10,5 +10,13 @@
     function nextSlide(){if(current<slides.length-1)goTo(current+1)}function previousSlide(){if(current>0)goTo(current-1)}
     function complete(id,points=8){if(!state.completed.has(id)){state.completed.add(id);state.score+=points;updateUI()}}function addCue(cue){if(!state.cues.includes(cue))state.cues.push(cue)}
 
+    // Keep the authored 16:9 stage intact inside narrow Canva and mobile previews.
+    function fitCourseStage(){
+      const scale=Math.min(window.innerWidth/1440,window.innerHeight/810);
+      document.documentElement.style.setProperty('--stage-scale',String(scale));
+    }
+    fitCourseStage();
+    window.addEventListener('resize',fitCourseStage,{passive:true});
+
 // Preserve the original keyboard navigation, with form controls left to native keyboard behavior.
 document.addEventListener("keydown",e=>{if(e.target.matches("button,input,select,textarea"))return;if(e.key==="ArrowRight")nextSlide();if(e.key==="ArrowLeft")previousSlide()});
