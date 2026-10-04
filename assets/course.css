@@ -44,3 +44,9 @@ img.football-player.rendered-player{display:block;width:100%;height:auto;aspect-
 /* Every solo figure stays fully inside its field; no cropped helmets or cleats. */
 .field .player-actor:not(.contact-pair){top:8%!important;bottom:auto!important;height:84%}
 .field .player-actor:not(.contact-pair) .rendered-player{width:100%;height:100%;aspect-ratio:auto;object-fit:contain;object-position:center center}
+
+/* Give Game-Day pictures the card's free space while reserving answers and feedback. */
+#gameScenarios .scenario-card .field{height:auto;min-height:150px;flex:1 1 0}
+#gameScenarios .scenario-card>:not(.field){flex-shrink:0}
+#gameScenarios .field .player-actor:not(.contact-pair){width:42%;left:4%!important;right:auto!important}
+#gameScenarios .field .player-actor.runner{left:auto!important;right:4%!important}
