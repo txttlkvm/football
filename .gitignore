@@ -1,0 +1,9 @@
+# Generated packages and local review artifacts
+finish-the-tackle.html
+finish-the-tackle-copy-paste.txt
+finish-the-tackle.zip
+qa/
+
+# Local caches
+__pycache__/
+*.pyc
