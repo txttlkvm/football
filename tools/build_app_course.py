@@ -15,7 +15,9 @@ js='\n'.join((root/'assets'/f).read_text() for f in ['players.js','course.js','e
 js=re.sub(r"(['\"])assets/artwork/([^'\"\s]+)\.png\1",lambda m:'ART["%s"]'%m[2],js)
 decl=set(re.findall(r'function\s+([A-Za-z_$][\w$]*)\s*\(',js))
 used=set(re.findall(r'onclick=\\?["\']\s*([A-Za-z_$][\w$]*)\s*\(',html+js))
-fns=sorted(used);undeclared=sorted(used-decl)
+fns=sorted(used);assigned=set(re.findall(r'^([A-Za-z_$][\w$]*)\s*=\s*(?:function|\()',js,re.M))
+lexical=set(re.findall(r'\b(?:let|const|var)\s+([A-Za-z_$][\w$]*)',js))
+undeclared=sorted((used|assigned)-decl-lexical)
 imports=''.join(f'import a{i} from "./artwork/{n}.png";\n' for i,n in enumerate(names))
 art='const ART = {'+','.join(f'"{n}": a{i}' for i,n in enumerate(names))+'};\n'
 (out/'courseApp.ts').write_text(HDR+imports+art+'export function startCourse() {\n'+('var '+','.join(undeclared)+';\n' if undeclared else '')+js+'\nObject.assign(window, {'+','.join(fns)+'});\n}\n')

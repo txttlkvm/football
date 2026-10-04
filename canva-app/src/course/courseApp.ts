@@ -17,7 +17,7 @@ import a12 from "./artwork/runner-carry.png";
 import a13 from "./artwork/runner-carry-9.png";
 const ART = {"defender-balanced": a0,"defender-eyes": a1,"defender-eyes-3": a2,"defender-lunge": a3,"defender-open": a4,"defender-pursuit": a5,"defender-upright": a6,"pair-drive": a7,"pair-fit": a8,"pair-fit-3-9": a9,"pair-stopped": a10,"pair-wrap": a11,"runner-carry": a12,"runner-carry-9": a13};
 export function startCourse() {
-var checkSequence,chooseAngle,chooseBreakdown,chooseDrill,chooseFeet,chooseFinish,coachRep,renderCueScenarios,renderDiagnostics,replayRep,resetAngle,resetCourse,resetDrill,resetSequence,resetSimple;
+var checkSequence,chooseAngle,chooseBreakdown,chooseDrill,chooseFeet,chooseFinish,coachRep,gameAnswer,moveSequence,renderCueScenarios,renderDiagnostics,renderGame,renderSequence,replayRep,resetAngle,resetCourse,resetDrill,resetSequence,resetSimple;
 /* Original rendered youth-football artwork. All assets are local and portable. */
 let playerSerial = 0;
 const playerArtwork = Object.freeze({
