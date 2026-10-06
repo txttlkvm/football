@@ -1,0 +1,66 @@
+# Pages CMS config — the friendly editor for the Marriage-Motherhood-Meals site (app.pagescms.org)
+media:
+  input: site/public/img
+  output: /img
+  extensions: [jpg, jpeg, png, webp, gif, mp4]
+content:
+  - name: posts
+    label: Blog Posts
+    type: collection
+    path: site/src/content/posts
+    filename: "{primary}.md"
+    format: yaml-frontmatter
+    view:
+      primary: title
+      fields: [date, categories]
+      sort: [date]
+      default:
+        sort: date
+        order: desc
+    fields:
+      - { name: title, label: Title, type: string, required: true }
+      - { name: date, label: Publish date, type: date, required: true }
+      - name: categories
+        label: Categories
+        type: select
+        multiple: true
+        options:
+          values:
+            - { value: motherhood, label: Motherhood }
+            - { value: marriage, label: Marriage }
+            - { value: meals, label: Meals }
+            - { value: breakfast, label: Breakfast }
+            - { value: lunch, label: Lunch }
+            - { value: dinner, label: Dinner }
+      - { name: image, label: Cover photo, type: image }
+      - { name: excerpt, label: Short summary (shown on cards), type: text }
+      - { name: body, label: Write your post, type: rich-text }
+  - name: homepage
+    label: Homepage & Announcement
+    type: file
+    path: site/src/content/settings.json
+    format: json
+    fields:
+      - { name: registerUrl, label: Class sign-up link, type: string }
+      - name: announcement
+        label: Top announcement bar
+        type: object
+        fields:
+          - { name: show, label: Show the bar, type: boolean }
+          - { name: text, label: Bold text, type: string }
+          - { name: linkText, label: Link text, type: string }
+      - name: hero
+        label: Big welcome banner
+        type: object
+        fields:
+          - { name: title, label: Headline, type: string }
+          - { name: intro, label: Intro text, type: text }
+      - name: classCard
+        label: Kids class card
+        type: object
+        fields:
+          - { name: show, label: Show the card, type: boolean }
+          - { name: label, label: Small label, type: string }
+          - { name: title, label: Title, type: string }
+          - { name: text, label: Description, type: text }
+          - { name: buttonText, label: Button text, type: string }

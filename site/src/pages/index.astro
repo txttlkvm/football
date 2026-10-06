@@ -1,18 +1,18 @@
 ---
 import Base from '../layouts/Base.astro';
 import PostCard from '../components/PostCard.astro';
-import { allPosts, REGISTER_URL } from '../content/site';
+import { allPosts, REGISTER_URL, settings } from '../content/site';
 const cats = [['motherhood','Motherhood','/img/happy-sweet-black-curly-millennial-mother-with-towel-kissing-little-baby-enjoy-motherhood.jpg'],['marriage','Marriage','/img/romantic-mature-black-couple-in-love.jpg'],['meals','Meals','/img/frozen-vegetables-prepared-for-quick-meals.jpg']];
 ---
 <Base title="Home">
-<section class="hero"><div class="wrap"><h1>Hello, Welcome to my Blog</h1>
-<p>I am Diamond. This blog was created to share the knowledge that God has given to me with you. MarriageMotherhoodMeals was inspired by the many roles I display in my household.</p>
+<section class="hero"><div class="wrap"><h1>{settings.hero.title}</h1>
+<p>{settings.hero.intro}</p>
 <a class="btn" href="/about-me/">About Me</a> <a class="btn btn-outline" href="/home-chefs/">Kids Cooking Classes</a></div></section>
-<section class="section cream"><div class="wrap"><div class="feature">
-<img src="/img/breakfast-table-with-oatmeal-porridge-croissants-and-muffins.jpg" alt="Breakfast table with oatmeal porridge, croissants and muffins" loading="lazy">
-<div><p class="eyebrow">Now enrolling</p><h2>Manna's Future Home Chefs</h2>
-<p>Weekly baking and cooking classes where kids learn real kitchen skills, cooking alongside a parent or guardian.</p>
-<p><a class="btn" href={REGISTER_URL}>Register now</a> <a class="more" href="/home-chefs/">Learn more →</a></p></div></div></div></section>
+{settings.classCard.show&&<section class="section cream"><div class="wrap"><div class="feature">
+<img src="/img/breakfast-table-with-oatmeal-porridge-croissants-and-muffins.jpg" alt="" loading="lazy">
+<div><p class="eyebrow">{settings.classCard.label}</p><h2>{settings.classCard.title}</h2>
+<p>{settings.classCard.text}</p>
+<p><a class="btn" href={REGISTER_URL}>{settings.classCard.buttonText}</a> <a class="more" href="/home-chefs/">Learn more →</a></p></div></div></div></section>}
 <section class="section"><div class="wrap"><h2 class="title">Recent Posts</h2><div class="grid">{allPosts.slice(0,6).map(p=><PostCard post={p}/>)}</div></div></section>
 <section class="section cream"><div class="wrap"><h2 class="title">Categories</h2><div class="grid">
 {cats.map(([s,n,i])=>(<a class="card cat" href={`/category/${s}/`}><img src={i} alt="" loading="lazy"><div class="b">{n}</div></a>))}</div></div></section>

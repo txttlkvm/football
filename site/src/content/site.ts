@@ -1,6 +1,10 @@
-import posts from './posts.json';
-export type Post = { slug: string; title: string; date: string; cats: string[]; img: string | null; hasImg?: boolean; excerpt: string; body: string };
-export const allPosts = (posts as Post[]).sort((a, b) => b.date.localeCompare(a.date));
+import { getCollection } from 'astro:content';
+import settings from './settings.json';
+export { settings };
+export const allPosts = (await getCollection('posts')).map(e => ({
+  slug: e.id, entry: e, title: e.data.title, date: e.data.date, cats: e.data.categories, img: e.data.image ?? null,
+  excerpt: e.data.excerpt, hasImg: /!\[|<img/.test(e.body ?? ''),
+})).sort((a, b) => +b.date - +a.date);
 export const categories = [
   { slug: 'marriage', name: 'Marriage' }, { slug: 'motherhood', name: 'Motherhood' }, { slug: 'meals', name: 'Meals' },
   { slug: 'breakfast', name: 'Breakfast' }, { slug: 'lunch', name: 'Lunch' }, { slug: 'dinner', name: 'Dinner' }, { slug: 'bake-class', name: 'Bake Class' },
@@ -13,6 +17,6 @@ export const nav = [
   { href: '/home-bakery/', label: "Manna’s Bakehouse", children: [
     { href: '/home-bakery/', label: 'Home Bakery' }, { href: '/home-chefs/', label: 'Kids Baking/Cooking Classes' } ] },
 ];
-export const fmt = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+export const fmt = (d: Date) => d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
 
-export const REGISTER_URL = 'https://form.jotform.com/253607074823155';
+export const REGISTER_URL = settings.registerUrl;

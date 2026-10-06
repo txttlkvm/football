@@ -1,11 +1,13 @@
 ---
 import Base from '../layouts/Base.astro';
+import { render } from 'astro:content';
 import { allPosts, categories, fmt } from '../content/site';
 export const getStaticPaths = () => allPosts.map(p => ({ params: { slug: p.slug }, props: { p } }));
 const { p } = Astro.props;
+const { Content } = await render(p.entry);
 const cn = p.cats.map(s => categories.find(c => c.slug === s)).filter(Boolean);
 ---
 <Base title={p.title} description={p.excerpt} image={p.img ?? undefined}>
 <article class="article"><div class="narrow"><div class="meta">{fmt(p.date)} · {cn.map((c,i)=>(<><a href={`/category/${c.slug}/`}>{c.name}</a>{i + 1 < cn.length ? ', ' : ''}</>))}</div>
-<h1>{p.title}</h1>{p.img&&!p.hasImg&&<img src={p.img} alt="" style="margin:0 auto 1.5em">}<div class="body" set:html={p.body}/></div></article>
+<h1>{p.title}</h1>{p.img&&!p.hasImg&&<img src={p.img} alt="" style="margin:0 auto 1.5em">}<div class="body"><Content /></div></div></article>
 </Base>
