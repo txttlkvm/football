@@ -1,0 +1,33 @@
+fragment PostParts on Post {
+  __typename
+  title
+  date
+  categories
+  image
+  excerpt
+  body
+}
+
+fragment SettingsParts on Settings {
+  __typename
+  registerUrl
+  announcement {
+    __typename
+    show
+    text
+    linkText
+  }
+  hero {
+    __typename
+    title
+    intro
+  }
+  classCard {
+    __typename
+    show
+    label
+    title
+    text
+    buttonText
+  }
+}

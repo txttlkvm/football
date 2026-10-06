@@ -1,0 +1,29 @@
+---
+import '../styles/global.css';
+import { nav, REGISTER_URL, settings } from '../content/site';
+const { title, description = "Diamond's blog on Marriage, Motherhood & Meals — sharing the knowledge God has given.", image = '/og.png' } = Astro.props;
+const full = title === 'Home' ? 'Motherhood Marriage Meals – Diamond’s Blog' : `${title} – Motherhood Marriage Meals`;
+const path = Astro.url.pathname;
+---
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{full}</title><meta name="description" content={description}>
+<link rel="canonical" href={new URL(path, Astro.site)}><link rel="icon" type="image/png" href="/favicon.png"><link rel="apple-touch-icon" href="/favicon.png">
+<meta property="og:title" content={full}><meta property="og:description" content={description}><meta property="og:image" content={new URL(image, Astro.site)}><meta property="og:type" content="website"><meta property="og:site_name" content="Motherhood Marriage Meals"><meta property="og:url" content={new URL(path, Astro.site)}><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content={new URL(image, Astro.site)}>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+{settings.announcement.show&&<div class="announce" id="announce" hidden><p><strong>{settings.announcement.text}</strong> <a href={REGISTER_URL}>{settings.announcement.linkText}</a></p><button type="button" id="ax" aria-label="Dismiss announcement">×</button></div>}
+<header class="site-header"><div class="wrap">
+<a class="brand" href="/"><img src="/img/logo.png" alt="Marriage-Motherhood-Meals" width="900" height="197"></a>
+<button class="toggle" aria-expanded="false" aria-controls="menu" id="tg">Menu</button>
+<nav aria-label="Main menu"><ul class="menu" id="menu">
+{nav.map(i=>(<li><a href={i.href} aria-current={path===i.href?'page':undefined}>{i.label}{i.children?' ▾':''}</a>
+{i.children&&<ul class="sub">{i.children.map(c=>(<li><a href={c.href}>{c.label}</a></li>))}</ul>}</li>))}
+<li class="nav-cta"><a class="btn" href={REGISTER_URL}>Register</a></li></ul></nav></div></header>
+<main id="main"><slot/></main>
+<footer class="footer"><img src="/img/logo.png" alt="Marriage-Motherhood-Meals" width="900" height="197" loading="lazy"><p>Diamond's Blog<br>© {new Date().getFullYear()} All rights reserved</p></footer>
+<script is:inline>const a=document.getElementById('announce');if(a){try{if(!sessionStorage.getItem('ax'))a.hidden=false}catch(e){a.hidden=false}document.getElementById('ax').addEventListener('click',()=>{a.hidden=true;try{sessionStorage.setItem('ax','1')}catch(e){}})}const t=document.getElementById('tg'),m=document.getElementById('menu');t.addEventListener('click',()=>{const o=m.classList.toggle('open');t.setAttribute('aria-expanded',o)})</script>
+</body></html>
