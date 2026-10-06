@@ -1,0 +1,48 @@
+:root{--pink:#ff66c4;--ink:#120f0c;--text:#4a4946;--cream:#fdf7f4;--max:1100px}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Heebo,system-ui,sans-serif;color:var(--text);line-height:1.7;background:#fff;font-size:17px}
+h1,h2,h3{font-family:Outfit,system-ui,sans-serif;color:var(--ink);line-height:1.2;margin:0 0 .6em}
+h1{font-size:clamp(2rem,5vw,3.2rem)}h2{font-size:clamp(1.5rem,3.5vw,2.2rem)}h3{font-size:1.4rem}
+a{color:var(--ink);text-decoration-color:var(--pink);text-underline-offset:3px}a:hover{color:var(--pink)}
+img,video{max-width:100%;height:auto;display:block;border-radius:6px}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 20px}
+.narrow{max-width:760px;margin:0 auto;padding:0 20px}
+.skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;background:#fff;padding:8px;z-index:99}
+/* header */
+.site-header{border-bottom:1px solid #f0e6e1;background:#fff;position:sticky;top:0;z-index:20}
+.site-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:10px;padding-bottom:10px}
+.brand img{width:min(280px,55vw);border-radius:0}
+.menu{list-style:none;margin:0;padding:0;display:flex;gap:6px;align-items:center}
+.menu a{display:block;padding:8px 12px;text-decoration:none;font-family:Outfit,sans-serif;font-weight:500;font-size:.95rem;color:var(--ink);border-radius:4px}
+.menu a:hover,.menu a[aria-current=page]{color:var(--pink)}
+.menu li{position:relative}
+.sub{display:none;position:absolute;left:0;top:100%;background:#fff;border:1px solid #f0e6e1;border-radius:6px;box-shadow:0 8px 24px #0001;min-width:230px;padding:6px;list-style:none;margin:0}
+.menu li:hover>.sub,.menu li:focus-within>.sub{display:block}
+.toggle{display:none;background:none;border:1px solid #ddd;border-radius:6px;padding:8px 12px;font:inherit;cursor:pointer}
+@media(max-width:860px){.toggle{display:block}
+ .menu{display:none;position:absolute;left:0;right:0;top:100%;background:#fff;flex-direction:column;align-items:stretch;padding:8px 20px 16px;border-bottom:1px solid #f0e6e1;gap:0}
+ .menu.open{display:flex}.sub{display:block;position:static;border:0;box-shadow:none;padding:0 0 0 14px}}
+/* hero */
+.hero{background:linear-gradient(110deg,rgba(18,15,12,.88) 35%,rgba(18,15,12,.1) 75%),url(/img/hero.jpg) center right/cover;color:#fff;padding:clamp(60px,12vw,120px) 0}
+.hero h1{color:#fff;max-width:14ch}.hero p{max-width:46ch;color:#fff;font-size:1.05rem}
+.btn{display:inline-block;background:var(--pink);color:#fff;padding:12px 26px;border-radius:999px;text-decoration:none;font-family:Outfit,sans-serif;font-weight:600}
+.btn:hover{background:var(--ink);color:#fff}
+.section{padding:clamp(40px,7vw,72px) 0}.cream{background:var(--cream)}
+.title{display:flex;align-items:center;gap:18px;justify-content:center;text-transform:uppercase;letter-spacing:.04em;font-size:1.3rem;margin-bottom:32px}
+.title:before,.title:after{content:"";height:1px;background:var(--pink);flex:1;max-width:160px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:24px}
+.card{background:#fff;border-radius:8px;box-shadow:0 2px 14px #0000000d;overflow:hidden;text-decoration:none;display:flex;flex-direction:column;transition:transform .2s}
+.card:hover{transform:translateY(-4px)}
+.card img{width:100%;aspect-ratio:3/2;object-fit:cover;border-radius:0}
+.card .ph{aspect-ratio:3/2;background:var(--cream)}
+.card .b{padding:16px 18px 20px}.card h3{font-size:1.1rem;margin:0 0 6px}.card p{margin:0;font-size:.92rem}
+.card.cat .b{text-align:center;text-transform:uppercase;letter-spacing:.05em;font-family:Outfit;font-weight:600;color:var(--ink)}
+.meta{font-size:.85rem;color:#8a8680}
+/* article */
+.article{padding:40px 0 70px}.article .body>*{margin:0 0 1.2em}.article .body img,.article .body video{margin:1.5em auto}
+.article .body h2,.article .body h3{margin-top:1.6em}
+.about-img{max-width:420px;margin:0 auto 24px}
+.about-block{margin-bottom:32px}.about-block h3{color:var(--pink)}
+.footer{background:var(--cream);padding:40px 0;text-align:center;font-size:.9rem;margin-top:0}
+.footer img{width:200px;margin:0 auto 12px;border-radius:0}

@@ -1,0 +1,10 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostCard from '../../components/PostCard.astro';
+import { allPosts, categories } from '../../content/site';
+export const getStaticPaths = () => categories.map(c => ({ params: { slug: c.slug }, props: { c } }));
+const { c } = Astro.props;
+const list = allPosts.filter(p => p.cats.includes(c.slug) || (c.slug === 'meals' && p.cats.some(s => ['breakfast','lunch','dinner'].includes(s))));
+---
+<Base title={c.name}><section class="section"><div class="wrap"><h1 style="text-align:center">{c.name}</h1>
+{list.length?<div class="grid">{list.map(p=><PostCard post={p}/>)}</div>:<p style="text-align:center">New posts coming soon.</p>}</div></section></Base>
