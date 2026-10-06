@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { nav } from '../content/site';
+import { nav, REGISTER_URL } from '../content/site';
 const { title, description = "Diamond's blog on Marriage, Motherhood & Meals — sharing the knowledge God has given.", image = '/img/logo.png' } = Astro.props;
 const full = title === 'Home' ? 'Motherhood Marriage Meals – Diamond’s Blog' : `${title} – Motherhood Marriage Meals`;
 const path = Astro.url.pathname;
@@ -15,14 +15,15 @@ const path = Astro.url.pathname;
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
 </head><body>
 <a class="skip" href="#main">Skip to content</a>
+<div class="announce" id="announce" hidden><p><strong>Now enrolling:</strong> Kids Baking &amp; Cooking Classes <a href={REGISTER_URL}>Register →</a></p><button type="button" id="ax" aria-label="Dismiss announcement">×</button></div>
 <header class="site-header"><div class="wrap">
 <a class="brand" href="/"><img src="/img/logo.png" alt="Marriage-Motherhood-Meals" width="900" height="197"></a>
 <button class="toggle" aria-expanded="false" aria-controls="menu" id="tg">Menu</button>
 <nav aria-label="Main menu"><ul class="menu" id="menu">
 {nav.map(i=>(<li><a href={i.href} aria-current={path===i.href?'page':undefined}>{i.label}{i.children?' ▾':''}</a>
 {i.children&&<ul class="sub">{i.children.map(c=>(<li><a href={c.href}>{c.label}</a></li>))}</ul>}</li>))}
-</ul></nav></div></header>
+<li class="nav-cta"><a class="btn" href={REGISTER_URL}>Register</a></li></ul></nav></div></header>
 <main id="main"><slot/></main>
 <footer class="footer"><img src="/img/logo.png" alt="Marriage-Motherhood-Meals" width="900" height="197" loading="lazy"><p>Diamond's Blog<br>© {new Date().getFullYear()} All rights reserved</p></footer>
-<script is:inline>const t=document.getElementById('tg'),m=document.getElementById('menu');t.addEventListener('click',()=>{const o=m.classList.toggle('open');t.setAttribute('aria-expanded',o)})</script>
+<script is:inline>try{if(!sessionStorage.getItem('ax'))document.getElementById('announce').hidden=false}catch(e){document.getElementById('announce').hidden=false}document.getElementById('ax').addEventListener('click',()=>{document.getElementById('announce').hidden=true;try{sessionStorage.setItem('ax','1')}catch(e){}});const t=document.getElementById('tg'),m=document.getElementById('menu');t.addEventListener('click',()=>{const o=m.classList.toggle('open');t.setAttribute('aria-expanded',o)})</script>
 </body></html>

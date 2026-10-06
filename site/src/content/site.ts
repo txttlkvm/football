@@ -14,3 +14,5 @@ export const nav = [
     { href: '/home-bakery/', label: 'Home Bakery' }, { href: '/home-chefs/', label: 'Kids Baking/Cooking Classes' } ] },
 ];
 export const fmt = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+export const REGISTER_URL = 'https://form.jotform.com/253607074823155';
