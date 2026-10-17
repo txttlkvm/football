@@ -19,25 +19,25 @@ We understand that our culture is consumed by technology. It is hard to get rid 
 
 * * *
 
-### **Reading a chapter of the Bible during dinner time**
+### Reading a chapter of the Bible during dinner time
 
 This has been so rewarding for us as a family. Our children ask us to read the bible so its not something they are huffing and puffing about all through dinner. Since we have established this habit of reading the bible during dinner it is a part of our routine. There are some chapters in the bible that are really long, so we break it up into parts. After we read the bible, we ask them “do you have a takeaway?”. This allows them to say what they heard and create a habit of listening to learn instead of listening to entertain themselves. When I first wrote this blog our kids were 3, 2, and 1. Since then we have added another baby to our family and our children have grown much. At first, they would need help giving their takeaway but now we have seen much growth for our now 6 and 4 year olds as they draw out from the bible a takeaway on their own. Our 3 year old and almost one year old will need help and that is the joy we can have as we train up our children in the way they should go. The kids usually will need help with their takeaway since our children are ages 3, 2 and 1.
 
 * * *
 
-### **Purchase an audio bible for each child**
+### Purchase an audio bible for each child
 
 We purchased audio bibles for our children in hopes of them learning more about the bible and for them to listen to them while they go to sleep. There’s nothing like scripture covering you as you rest. Our children love to listen to theirs and tell us what they learned. Our oldest daughter will listen to a bible story on repeat so she can say it verbatim. Click the link below to see which one we purchased for our children: [audio bible](https://amzn.to/3zifRkQ).
 
 * * *
 
-### **Allow your child to see you read the bible in your free time**  
+### Allow your child to see you read the bible in your free time  
 
 Allow your children to see you read the bible in your free time- I would love for our children to see my husband and I reading the bible in our free time. Children watch your habits and will pick up some of your habits as they grow. This is important for them to prioritize time to read the bible on their own. We must model what this looks like for them first.
 
 * * *
 
-### **Find rich bible books**  
+### Find rich bible books  
 
 We should be intentional to find books that point to Christ. There are many great authors who are intentional in pointing out bible truth as our children learn ABC’s, numbers, etc. Our intentionality to find these books and read them to our children will produce much growth in our children’s development. Check out some of our favorite books on my blog page,
 

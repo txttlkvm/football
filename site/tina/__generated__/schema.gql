@@ -98,12 +98,12 @@ union DocumentNode = Post | Page | Settings | Folder
 
 type Post implements Node & Document {
   title: String!
+  draft: Boolean
   date: String!
   categories: [String]
   image: String
   excerpt: String
   body: RichText
-  draft: Boolean
   publishDate: String
   description: String
   featured: Boolean
@@ -117,6 +117,11 @@ input StringFilter {
   eq: String
   exists: Boolean
   in: [String]
+}
+
+input BooleanFilter {
+  eq: Boolean
+  exists: Boolean
 }
 
 input DatetimeFilter {
@@ -134,25 +139,50 @@ input ImageFilter {
   in: [String]
 }
 
-input RichTextFilter {
-  startsWith: String
-  eq: String
-  exists: Boolean
+input PostBodyVideoFilter {
+  url: StringFilter
+  file: ImageFilter
+  caption: StringFilter
 }
 
-input BooleanFilter {
-  eq: Boolean
-  exists: Boolean
+input PostBodyPhotoFilter {
+  src: ImageFilter
+  alt: StringFilter
+  caption: StringFilter
+  size: StringFilter
+  align: StringFilter
+}
+
+input PostBodyPhotoRowFilter {
+  photo1: ImageFilter
+  alt1: StringFilter
+  photo2: ImageFilter
+  alt2: StringFilter
+  photo3: ImageFilter
+  alt3: StringFilter
+}
+
+input PostBodyButtonFilter {
+  label: StringFilter
+  url: StringFilter
+  align: StringFilter
+}
+
+input PostBodyFilter {
+  video: PostBodyVideoFilter
+  photo: PostBodyPhotoFilter
+  photoRow: PostBodyPhotoRowFilter
+  button: PostBodyButtonFilter
 }
 
 input PostFilter {
   title: StringFilter
+  draft: BooleanFilter
   date: DatetimeFilter
   categories: StringFilter
   image: ImageFilter
   excerpt: StringFilter
-  body: RichTextFilter
-  draft: BooleanFilter
+  body: PostBodyFilter
   publishDate: DatetimeFilter
   description: StringFilter
   featured: BooleanFilter
@@ -181,10 +211,46 @@ type Page implements Node & Document {
   _values: JSON!
 }
 
+input PageBodyVideoFilter {
+  url: StringFilter
+  file: ImageFilter
+  caption: StringFilter
+}
+
+input PageBodyPhotoFilter {
+  src: ImageFilter
+  alt: StringFilter
+  caption: StringFilter
+  size: StringFilter
+  align: StringFilter
+}
+
+input PageBodyPhotoRowFilter {
+  photo1: ImageFilter
+  alt1: StringFilter
+  photo2: ImageFilter
+  alt2: StringFilter
+  photo3: ImageFilter
+  alt3: StringFilter
+}
+
+input PageBodyButtonFilter {
+  label: StringFilter
+  url: StringFilter
+  align: StringFilter
+}
+
+input PageBodyFilter {
+  video: PageBodyVideoFilter
+  photo: PageBodyPhotoFilter
+  photoRow: PageBodyPhotoRowFilter
+  button: PageBodyButtonFilter
+}
+
 input PageFilter {
   title: StringFilter
   image: ImageFilter
-  body: RichTextFilter
+  body: PageBodyFilter
   showRegisterCta: BooleanFilter
   description: StringFilter
   draft: BooleanFilter
@@ -228,16 +294,37 @@ type SettingsAnnouncement {
 }
 
 type SettingsHero {
+  image: String
   title: String
   intro: String
 }
 
 type SettingsClassCard {
   show: Boolean
+  image: String
   label: String
   title: String
   text: String
   buttonText: String
+  stickyText: String
+}
+
+type SettingsRecentPosts {
+  show: Boolean
+  title: String
+  count: Float
+}
+
+type SettingsCategoriesSectionItems {
+  label: String
+  slug: String
+  image: String
+}
+
+type SettingsCategoriesSection {
+  show: Boolean
+  title: String
+  items: [SettingsCategoriesSectionItems]
 }
 
 type SettingsSocial {
@@ -247,6 +334,7 @@ type SettingsSocial {
 
 type Settings implements Node & Document {
   siteTitle: String
+  logo: String
   tagline: String
   theme: SettingsTheme
   nav: [SettingsNav]
@@ -254,6 +342,10 @@ type Settings implements Node & Document {
   announcement: SettingsAnnouncement
   hero: SettingsHero
   classCard: SettingsClassCard
+  mobileCta: String
+  recentPosts: SettingsRecentPosts
+  featuredTitle: String
+  categoriesSection: SettingsCategoriesSection
   footerText: String
   social: [SettingsSocial]
   id: ID!
@@ -288,16 +380,47 @@ input SettingsAnnouncementFilter {
 }
 
 input SettingsHeroFilter {
+  image: ImageFilter
   title: StringFilter
   intro: StringFilter
 }
 
 input SettingsClassCardFilter {
   show: BooleanFilter
+  image: ImageFilter
   label: StringFilter
   title: StringFilter
   text: StringFilter
   buttonText: StringFilter
+  stickyText: StringFilter
+}
+
+input NumberFilter {
+  lt: Float
+  lte: Float
+  gte: Float
+  gt: Float
+  eq: Float
+  exists: Boolean
+  in: [Float]
+}
+
+input SettingsRecentPostsFilter {
+  show: BooleanFilter
+  title: StringFilter
+  count: NumberFilter
+}
+
+input SettingsCategoriesSectionItemsFilter {
+  label: StringFilter
+  slug: StringFilter
+  image: ImageFilter
+}
+
+input SettingsCategoriesSectionFilter {
+  show: BooleanFilter
+  title: StringFilter
+  items: SettingsCategoriesSectionItemsFilter
 }
 
 input SettingsSocialFilter {
@@ -307,6 +430,7 @@ input SettingsSocialFilter {
 
 input SettingsFilter {
   siteTitle: StringFilter
+  logo: ImageFilter
   tagline: StringFilter
   theme: SettingsThemeFilter
   nav: SettingsNavFilter
@@ -314,6 +438,10 @@ input SettingsFilter {
   announcement: SettingsAnnouncementFilter
   hero: SettingsHeroFilter
   classCard: SettingsClassCardFilter
+  mobileCta: StringFilter
+  recentPosts: SettingsRecentPostsFilter
+  featuredTitle: StringFilter
+  categoriesSection: SettingsCategoriesSectionFilter
   footerText: StringFilter
   social: SettingsSocialFilter
 }
@@ -358,12 +486,12 @@ input DocumentMutation {
 
 input PostMutation {
   title: String
+  draft: Boolean
   date: String
   categories: [String]
   image: String
   excerpt: String
   body: RichText
-  draft: Boolean
   publishDate: String
   description: String
   featured: Boolean
@@ -405,16 +533,37 @@ input SettingsAnnouncementMutation {
 }
 
 input SettingsHeroMutation {
+  image: String
   title: String
   intro: String
 }
 
 input SettingsClassCardMutation {
   show: Boolean
+  image: String
   label: String
   title: String
   text: String
   buttonText: String
+  stickyText: String
+}
+
+input SettingsRecentPostsMutation {
+  show: Boolean
+  title: String
+  count: Float
+}
+
+input SettingsCategoriesSectionItemsMutation {
+  label: String
+  slug: String
+  image: String
+}
+
+input SettingsCategoriesSectionMutation {
+  show: Boolean
+  title: String
+  items: [SettingsCategoriesSectionItemsMutation]
 }
 
 input SettingsSocialMutation {
@@ -424,6 +573,7 @@ input SettingsSocialMutation {
 
 input SettingsMutation {
   siteTitle: String
+  logo: String
   tagline: String
   theme: SettingsThemeMutation
   nav: [SettingsNavMutation]
@@ -431,6 +581,10 @@ input SettingsMutation {
   announcement: SettingsAnnouncementMutation
   hero: SettingsHeroMutation
   classCard: SettingsClassCardMutation
+  mobileCta: String
+  recentPosts: SettingsRecentPostsMutation
+  featuredTitle: String
+  categoriesSection: SettingsCategoriesSectionMutation
   footerText: String
   social: [SettingsSocialMutation]
 }

@@ -1,12 +1,12 @@
 fragment PostParts on Post {
   __typename
   title
+  draft
   date
   categories
   image
   excerpt
   body
-  draft
   publishDate
   description
   featured
@@ -25,6 +25,7 @@ fragment PageParts on Page {
 fragment SettingsParts on Settings {
   __typename
   siteTitle
+  logo
   tagline
   theme {
     __typename
@@ -54,16 +55,38 @@ fragment SettingsParts on Settings {
   }
   hero {
     __typename
+    image
     title
     intro
   }
   classCard {
     __typename
     show
+    image
     label
     title
     text
     buttonText
+    stickyText
+  }
+  mobileCta
+  recentPosts {
+    __typename
+    show
+    title
+    count
+  }
+  featuredTitle
+  categoriesSection {
+    __typename
+    show
+    title
+    items {
+      __typename
+      label
+      slug
+      image
+    }
   }
   footerText
   social {
