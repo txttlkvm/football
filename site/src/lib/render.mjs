@@ -3,10 +3,25 @@ import { marked } from 'marked';
 const YT = /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/;
 const VM = /vimeo\.com\/(?:video\/)?(\d+)/;
 export const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
-const clean = (h) => h.replace(/<\s*(script|style|iframe|object|embed|link|meta)[\s\S]*?(<\/\s*\1\s*>|$)/gi, '').replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '').replace(/(href|src)\s*=\s*("|')\s*javascript:[^"']*\2/gi, '$1=$2#$2');
+const TAGS = new Set('p br strong em b i u s a ul ol li h1 h2 h3 h4 h5 h6 blockquote hr code pre img span div table thead tbody tr th td figure figcaption sup sub mark'.split(' '));
+const ATTR = { a: ['href', 'title', 'target', 'rel'], img: ['src', 'alt', 'title', 'width', 'height', 'loading'] };
+const safeUrl = (v) => { const d = String(v).replace(/&#x([0-9a-f]+);?/gi, (_, h) => String.fromCharCode(parseInt(h, 16))).replace(/&#(\d+);?/g, (_, n) => String.fromCharCode(+n)).replace(/&colon;/gi, ':').replace(/[\s\u0000-\u001f]/g, ''); return /^(https?:|mailto:|tel:|\/|#|\.)/i.test(d) || !/^[a-z][a-z0-9+.-]*:/i.test(d); };
+const clean = (h) => String(h).replace(/<!--[\s\S]*?-->/g, '').replace(/<\s*(script|style|iframe|object|embed|svg|math|form|template|noscript)\b[\s\S]*?(<\/\s*\1\s*>|$)/gi, '').replace(/<(\/?)\s*([a-z][a-z0-9]*)\b((?:"[^"]*"|'[^']*'|[^>"'])*)>?/gi, (m, slash, name, attrs) => {
+  name = name.toLowerCase(); if (!TAGS.has(name)) return '';
+  if (slash) return `</${name}>`;
+  const keep = ATTR[name] || []; let out = '';
+  for (const am of attrs.matchAll(/([a-z][a-z0-9_:-]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+)))?/gi)) {
+    const k = am[1].toLowerCase(), v = am[2] ?? am[3] ?? am[4] ?? '';
+    if (!keep.includes(k)) continue;
+    if ((k === 'href' || k === 'src') && !safeUrl(v)) continue;
+    out += ` ${k}="${v.replace(/"/g, '&quot;')}"`;
+  }
+  if (name === 'a' && /target="_blank"/.test(out) && !/rel=/.test(out)) out += ' rel="noopener"';
+  return `<${name}${out}>`;
+}).replace(/<(?!\/?[a-z])/gi, '&lt;');
 export const md = (s) => clean(marked.parse(String(s ?? ''), { breaks: true, async: false }));
 const fmtDate = (d) => new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
-const url = (s) => { const u = String(s ?? '').trim(); return esc(/^\s*(javascript|data|vbscript):/i.test(u) ? '#' : u); };
+const url = (s) => { const u = String(s ?? '').trim(); return esc(safeUrl(u) ? u : '#'); };
 const FOCUS = { top: '50% 0%', center: '50% 50%', bottom: '50% 100%', left: '0% 50%', right: '100% 50%', face: '50% 25%' };
 const imgStyle = (focus, ratio) => { const st = []; if (ratio && ratio !== 'original') st.push(`aspect-ratio:${esc(ratio)};object-fit:cover`); if (focus && FOCUS[focus]) st.push(`object-position:${FOCUS[focus]}`); return st.length ? ` style="${st.join(';')}"` : ''; };
 // In the editor preview (ctx.edit) every editable part carries data-e="field path" so it can be clicked and changed right on the page.
@@ -71,7 +86,7 @@ const blockTypes = {
   categoryTiles: (b, ctx, i) => { const e = E(ctx, i); return section(b, 'blk-cats', `${b.title ? `<h2 class="title"${e('title')}>${esc(b.title)}</h2>` : ''}<div class="grid">${(b.tiles || []).map((c, j) => (c && c.slug ? `<a class="card cat" href="/category/${esc(c.slug)}/">${c.image ? `<img src="${esc(c.image)}" alt=""  loading="lazy"${e(`tiles.${j}.image`, 'img')}>` : ''}<div class="b"${e(`tiles.${j}.label`)}>${esc(c.label)}</div></a>` : '')).join('')}</div>`); },
   faq: (b, ctx, i) => { const e = E(ctx, i); return section(b, 'blk-faq', `${b.title ? `<h2 class="title"${e('title')}>${esc(b.title)}</h2>` : ''}<div class="blk-narrow">${(b.questions || []).map((q, j) => (q && q.question ? `<details${ctx.edit ? ' open' : ''}><summary${e(`questions.${j}.question`)}>${esc(q.question)}</summary><div class="body"${e(`questions.${j}.answer`, 'field')}>${md(q.answer)}</div></details>` : '')).join('')}</div>`); },
   columns: (b, ctx, i) => { const e = E(ctx, i); return section(b, 'blk-columns', `${b.title ? `<h2 class="title"${e('title')}>${esc(b.title)}</h2>` : ''}<div class="cols cols-${Math.min(4, Math.max(2, (b.points || []).length))}">${(b.points || []).map((c, j) => (c ? `<div class="col">${c.icon ? `<div class="ico"${e(`points.${j}.icon`)}>${esc(c.icon)}</div>` : ''}<h3${e(`points.${j}.heading`)}>${esc(c.heading)}</h3><div class="body"${e(`points.${j}.text`, 'field')}>${md(c.text)}</div></div>` : '')).join('')}</div>`); },
-  form: (b, ctx, i) => { const e = E(ctx, i); if (!ctx.formsKey && !ctx.edit) return ''; return section(b, 'blk-form', `<div class="blk-narrow">${b.title ? `<h2 class="title"${e('title')}>${esc(b.title)}</h2>` : ''}${b.intro ? `<p class="form-intro"${e('intro')}>${esc(b.intro)}</p>` : ''}<form class="contact" data-success="${esc(b.successText || 'Thank you! Your message was sent.')}" action="https://api.web3forms.com/submit" method="post"><input type="hidden" name="access_key" value="${esc(ctx.formsKey === true ? '' : ctx.formsKey)}"><input type="hidden" name="subject" value="${esc(b.title || 'New message from your website')}"><input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off"><label>Your name<input name="name" required autocomplete="name"></label><label>Email<input type="email" name="email" required autocomplete="email"></label><label>Message<textarea name="message" rows="5" required></textarea></label><button class="btn" type="submit"${e('buttonLabel')}>${esc(b.buttonLabel || 'Send message')}</button><p class="form-status" role="status"></p></form>${ctx.edit && !ctx.formsKey ? '<p class="empty-hint">Add your form key in Site Settings → Contact form to make this form work.</p>' : ''}</div>`); },
+  form: (b, ctx, i) => { const e = E(ctx, i); if (!ctx.formsKey && !ctx.edit) return ''; return section(b, 'blk-form', `<div class="blk-narrow">${b.title ? `<h2 class="title"${e('title')}>${esc(b.title)}</h2>` : ''}${b.intro ? `<p class="form-intro"${e('intro')}>${esc(b.intro)}</p>` : ''}<form class="contact" data-success="${esc(b.successText || 'Thank you! Your message was sent.')}" action="https://api.web3forms.com/submit" method="post"><input type="hidden" name="access_key" value="${esc(ctx.formsKey === true ? '' : ctx.formsKey)}"><input type="hidden" name="subject" value="${esc(b.title || 'New message from your website')}"><input type="checkbox" name="botcheck" class="hp" aria-hidden="true" tabindex="-1" autocomplete="off"><label>Your name<input name="name" required autocomplete="name"></label><label>Email<input type="email" name="email" required autocomplete="email"></label><label>Message<textarea name="message" rows="5" required></textarea></label><button class="btn" type="submit"${e('buttonLabel')}>${esc(b.buttonLabel || 'Send message')}</button><p class="form-status" role="status"></p></form>${ctx.edit && !ctx.formsKey ? '<p class="empty-hint">Add your form key in Site Settings → Contact form to make this form work.</p>' : ''}</div>`); },
   spacer: (b) => `<div class="spacer spacer-${esc(b.size || 'medium')}"></div>`,
 };
 export const blocksHtml = (blocks, ctx = {}) => (blocks || []).map((b, i) => { if (!b) return ''; const f = blockTypes[b._template]; return f ? f(b, ctx, i) : ''; }).join('\n');
