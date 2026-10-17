@@ -55,10 +55,10 @@ const link = [
 const SKIN = `@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 body,button,input,textarea,select{font-family:'Poppins',system-ui,sans-serif!important}
 :root{--tina-color-primary:#ff66c4}
-[class*="bg-orange"],[class*="from-orange"],[class*="to-orange"]{background:#ff66c4!important;background-image:none!important;border-color:#ff66c4!important;color:#fff!important}
-[class*="text-orange"]{color:#e0359f!important}[class*="border-orange"]{border-color:#ff66c4!important}
+[class*="bg-orange"],[class*="from-orange"],[class*="to-orange"]{background:#b0246f!important;background-image:none!important;border-color:#b0246f!important;color:#fff!important}
+[class*="text-orange"]{color:#a01f65!important}[class*="border-orange"]{border-color:#ff66c4!important}
 [class*="orange"] svg{color:inherit}
-input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px rgba(255,102,196,.25)!important;border-color:#ff66c4!important}`;
+input:focus,textarea:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid #8a1b5a!important;outline-offset:2px}`;
 const cmsCallback = (cms: any) => {
   try {
     if (!location.hash || location.hash === '#/') location.hash = '#/collections';
@@ -76,7 +76,7 @@ const cmsCallback = (cms: any) => {
       document.querySelectorAll('a,button').forEach((e: any) => { if (/^Add File$/.test(e.textContent.trim())) { const n = [...e.childNodes].find((c: any) => c.nodeType === 3 && /Add File/.test(c.textContent)); if (n) n.textContent = 'New post / page'; } });
     };
     new MutationObserver(tidy).observe(document.body, { childList: true, subtree: true });
-    let ev: any; window.addEventListener('beforeinstallprompt', (e: any) => { e.preventDefault(); ev = e; const b = document.createElement('button'); b.textContent = '📱 Install this editor on your phone'; b.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:84px;z-index:99;padding:10px 18px;border-radius:999px;border:0;background:#ff66c4;color:#fff;font:600 14px Poppins,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.2);cursor:pointer'; b.onclick = () => { ev.prompt(); b.remove(); }; document.body.appendChild(b); });
+    let ev: any; window.addEventListener('beforeinstallprompt', (e: any) => { e.preventDefault(); ev = e; const b = document.createElement('button'); b.textContent = '📱 Install this editor on your phone'; b.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:84px;z-index:99;padding:10px 18px;border-radius:999px;border:0;background:#b0246f;color:#fff;font:600 14px Poppins,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.2);cursor:pointer'; b.onclick = () => { ev.prompt(); b.remove(); }; document.body.appendChild(b); });
   } catch (e) { /* cosmetic only */ }
   return cms;
 };

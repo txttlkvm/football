@@ -26,6 +26,7 @@ const FOCUS: any = { top: '50% 0%', center: '50% 50%', bottom: '50% 100%', left:
 const IFRAME_SCRIPT = `(function(){
 var send=function(m){parent.postMessage(Object.assign({tinaPreview:1},m),'*')};
 var st=document.createElement('style');st.textContent='[data-e]{cursor:pointer}[data-e]:hover{outline:2px dashed #ff66c4;outline-offset:3px}[data-t="text"]:focus{outline:2px solid #ff66c4;outline-offset:3px;cursor:text}';document.head.appendChild(st);
+addEventListener('scroll',function(){send({type:'scroll',y:scrollY})},{passive:true});
 document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a');if(a)e.preventDefault();var el=e.target.closest&&e.target.closest('[data-e]');if(!el)return;var t=el.getAttribute('data-t');if(t==='text')return;e.preventDefault();e.stopPropagation();send({type:t,path:el.getAttribute('data-e')})},true);
 document.querySelectorAll('[data-t="text"]').forEach(function(el){
 try{el.contentEditable='plaintext-only'}catch(x){el.contentEditable='true'}
@@ -35,7 +36,7 @@ el.addEventListener('blur',function(){send({type:'blur'})});
 el.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();el.blur()}});
 });})();`;
 
-async function build(kind: string, v: any): Promise<string> {
+async function build(kind: string, v: any, y = 0): Promise<string> {
   const c = await loadShell();
   const ctx: any = { posts: c.posts, edit: kind !== 'settings', formsKey: true };
   const cover = v.image ? `<img src="${esc(v.image)}" alt="" style="margin:0 auto 1.5em${v.imageFocus && FOCUS[v.imageFocus] ? ';object-position:' + FOCUS[v.imageFocus] : ''}" data-e="image" data-t="img">` : `<p class="empty-hint" data-e="image" data-t="img">Click to add a top photo</p>`;
@@ -44,7 +45,7 @@ async function build(kind: string, v: any): Promise<string> {
   if (kind === 'post') content = article(`<div class="meta">${fmt(v.date)}</div>`);
   else if (kind === 'page') { const blocks = blocksHtml(v.blocks, ctx); content = v.layout === 'blocks' ? blocks : article('') + blocks; }
   else content = c.main;
-  let doc = `<!doctype html><html class="js"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}/" target="_blank">${c.head}<style>*,*::before,*::after{animation:none!important;transition:none!important}.reveal,.js .reveal{opacity:1!important;transform:none!important}.sticky-register{display:none!important}.site-header{position:static}</style></head><body>${c.announce}${c.header}<main>${content}</main>${c.footer}${ctx.edit ? `<script>${IFRAME_SCRIPT}</script>` : ''}</body></html>`;
+  let doc = `<!doctype html><html class="js"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}/" target="_blank">${c.head}<style>*,*::before,*::after{animation:none!important;transition:none!important}.reveal,.js .reveal{opacity:1!important;transform:none!important}.sticky-register{display:none!important}.site-header{position:static}</style></head><body>${c.announce}${c.header}<main>${content}</main>${c.footer}${ctx.edit ? `<script>${IFRAME_SCRIPT}</script>` : ''}<script>addEventListener('load',function(){scrollTo(0,${Number(y) || 0})})</script></body></html>`;
   if (kind === 'settings') {
     const d = new DOMParser().parseFromString(doc, 'text/html'), t = v.theme || {};
     const st = d.createElement('style');
@@ -82,7 +83,6 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
 
   const push = React.useCallback((doc: string) => {
     latest.current = doc;
-    scroll.current = frame.current?.contentWindow?.scrollY ?? 0;
     setHtml(doc);
     const p = pop.current;
     if (p && !p.closed) (p.document.getElementById('f') as HTMLIFrameElement | null)?.setAttribute('srcdoc', doc);
@@ -91,7 +91,7 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
     clearTimeout(timer.current);
     timer.current = setTimeout(async () => {
       if (typing.current) return;
-      try { push(await build(kind, ff.getState().values)); } catch (e) { /* keep the last good preview */ }
+      try { push(await build(kind, ff.getState().values, scroll.current)); } catch (e) { /* keep the last good preview */ }
     }, 300);
   }, [ff, kind, push]);
 
@@ -120,7 +120,8 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
       if (!m || !m.tinaPreview) return;
       const ok = e.source === frame.current?.contentWindow || (pop.current && e.source === pop.current);
       if (!ok) return;
-      if (m.type === 'focus') typing.current = true;
+      if (m.type === 'scroll') scroll.current = m.y;
+      else if (m.type === 'focus') typing.current = true;
       else if (m.type === 'blur') { typing.current = false; schedule(); }
       else if (m.type === 'text') { typing.current = true; ff.change(m.path, m.value); }
       else if (m.type === 'img') cms.media.open({ allowDelete: false, onSelect: (media: any) => ff.change(m.path, media.src) });
@@ -141,7 +142,7 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
     const p = window.open('', 'site-preview', 'width=1280,height=900');
     if (!p) return;
     p.document.open();
-    p.document.write('<!doctype html><title>Live preview</title><body style="margin:0;font:14px sans-serif"><div style="padding:8px 14px;background:#222;color:#fff">Live preview — click text to type, click a photo to swap it. Close this window when you are done.</div><iframe id="f" style="border:0;width:100%;height:calc(100vh - 36px)"></iframe><script>window.addEventListener("message",function(e){if(e.data&&e.data.tinaPreview&&window.opener)window.opener.postMessage(e.data,"*")})</script></body>');
+    p.document.write('<!doctype html><title>Live preview</title><body style="margin:0;font:14px sans-serif"><div style="padding:8px 14px;background:#222;color:#fff">Live preview — click text to type, click a photo to swap it. Close this window when you are done.</div><iframe id="f" sandbox="allow-scripts allow-popups" style="border:0;width:100%;height:calc(100vh - 36px)"></iframe><script>window.addEventListener("message",function(e){if(e.data&&e.data.tinaPreview&&window.opener)window.opener.postMessage(e.data,"*")})</script></body>');
     p.document.close();
     pop.current = p;
     p.document.getElementById('f')?.setAttribute('srcdoc', latest.current);
@@ -162,7 +163,7 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
   const base = big ? (mode === 'phone' ? 390 : 1100) : Math.max(280, cw), k = Math.min(1, cw / base), h = big ? ch / k : ch;
   const frameEl = (
     <div ref={wrap} style={{ width: '100%', height: ch, overflow: 'hidden', borderRadius: big ? 14 : 8, background: big ? '#ece9f0' : '#f2f2f6', position: 'relative' }}>
-      <iframe ref={frame} tabIndex={-1} title="Live preview" srcDoc={html} onLoad={() => { try { frame.current?.contentWindow?.scrollTo(0, scroll.current); } catch (e) { /* ignore */ } }} style={{ position: 'absolute', left: Math.max(0, (cw - base * k) / 2), top: 0, width: base, height: h, border: 0, background: '#fff', transform: `scale(${k})`, transformOrigin: 'top left', boxShadow: mode === 'phone' && big ? '0 8px 40px rgba(0,0,0,.18)' : 'none' }} />
+      <iframe ref={frame} tabIndex={-1} sandbox="allow-scripts allow-popups" title="Live preview" srcDoc={html} style={{ position: 'absolute', left: Math.max(0, (cw - base * k) / 2), top: 0, width: base, height: h, border: 0, background: '#fff', transform: `scale(${k})`, transformOrigin: 'top left', boxShadow: mode === 'phone' && big ? '0 8px 40px rgba(0,0,0,.18)' : 'none' }} />
     </div>
   );
   const dismiss = () => { setTip(false); try { localStorage.setItem('tina-tip-seen', '1'); } catch (e) { /* ignore */ } };
@@ -175,7 +176,7 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
         </span>
         <button type="button" style={pill(false)} onClick={popOut}>Full screen ↗</button>
         <button type="button" style={pill(false)} onClick={() => setOpen(!open)}>{open ? 'Hide preview' : 'Show preview'}</button>
-        <span style={{ marginLeft: 'auto', fontSize: 13, fontWeight: 600, color: auto.startsWith('Could') ? '#b3261e' : '#1b7a3d' }}>{auto || (kind === 'post' ? '● Drafts save automatically' : '● Press Save to publish')}</span>
+        <span role="status" aria-live="polite" style={{ marginLeft: 'auto', fontSize: 13, fontWeight: 600, color: /^(Could|Not saved|Offline)/.test(auto) ? '#b3261e' : '#1b7a3d' }}>{auto || (kind === 'post' ? '● Drafts save automatically' : '● Press Save to publish')}</span>
       </div>
       {tip && kind !== 'settings' && (
         <div style={{ marginTop: 10, padding: '8px 12px', background: '#fff1fa', border: '1px solid #ffc2e6', borderRadius: 8, fontSize: 14, color: '#5a1d44' }}>
