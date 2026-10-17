@@ -14,11 +14,47 @@ export const PostPartsFragmentDoc = gql`
   image
   excerpt
   body
+  draft
+  publishDate
+  description
+  featured
+}
+    `;
+export const PagePartsFragmentDoc = gql`
+    fragment PageParts on Page {
+  __typename
+  title
+  image
+  body
+  showRegisterCta
+  description
+  draft
 }
     `;
 export const SettingsPartsFragmentDoc = gql`
     fragment SettingsParts on Settings {
   __typename
+  siteTitle
+  tagline
+  theme {
+    __typename
+    accent
+    dark
+    text
+    soft
+    headingFont
+    bodyFont
+  }
+  nav {
+    __typename
+    label
+    href
+    children {
+      __typename
+      label
+      href
+    }
+  }
   registerUrl
   announcement {
     __typename
@@ -38,6 +74,12 @@ export const SettingsPartsFragmentDoc = gql`
     title
     text
     buttonText
+  }
+  footerText
+  social {
+    __typename
+    label
+    url
   }
 }
     `;
@@ -98,6 +140,63 @@ export const PostConnectionDocument = gql`
   }
 }
     ${PostPartsFragmentDoc}`;
+export const PageDocument = gql`
+    query page($relativePath: String!) {
+  page(relativePath: $relativePath) {
+    ... on Document {
+      _sys {
+        filename
+        basename
+        hasReferences
+        breadcrumbs
+        path
+        relativePath
+        extension
+      }
+      id
+    }
+    ...PageParts
+  }
+}
+    ${PagePartsFragmentDoc}`;
+export const PageConnectionDocument = gql`
+    query pageConnection($before: String, $after: String, $first: Float, $last: Float, $sort: String, $filter: PageFilter) {
+  pageConnection(
+    before: $before
+    after: $after
+    first: $first
+    last: $last
+    sort: $sort
+    filter: $filter
+  ) {
+    pageInfo {
+      hasPreviousPage
+      hasNextPage
+      startCursor
+      endCursor
+    }
+    totalCount
+    edges {
+      cursor
+      node {
+        ... on Document {
+          _sys {
+            filename
+            basename
+            hasReferences
+            breadcrumbs
+            path
+            relativePath
+            extension
+          }
+          id
+        }
+        ...PageParts
+      }
+    }
+  }
+}
+    ${PagePartsFragmentDoc}`;
 export const SettingsDocument = gql`
     query settings($relativePath: String!) {
   settings(relativePath: $relativePath) {
@@ -163,6 +262,12 @@ export function getSdk(requester) {
     postConnection(variables, options) {
       return requester(PostConnectionDocument, variables, options);
     },
+    page(variables, options) {
+      return requester(PageDocument, variables, options);
+    },
+    pageConnection(variables, options) {
+      return requester(PageConnectionDocument, variables, options);
+    },
     settings(variables, options) {
       return requester(SettingsDocument, variables, options);
     },
@@ -191,7 +296,7 @@ const generateRequester = (client) => {
 export const ExperimentalGetTinaClient = () => getSdk(
   generateRequester(
     createClient({
-      url: "https://content.tinajs.io/3.0/content/01789bf2-d73e-4861-a4f9-5960dbbd6392/github/main",
+      url: "http://localhost:4001/graphql",
       queries
     })
   )

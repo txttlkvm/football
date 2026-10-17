@@ -6,10 +6,45 @@ fragment PostParts on Post {
   image
   excerpt
   body
+  draft
+  publishDate
+  description
+  featured
+}
+
+fragment PageParts on Page {
+  __typename
+  title
+  image
+  body
+  showRegisterCta
+  description
+  draft
 }
 
 fragment SettingsParts on Settings {
   __typename
+  siteTitle
+  tagline
+  theme {
+    __typename
+    accent
+    dark
+    text
+    soft
+    headingFont
+    bodyFont
+  }
+  nav {
+    __typename
+    label
+    href
+    children {
+      __typename
+      label
+      href
+    }
+  }
   registerUrl
   announcement {
     __typename
@@ -29,5 +64,11 @@ fragment SettingsParts on Settings {
     title
     text
     buttonText
+  }
+  footerText
+  social {
+    __typename
+    label
+    url
   }
 }

@@ -59,12 +59,15 @@ type Query {
   document(collection: String, relativePath: String): DocumentNode!
   post(relativePath: String): Post!
   postConnection(before: String, after: String, first: Float, last: Float, sort: String, filter: PostFilter): PostConnection!
+  page(relativePath: String): Page!
+  pageConnection(before: String, after: String, first: Float, last: Float, sort: String, filter: PageFilter): PageConnection!
   settings(relativePath: String): Settings!
   settingsConnection(before: String, after: String, first: Float, last: Float, sort: String, filter: SettingsFilter): SettingsConnection!
 }
 
 input DocumentFilter {
   post: PostFilter
+  page: PageFilter
   settings: SettingsFilter
 }
 
@@ -91,7 +94,7 @@ type Collection {
   documents(before: String, after: String, first: Float, last: Float, sort: String, filter: DocumentFilter, folder: String): DocumentConnection!
 }
 
-union DocumentNode = Post | Settings | Folder
+union DocumentNode = Post | Page | Settings | Folder
 
 type Post implements Node & Document {
   title: String!
@@ -100,6 +103,10 @@ type Post implements Node & Document {
   image: String
   excerpt: String
   body: RichText
+  draft: Boolean
+  publishDate: String
+  description: String
+  featured: Boolean
   id: ID!
   _sys: SystemInfo!
   _values: JSON!
@@ -133,6 +140,11 @@ input RichTextFilter {
   exists: Boolean
 }
 
+input BooleanFilter {
+  eq: Boolean
+  exists: Boolean
+}
+
 input PostFilter {
   title: StringFilter
   date: DatetimeFilter
@@ -140,6 +152,10 @@ input PostFilter {
   image: ImageFilter
   excerpt: StringFilter
   body: RichTextFilter
+  draft: BooleanFilter
+  publishDate: DatetimeFilter
+  description: StringFilter
+  featured: BooleanFilter
 }
 
 type PostConnectionEdges {
@@ -151,6 +167,58 @@ type PostConnection implements Connection {
   pageInfo: PageInfo!
   totalCount: Float!
   edges: [PostConnectionEdges]
+}
+
+type Page implements Node & Document {
+  title: String!
+  image: String
+  body: RichText
+  showRegisterCta: Boolean
+  description: String
+  draft: Boolean
+  id: ID!
+  _sys: SystemInfo!
+  _values: JSON!
+}
+
+input PageFilter {
+  title: StringFilter
+  image: ImageFilter
+  body: RichTextFilter
+  showRegisterCta: BooleanFilter
+  description: StringFilter
+  draft: BooleanFilter
+}
+
+type PageConnectionEdges {
+  cursor: String!
+  node: Page
+}
+
+type PageConnection implements Connection {
+  pageInfo: PageInfo!
+  totalCount: Float!
+  edges: [PageConnectionEdges]
+}
+
+type SettingsTheme {
+  accent: String
+  dark: String
+  text: String
+  soft: String
+  headingFont: String
+  bodyFont: String
+}
+
+type SettingsNavChildren {
+  label: String!
+  href: String!
+}
+
+type SettingsNav {
+  label: String!
+  href: String!
+  children: [SettingsNavChildren]
 }
 
 type SettingsAnnouncement {
@@ -172,19 +240,45 @@ type SettingsClassCard {
   buttonText: String
 }
 
+type SettingsSocial {
+  label: String
+  url: String
+}
+
 type Settings implements Node & Document {
+  siteTitle: String
+  tagline: String
+  theme: SettingsTheme
+  nav: [SettingsNav]
   registerUrl: String
   announcement: SettingsAnnouncement
   hero: SettingsHero
   classCard: SettingsClassCard
+  footerText: String
+  social: [SettingsSocial]
   id: ID!
   _sys: SystemInfo!
   _values: JSON!
 }
 
-input BooleanFilter {
-  eq: Boolean
-  exists: Boolean
+input SettingsThemeFilter {
+  accent: StringFilter
+  dark: StringFilter
+  text: StringFilter
+  soft: StringFilter
+  headingFont: StringFilter
+  bodyFont: StringFilter
+}
+
+input SettingsNavChildrenFilter {
+  label: StringFilter
+  href: StringFilter
+}
+
+input SettingsNavFilter {
+  label: StringFilter
+  href: StringFilter
+  children: SettingsNavChildrenFilter
 }
 
 input SettingsAnnouncementFilter {
@@ -206,11 +300,22 @@ input SettingsClassCardFilter {
   buttonText: StringFilter
 }
 
+input SettingsSocialFilter {
+  label: StringFilter
+  url: StringFilter
+}
+
 input SettingsFilter {
+  siteTitle: StringFilter
+  tagline: StringFilter
+  theme: SettingsThemeFilter
+  nav: SettingsNavFilter
   registerUrl: StringFilter
   announcement: SettingsAnnouncementFilter
   hero: SettingsHeroFilter
   classCard: SettingsClassCardFilter
+  footerText: StringFilter
+  social: SettingsSocialFilter
 }
 
 type SettingsConnectionEdges {
@@ -232,18 +337,22 @@ type Mutation {
   createFolder(collection: String, relativePath: String!): DocumentNode!
   updatePost(relativePath: String!, params: PostMutation!): Post!
   createPost(relativePath: String!, params: PostMutation!): Post!
+  updatePage(relativePath: String!, params: PageMutation!): Page!
+  createPage(relativePath: String!, params: PageMutation!): Page!
   updateSettings(relativePath: String!, params: SettingsMutation!): Settings!
   createSettings(relativePath: String!, params: SettingsMutation!): Settings!
 }
 
 input DocumentUpdateMutation {
   post: PostMutation
+  page: PageMutation
   settings: SettingsMutation
   relativePath: String
 }
 
 input DocumentMutation {
   post: PostMutation
+  page: PageMutation
   settings: SettingsMutation
 }
 
@@ -254,6 +363,39 @@ input PostMutation {
   image: String
   excerpt: String
   body: RichText
+  draft: Boolean
+  publishDate: String
+  description: String
+  featured: Boolean
+}
+
+input PageMutation {
+  title: String
+  image: String
+  body: RichText
+  showRegisterCta: Boolean
+  description: String
+  draft: Boolean
+}
+
+input SettingsThemeMutation {
+  accent: String
+  dark: String
+  text: String
+  soft: String
+  headingFont: String
+  bodyFont: String
+}
+
+input SettingsNavChildrenMutation {
+  label: String
+  href: String
+}
+
+input SettingsNavMutation {
+  label: String
+  href: String
+  children: [SettingsNavChildrenMutation]
 }
 
 input SettingsAnnouncementMutation {
@@ -275,11 +417,22 @@ input SettingsClassCardMutation {
   buttonText: String
 }
 
+input SettingsSocialMutation {
+  label: String
+  url: String
+}
+
 input SettingsMutation {
+  siteTitle: String
+  tagline: String
+  theme: SettingsThemeMutation
+  nav: [SettingsNavMutation]
   registerUrl: String
   announcement: SettingsAnnouncementMutation
   hero: SettingsHeroMutation
   classCard: SettingsClassCardMutation
+  footerText: String
+  social: [SettingsSocialMutation]
 }
 
 schema {

@@ -2,7 +2,10 @@
 import '../styles/global.css';
 import { nav, REGISTER_URL, settings } from '../content/site';
 const { title, description = "Diamond's blog on Marriage, Motherhood & Meals — sharing the knowledge God has given.", image = '/og.png' } = Astro.props;
-const full = title === 'Home' ? 'Motherhood Marriage Meals – Diamond’s Blog' : `${title} – Motherhood Marriage Meals`;
+const full = title === 'Home' ? `${settings.siteTitle} – ${settings.tagline.replace(/'/g, '\u2019')}` : `${title} – ${settings.siteTitle}`;
+const t = settings.theme;
+const fontsUrl = 'https://fonts.googleapis.com/css2?' + [...new Set([t.headingFont, t.bodyFont])].map(f => `family=${f.replace(/ /g, '+')}:wght@400;500;600;700`).join('&') + '&display=swap';
+const themeCss = `html:root{--pink:${t.accent};--ink:${t.dark};--text:${t.text};--cream:${t.soft};--font-head:"${t.headingFont}",system-ui,sans-serif;--font-body:"${t.bodyFont}",system-ui,sans-serif}`;
 const path = Astro.url.pathname;
 ---
 <!doctype html>
@@ -10,9 +13,10 @@ const path = Astro.url.pathname;
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{full}</title><meta name="description" content={description}>
 <link rel="canonical" href={new URL(path, Astro.site)}><link rel="icon" type="image/png" href="/favicon.png"><link rel="apple-touch-icon" href="/favicon.png">
-<meta property="og:title" content={full}><meta property="og:description" content={description}><meta property="og:image" content={new URL(image, Astro.site)}><meta property="og:type" content="website"><meta property="og:site_name" content="Motherhood Marriage Meals"><meta property="og:url" content={new URL(path, Astro.site)}><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content={new URL(image, Astro.site)}>
+<meta property="og:title" content={full}><meta property="og:description" content={description}><meta property="og:image" content={new URL(image, Astro.site)}><meta property="og:type" content="website"><meta property="og:site_name" content={settings.siteTitle}><meta property="og:url" content={new URL(path, Astro.site)}><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content={new URL(image, Astro.site)}>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+<link href={fontsUrl} rel="stylesheet"><style set:html={themeCss}></style>
+<link rel="alternate" type="application/rss+xml" title={settings.siteTitle} href="/rss.xml">
 <script is:inline>document.documentElement.classList.add("js")</script>
 </head><body>
 <a class="skip" href="#main">Skip to content</a>
@@ -27,7 +31,7 @@ const path = Astro.url.pathname;
 {i.children&&<ul class="sub">{i.children.map(c=>(<li><a href={c.href}>{c.label}</a></li>))}</ul>}</li>))}
 <li class="nav-cta"><a class="btn pulse" href={REGISTER_URL}>Register</a></li></ul></nav></div></header>
 <main id="main"><slot/></main>
-<footer class="footer"><img src="/img/logo.png" alt="Marriage-Motherhood-Meals" width="900" height="197" loading="lazy"><p>Diamond's Blog<br>© {new Date().getFullYear()} All rights reserved</p></footer>
+<footer class="footer"><img src="/img/logo.png" alt="Marriage-Motherhood-Meals" width="900" height="197" loading="lazy"><p>{settings.tagline}<br>© {new Date().getFullYear()} {settings.footerText}</p>{settings.social.length>0&&<p class="social">{settings.social.map(x=>(<a href={x.url} rel="noopener">{x.label}</a>))}</p>}</footer>
 <script is:inline>const a=document.getElementById('announce');if(a){try{if(!sessionStorage.getItem('ax'))a.hidden=false}catch(e){a.hidden=false}document.getElementById('ax').addEventListener('click',()=>{a.hidden=true;try{sessionStorage.setItem('ax','1')}catch(e){}})}const t=document.getElementById('tg'),m=document.getElementById('menu');t.addEventListener('click',()=>{const o=m.classList.toggle('open');t.setAttribute('aria-expanded',o)})</script>
 <script is:inline>(function(){var hd=document.querySelector('.site-header');var sc=function(){hd.classList.toggle('scrolled',window.scrollY>8)};sc();window.addEventListener('scroll',sc,{passive:true});
 document.querySelectorAll('.grid').forEach(function(g){Array.prototype.forEach.call(g.children,function(c,i){c.style.setProperty('--d',(i%6)*70+'ms')})});
