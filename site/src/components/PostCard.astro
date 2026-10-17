@@ -3,4 +3,4 @@ import { fmt } from '../content/site';
 const { post } = Astro.props;
 ---
 <a class="card" href={`/${post.slug}/`}>{post.img?<img src={post.img} alt="" loading="lazy">:<div class="ph"></div>}
-<div class="b"><div class="meta">{fmt(post.date)}</div><h3>{post.title}</h3>{post.excerpt&&<p>{post.excerpt.slice(0,110)}…</p>}</div></a>
+<div class="b">{post.cats?.[0]&&<div class="cat-eyebrow">{post.cats[0]}</div>}<h3>{post.title}</h3>{post.excerpt&&<p class="clamp">{String(post.excerpt).replace(/…+$|\.{3}$/,'')}</p>}<div class="meta">{fmt(post.date)}</div></div></a>
