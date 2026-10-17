@@ -215,3 +215,9 @@ html{scroll-padding-top:84px;scroll-padding-bottom:96px}
 @media(forced-colors:active){.toggle .bars,.toggle .bars::before,.toggle .bars::after{background:CanvasText;forced-color-adjust:none}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 @media(max-width:360px){.hdr-register{display:none}}
+
+/* round 8 polish */
+html.menu-open .sticky-register{display:none}
+.article .body img{max-height:70vh;object-fit:cover}
+.feature .btn,.blk-feature .btn{white-space:nowrap;flex:none}
+.fcols li{margin:2px 0}.fcols a{padding:6px 4px}

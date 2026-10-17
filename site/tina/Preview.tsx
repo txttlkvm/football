@@ -45,7 +45,8 @@ async function build(kind: string, v: any, y = 0): Promise<string> {
   if (kind === 'post') content = article(`<div class="meta">${fmt(v.date)}</div>`);
   else if (kind === 'page') { const blocks = blocksHtml(v.blocks, ctx); content = v.layout === 'blocks' ? blocks : article('') + blocks; }
   else content = c.main;
-  let doc = `<!doctype html><html class="js"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}/" target="_blank">${c.head}<style>*,*::before,*::after{animation:none!important;transition:none!important}.reveal,.js .reveal{opacity:1!important;transform:none!important}.sticky-register{display:none!important}.site-header{position:static}</style></head><body>${c.announce}${c.header}<main>${content}</main>${c.footer}${ctx.edit ? `<script>${IFRAME_SCRIPT}</script>` : ''}<script>addEventListener('load',function(){scrollTo(0,${Number(y) || 0})})</script></body></html>`;
+  const hideAnn = kind !== 'settings' && !(kind === 'page' && v.layout === 'blocks');
+  let doc = `<!doctype html><html class="js"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}/" target="_blank">${c.head}<style>${hideAnn ? '.announce{display:none!important}' : ''}.menu a[aria-current]{color:inherit!important}*,*::before,*::after{animation:none!important;transition:none!important}.reveal,.js .reveal{opacity:1!important;transform:none!important}.sticky-register{display:none!important}.site-header{position:static}</style></head><body>${c.announce}${c.header}<main>${content}</main>${c.footer}${ctx.edit ? `<script>${IFRAME_SCRIPT}</script>` : ''}<script>addEventListener('load',function(){scrollTo(0,${Number(y) || 0})})</script></body></html>`;
   if (kind === 'settings') {
     const d = new DOMParser().parseFromString(doc, 'text/html'), t = v.theme || {};
     const st = d.createElement('style');
@@ -168,7 +169,7 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
   );
   const dismiss = () => { setTip(false); try { localStorage.setItem('tina-tip-seen', '1'); } catch (e) { /* ignore */ } };
   const controls = (
-    <div style={{ boxSizing: 'border-box', maxWidth: '100%', padding: 12, background: '#fff', border: '1px solid #e1e1ea', borderRadius: 10 }}>
+    <div style={{ boxSizing: 'border-box', maxWidth: '100%', minWidth: 0, overflow: 'hidden', overflowWrap: 'anywhere', padding: 12, background: '#fff', border: '1px solid #e1e1ea', borderRadius: 10 }}>
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
         <span style={{ display: 'inline-flex', border: '1px solid #e1e1ea', borderRadius: 999, overflow: 'hidden' }}>
           <button type="button" aria-label="Phone view" style={{ ...pill(mode === 'phone'), border: 0, borderRadius: 0 }} onClick={() => setMode('phone')}>📱 Phone</button>
