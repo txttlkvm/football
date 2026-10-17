@@ -67,7 +67,7 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
   const draftKey = 'tina-draft:' + formId;
   const [html, setHtml] = React.useState('');
   const [mode, setMode] = React.useState<'phone' | 'desktop'>(window.innerWidth >= 1000 ? 'desktop' : 'phone');
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = React.useState(window.innerWidth >= 700);
   const [w, setW] = React.useState(300);
   const [restore, setRestore] = React.useState<any>(() => { try { const r = JSON.parse(localStorage.getItem(draftKey) || 'null'); return r && r.t < pageStart && JSON.stringify(r.values) !== JSON.stringify(ff.getState().initialValues) ? r : null; } catch { return null; } });
   const wrap = React.useRef<HTMLDivElement>(null);
@@ -100,7 +100,13 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
     const off = ff.subscribe((s: any) => {
       schedule();
       clearTimeout(idle.current);
-      if (s.dirty && !s.submitting) idle.current = setTimeout(async () => { try { setAuto('Saving…'); await ff.submit(); setAuto('Auto-saved ✓ ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })); } catch (e) { setAuto('Could not auto-save — press Save'); } }, 30000);
+      const v = s.values || {};
+      const safe = kind === 'post' && v.draft === true && tinaForm?.crudType !== 'create';
+      if (s.dirty && !s.submitting && !safe) setAuto('Unsaved — press Save to publish your changes');
+      if (s.dirty && !s.submitting && safe) idle.current = setTimeout(async () => {
+        if (!navigator.onLine) { setAuto('Offline — your edits are kept on this device'); return; }
+        try { setAuto('Saving…'); await ff.submit(); setAuto(ff.getState().dirty ? 'Not saved yet — your edits are kept on this device' : 'Auto-saved ✓ ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })); } catch (e) { setAuto('Could not auto-save — press Save'); }
+      }, 30000);
       try { if (s.submitSucceeded && !s.dirty) localStorage.removeItem(draftKey); else if (s.dirty) localStorage.setItem(draftKey, JSON.stringify({ t: Date.now(), values: s.values })); } catch (e) { /* storage unavailable */ }
     }, { values: true, dirty: true, submitSucceeded: true, submitting: true });
     const guard = (e: BeforeUnloadEvent) => { if (ff.getState().dirty) { e.preventDefault(); e.returnValue = ''; } };
@@ -152,7 +158,7 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
   }, []);
   const big = !inline && vp.w >= 1000;
   const left = 560;
-  const cw = big ? vp.w - left - 16 : w, ch = big ? vp.h - 118 - 76 - 92 : 540;
+  const cw = big ? vp.w - left - 16 : Math.min(w, vp.w - 32), ch = big ? vp.h - 118 - 76 - 92 : 540;
   const base = big ? (mode === 'phone' ? 390 : 1100) : Math.max(280, cw), k = Math.min(1, cw / base), h = big ? ch / k : ch;
   const frameEl = (
     <div ref={wrap} style={{ width: '100%', height: ch, overflow: 'hidden', borderRadius: big ? 14 : 8, background: big ? '#ece9f0' : '#f2f2f6', position: 'relative' }}>
@@ -169,7 +175,7 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
         </span>
         <button type="button" style={pill(false)} onClick={popOut}>Full screen ↗</button>
         <button type="button" style={pill(false)} onClick={() => setOpen(!open)}>{open ? 'Hide preview' : 'Show preview'}</button>
-        <span style={{ marginLeft: 'auto', fontSize: 13, fontWeight: 600, color: auto.startsWith('Could') ? '#b3261e' : '#1b7a3d' }}>{auto || '● Saves automatically as you work'}</span>
+        <span style={{ marginLeft: 'auto', fontSize: 13, fontWeight: 600, color: auto.startsWith('Could') ? '#b3261e' : '#1b7a3d' }}>{auto || (kind === 'post' ? '● Drafts save automatically' : '● Press Save to publish')}</span>
       </div>
       {tip && kind !== 'settings' && (
         <div style={{ marginTop: 10, padding: '8px 12px', background: '#fff1fa', border: '1px solid #ffc2e6', borderRadius: 8, fontSize: 14, color: '#5a1d44' }}>

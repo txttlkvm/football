@@ -2,13 +2,13 @@ fragment PostParts on Post {
   __typename
   livePreview
   title
+  body
   draft
   date
   categories
   image
   imageFocus
   excerpt
-  body
   publishDate
   description
   featured
@@ -317,6 +317,7 @@ fragment SettingsParts on Settings {
     show
     text
     linkText
+    linkUrl
   }
   classCard {
     __typename

@@ -10,12 +10,13 @@ export const PostPartsFragmentDoc = gql`
   __typename
   livePreview
   title
+  body
   draft
   date
   categories
   image
+  imageFocus
   excerpt
-  body
   publishDate
   description
   featured
@@ -36,6 +37,7 @@ export const PagePartsFragmentDoc = gql`
     __typename
     ... on PageBlocksHero {
       image
+      focus
       heading
       text
       buttonLabel
@@ -53,6 +55,8 @@ export const PagePartsFragmentDoc = gql`
     }
     ... on PageBlocksImageText {
       image
+      focus
+      ratio
       alt
       heading
       text
@@ -67,13 +71,17 @@ export const PagePartsFragmentDoc = gql`
       images {
         __typename
         src
+        focus
         alt
         caption
       }
+      ratio
       background
     }
     ... on PageBlocksFeature {
       image
+      focus
+      ratio
       eyebrow
       heading
       text
@@ -140,6 +148,13 @@ export const PagePartsFragmentDoc = gql`
       }
       background
     }
+    ... on PageBlocksForm {
+      title
+      intro
+      buttonLabel
+      successText
+      background
+    }
     ... on PageBlocksSpacer {
       size
     }
@@ -154,6 +169,7 @@ export const HomePartsFragmentDoc = gql`
     __typename
     ... on HomeBlocksHero {
       image
+      focus
       heading
       text
       buttonLabel
@@ -171,6 +187,8 @@ export const HomePartsFragmentDoc = gql`
     }
     ... on HomeBlocksImageText {
       image
+      focus
+      ratio
       alt
       heading
       text
@@ -185,13 +203,17 @@ export const HomePartsFragmentDoc = gql`
       images {
         __typename
         src
+        focus
         alt
         caption
       }
+      ratio
       background
     }
     ... on HomeBlocksFeature {
       image
+      focus
+      ratio
       eyebrow
       heading
       text
@@ -258,6 +280,13 @@ export const HomePartsFragmentDoc = gql`
       }
       background
     }
+    ... on HomeBlocksForm {
+      title
+      intro
+      buttonLabel
+      successText
+      background
+    }
     ... on HomeBlocksSpacer {
       size
     }
@@ -299,6 +328,7 @@ export const SettingsPartsFragmentDoc = gql`
     show
     text
     linkText
+    linkUrl
   }
   classCard {
     __typename
@@ -308,6 +338,7 @@ export const SettingsPartsFragmentDoc = gql`
     stickyText
   }
   mobileCta
+  formsKey
   footerText
   social {
     __typename
@@ -592,7 +623,7 @@ const generateRequester = (client) => {
 export const ExperimentalGetTinaClient = () => getSdk(
   generateRequester(
     createClient({
-      url: "http://localhost:4001/graphql",
+      url: "http://localhost:4102/graphql",
       queries
     })
   )
