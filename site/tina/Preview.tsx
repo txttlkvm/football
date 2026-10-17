@@ -2,6 +2,7 @@
 // click formatted text to jump to its box. Also keeps a recoverable copy of unsaved work.
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { useCMS } from 'tinacms';
 import { richText, blocksHtml, esc } from '../src/lib/render.mjs';
 
@@ -60,8 +61,7 @@ async function build(kind: string, v: any): Promise<string> {
 
 const pill = (on: boolean): React.CSSProperties => ({ font: 'inherit', fontSize: 13, padding: '5px 12px', borderRadius: 999, border: '1px solid ' + (on ? '#ec4815' : '#d8d8e0'), background: on ? '#fff1ec' : '#fff', color: on ? '#b93a10' : '#333', cursor: 'pointer' });
 
-function Panel({ kind, tinaForm }: { kind: string; tinaForm: any }) {
-  const cms: any = useCMS();
+function Canvas({ kind, tinaForm, cms, inline }: any) {
   const ff = tinaForm?.finalForm ?? tinaForm;
   const formId = tinaForm?.id ?? 'form';
   const draftKey = 'tina-draft:' + formId;
@@ -144,60 +144,68 @@ function Panel({ kind, tinaForm }: { kind: string; tinaForm: any }) {
   const discard = () => { try { localStorage.removeItem(draftKey); } catch (e) { /* ignore */ } setRestore(null); };
 
   const [vp, setVp] = React.useState({ w: window.innerWidth, h: window.innerHeight });
-  const card = React.useRef<HTMLDivElement>(null);
-  const [left, setLeft] = React.useState(660);
   const [tip, setTip] = React.useState(() => { try { return !localStorage.getItem('tina-tip-seen'); } catch { return true; } });
   React.useEffect(() => {
-    const on = () => { setVp({ w: window.innerWidth, h: window.innerHeight }); const r = card.current?.getBoundingClientRect(); if (r) setLeft(Math.min(Math.round(r.right + 16), 560)); };
-    on(); window.addEventListener('resize', on);
-    const ro = new ResizeObserver(on); if (card.current) ro.observe(card.current);
-    return () => { window.removeEventListener('resize', on); ro.disconnect(); };
+    const on = () => setVp({ w: window.innerWidth, h: window.innerHeight });
+    window.addEventListener('resize', on);
+    return () => window.removeEventListener('resize', on);
   }, []);
-  const big = vp.w >= 1000;
-  React.useEffect(() => {
-    if (!big || !open || !card.current) return;
-    const done: [HTMLElement, string][] = [];
-    for (let el = card.current.parentElement; el && el !== document.body; el = el.parentElement) {
-      if (el.offsetWidth > vp.w * 0.8) { done.push([el, el.style.maxWidth]); el.style.maxWidth = '540px'; }
-    }
-    window.dispatchEvent(new Event('resize'));
-    return () => done.forEach(([el, v]) => { el.style.maxWidth = v; });
-  }, [big, open]);
-  const cw = big ? vp.w - left - 16 : w, ch = big ? vp.h - 118 - 76 : 540;
+  const big = !inline && vp.w >= 1000;
+  const left = 560;
+  const cw = big ? vp.w - left - 16 : w, ch = big ? vp.h - 118 - 76 - 92 : 540;
   const base = big ? (mode === 'phone' ? 390 : 1100) : Math.max(280, cw), k = Math.min(1, cw / base), h = big ? ch / k : ch;
   const frameEl = (
     <div ref={wrap} style={{ width: '100%', height: ch, overflow: 'hidden', borderRadius: big ? 14 : 8, background: big ? '#ece9f0' : '#f2f2f6', position: 'relative' }}>
-      <iframe ref={frame} title="Live preview" srcDoc={html} onLoad={() => { try { frame.current?.contentWindow?.scrollTo(0, scroll.current); } catch (e) { /* ignore */ } }} style={{ position: 'absolute', left: Math.max(0, (cw - base * k) / 2), top: 0, width: base, height: h, border: 0, background: '#fff', transform: `scale(${k})`, transformOrigin: 'top left', boxShadow: mode === 'phone' && big ? '0 8px 40px rgba(0,0,0,.18)' : 'none' }} />
+      <iframe ref={frame} tabIndex={-1} title="Live preview" srcDoc={html} onLoad={() => { try { frame.current?.contentWindow?.scrollTo(0, scroll.current); } catch (e) { /* ignore */ } }} style={{ position: 'absolute', left: Math.max(0, (cw - base * k) / 2), top: 0, width: base, height: h, border: 0, background: '#fff', transform: `scale(${k})`, transformOrigin: 'top left', boxShadow: mode === 'phone' && big ? '0 8px 40px rgba(0,0,0,.18)' : 'none' }} />
     </div>
   );
   const dismiss = () => { setTip(false); try { localStorage.setItem('tina-tip-seen', '1'); } catch (e) { /* ignore */ } };
-  return (
-    <div style={{ margin: '0 0 22px' }}>
-      {restore && (
-        <div style={{ margin: '0 0 12px', padding: '10px 12px', background: '#fff8e6', border: '1px solid #f0d98a', borderRadius: 8, fontSize: 14 }}>
-          <strong>You have unsaved changes from earlier</strong> ({new Date(restore.t).toLocaleString()}).
-          <div style={{ marginTop: 8, display: 'flex', gap: 8 }}><button type="button" style={pill(true)} onClick={doRestore}>Bring them back</button><button type="button" style={pill(false)} onClick={discard}>Throw them away</button></div>
+  const controls = (
+    <div style={{ padding: 12, background: '#fff', border: '1px solid #e1e1ea', borderRadius: 10 }}>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+        <span style={{ display: 'inline-flex', border: '1px solid #e1e1ea', borderRadius: 999, overflow: 'hidden' }}>
+          <button type="button" aria-label="Phone view" style={{ ...pill(mode === 'phone'), border: 0, borderRadius: 0 }} onClick={() => setMode('phone')}>📱 Phone</button>
+          <button type="button" aria-label="Computer view" style={{ ...pill(mode === 'desktop'), border: 0, borderRadius: 0 }} onClick={() => setMode('desktop')}>🖥 Computer</button>
+        </span>
+        <button type="button" style={pill(false)} onClick={popOut}>Full screen ↗</button>
+        <button type="button" style={pill(false)} onClick={() => setOpen(!open)}>{open ? 'Hide preview' : 'Show preview'}</button>
+        <span style={{ marginLeft: 'auto', fontSize: 13, fontWeight: 600, color: auto.startsWith('Could') ? '#b3261e' : '#1b7a3d' }}>{auto || '● Saves automatically as you work'}</span>
+      </div>
+      {tip && kind !== 'settings' && (
+        <div style={{ marginTop: 10, padding: '8px 12px', background: '#fff1fa', border: '1px solid #ffc2e6', borderRadius: 8, fontSize: 14, color: '#5a1d44' }}>
+          <strong>Tip:</strong> click any words on the page to type there, or click a photo to swap it. <button type="button" onClick={dismiss} style={{ ...pill(false), marginLeft: 6, padding: '2px 10px' }}>Got it</button>
         </div>
       )}
-      <div ref={card} style={{ boxSizing: 'border-box', width: '100%', padding: 12, background: '#fff', border: '1px solid #e1e1ea', borderRadius: 10 }}>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-          <span style={{ display: 'inline-flex', border: '1px solid #e1e1ea', borderRadius: 999, overflow: 'hidden' }}>
-            <button type="button" style={{ ...pill(mode === 'phone'), border: 0, borderRadius: 0 }} onClick={() => setMode('phone')}>📱 Phone</button>
-            <button type="button" style={{ ...pill(mode === 'desktop'), border: 0, borderRadius: 0 }} onClick={() => setMode('desktop')}>🖥 Computer</button>
-          </span>
-          <button type="button" style={pill(false)} onClick={popOut}>Full screen ↗</button>
-          <button type="button" style={pill(false)} onClick={() => setOpen(!open)}>{open ? 'Hide preview' : 'Show preview'}</button>
+      {restore && (
+        <div style={{ marginTop: 10, padding: '8px 12px', background: '#fff8e6', border: '1px solid #f0d98a', borderRadius: 8, fontSize: 14 }}>
+          <strong>You have unsaved changes from earlier</strong> ({new Date(restore.t).toLocaleString()}).
+          <span style={{ marginLeft: 8, display: 'inline-flex', gap: 8 }}><button type="button" style={pill(true)} onClick={doRestore}>Bring them back</button><button type="button" style={pill(false)} onClick={discard}>Throw them away</button></span>
         </div>
-        <div style={{ marginTop: 10, fontSize: 13, fontWeight: 600, color: auto.startsWith('Could') ? '#b3261e' : '#1b7a3d' }}>{auto || '● Saves automatically as you work'}</div>
-        {tip && kind !== 'settings' && (
-          <div style={{ marginTop: 10, padding: '10px 12px', background: '#fff1fa', border: '1px solid #ffc2e6', borderRadius: 8, fontSize: 14, color: '#5a1d44' }}>
-            <strong>New:</strong> click any words on the page to type there, or click a photo to swap it. <button type="button" onClick={dismiss} style={{ ...pill(false), marginLeft: 6, padding: '2px 10px' }}>Got it</button>
-          </div>
-        )}
-        {open && !big && <div style={{ marginTop: 10 }}>{frameEl}</div>}
-      </div>
-      {open && big && ReactDOM.createPortal(<div style={{ position: 'fixed', left, right: 16, top: 118, bottom: 76, zIndex: 40 }}>{frameEl}</div>, document.body)}
+      )}
     </div>
   );
+  if (!big) return <div style={{ margin: '0 0 22px' }}>{controls}{open && <div style={{ marginTop: 10 }}>{frameEl}</div>}</div>;
+  return <div style={{ position: 'fixed', left, right: 16, top: 118, bottom: 76, zIndex: 40, display: 'flex', flexDirection: 'column', gap: 10 }}>{controls}{open && frameEl}</div>;
+}
+
+let host: HTMLDivElement | null = null, root: any = null, hashAt = '', narrowed: [HTMLElement, string][] = [];
+const teardown = () => { if (root) root.unmount(); host?.remove(); host = null; root = null; narrowed.forEach(([el, v]) => { el.style.maxWidth = v; }); narrowed = []; };
+if (typeof window !== 'undefined') window.addEventListener('hashchange', () => { if (host && location.hash !== hashAt) teardown(); });
+
+function Panel({ kind, tinaForm }: { kind: string; tinaForm: any }) {
+  const cms: any = useCMS();
+  const anchor = React.useRef<HTMLSpanElement>(null);
+  const big = window.innerWidth >= 1000;
+  React.useEffect(() => {
+    if (!big) return;
+    if (!host) { host = document.createElement('div'); document.body.appendChild(host); root = createRoot(host); }
+    hashAt = location.hash;
+    if (!narrowed.length) for (let el = anchor.current?.parentElement ?? null; el && el !== document.body; el = el.parentElement) {
+      if (el.offsetWidth > window.innerWidth * 0.8) { narrowed.push([el, el.style.maxWidth]); el.style.maxWidth = '540px'; }
+    }
+    root.render(<Canvas key={tinaForm?.id} kind={kind} tinaForm={tinaForm} cms={cms} />);
+  }, [big, kind, tinaForm, cms]);
+  if (big) return <span ref={anchor} />;
+  return <Canvas kind={kind} tinaForm={tinaForm} cms={cms} inline />;
 }
 export const previewField = (kind: string) => ({ type: 'string', name: 'livePreview', label: 'Live preview', ui: { component: (props: any) => <Panel kind={kind} tinaForm={props.tinaForm ?? props.form} /> } }) as any;

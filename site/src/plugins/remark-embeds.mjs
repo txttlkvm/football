@@ -1,7 +1,7 @@
 // Turns the editor's blocks, saved in posts as {{< name key="value" >}}, into real HTML using the shared renderer.
 import { existsSync } from 'node:fs';
 import { embeds } from '../lib/render.mjs';
-const attrsOf = (s) => Object.fromEntries([...s.matchAll(/(\w+)=["“”]([^"“”]*)["“”]/g)].map((m) => [m[1], m[2]]));
+const attrsOf = (s) => Object.fromEntries([...s.matchAll(/(\w+)=(?:"((?:[^"\\]|\\.)*)"|“([^”]*)”)/g)].map((m) => [m[1], (m[2] ?? m[3]).replace(/\\"/g, '"')]));
 const posterFor = (src) => { const p = src.replace(/\.(mp4|webm|mov)$/i, '-poster.jpg'); return p !== src && src.startsWith('/') && existsSync('public' + p) ? p : ''; };
 const fixText = (t) => t.replace(/(https?:)÷/g, '$1//');   // the editor can turn a typed "//" into "÷"
 function walk(node) {
