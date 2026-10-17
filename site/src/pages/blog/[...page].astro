@@ -1,0 +1,23 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostCard from '../../components/PostCard.astro';
+import { allPosts } from '../../content/site';
+export function getStaticPaths({ paginate }: any) { return paginate(allPosts, { pageSize: 12 }); }
+const { page } = Astro.props;
+---
+<Base title="All posts" description="Every post from Marriage Motherhood Meals.">
+<section class="section"><div class="wrap">
+<h1 style="text-align:center">All posts</h1>
+<p class="lede" style="text-align:center">Faith, family and food — {allPosts.length} posts and counting.</p>
+<form class="blog-search" role="search" onsubmit="return false"><label class="sr" for="q">Search posts</label><input id="q" type="search" placeholder="Search posts…" autocomplete="off"></form>
+<div class="grid" id="list">{page.data.map((p: any) => <PostCard post={p} />)}</div>
+<p id="none" hidden style="text-align:center">No posts match that search.</p>
+{(page.url.prev || page.url.next) && <nav class="pager" aria-label="Pages">{page.url.prev ? <a href={page.url.prev}>← Newer</a> : <span></span>}<span>Page {page.currentPage} of {page.lastPage}</span>{page.url.next ? <a href={page.url.next}>Older →</a> : <span></span>}</nav>}
+</div></section></Base>
+<script is:inline>
+(function(){var q=document.getElementById('q'),l=document.getElementById('list'),n=document.getElementById('none'),all=null,orig=l.innerHTML;
+q.addEventListener('input',function(){var v=q.value.trim().toLowerCase();if(!v){l.innerHTML=orig;n.hidden=true;return}
+(all?Promise.resolve(all):fetch('/posts.json').then(function(r){return r.json()}).then(function(j){return all=j})).then(function(j){
+var hit=j.filter(function(p){return (p.title+' '+(p.excerpt||'')+' '+(p.cats||[]).join(' ')).toLowerCase().indexOf(v)>-1});
+l.innerHTML=hit.map(function(p){return '<a class="card" href="/'+p.slug+'/">'+(p.img?'<img src="'+p.img+'" alt="" loading="lazy">':'<div class="ph"></div>')+'<div class="b"><h3>'+p.title.replace(/</g,'&lt;')+'</h3></div></a>'}).join('');n.hidden=hit.length>0})})})();
+</script>

@@ -3,6 +3,6 @@
 import { spawnSync } from 'node:child_process';
 const run = (cmd, args) => spawnSync(cmd, args, { stdio: 'inherit', shell: true }).status;
 if (process.env.TINA_TOKEN) {
-  if (run('npx', ['tinacms', 'build'])) console.warn('WARNING: Tina editor build failed (check TINA_TOKEN and that this branch is enabled in Tina Cloud). Building site without /admin.');
+  if (run('npx', ['tinacms', 'build'])) console.error('::error::Tina editor build failed — /admin will be MISSING from this deploy. Check TINA_TOKEN, and that tina/tina-lock.json matches tina/config.ts (run: npm run check:tina). Original warning: Tina editor build failed (check TINA_TOKEN and that this branch is enabled in Tina Cloud). Building site without /admin.');
 } else console.log('TINA_TOKEN not set: skipping editor build');
 process.exit(run('npx', ['astro', 'build']));
