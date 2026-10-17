@@ -17,3 +17,9 @@ export const nav = settings.nav as { label: string; href: string; children?: { l
 export const fmt = (d: Date) => d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
 
 export const REGISTER_URL = settings.registerUrl;
+
+import { existsSync } from 'node:fs';
+export const renderCtx = {
+  posts: allPosts.map(p => ({ slug: p.slug, title: p.title, date: p.date, img: p.img, excerpt: p.excerpt, cats: p.cats, featured: p.featured })),
+  posterFor: (src: string) => { const p = src.replace(/\.(mp4|webm|mov)$/i, '-poster.jpg'); return p !== src && src.startsWith('/') && existsSync('public' + p) ? p : ''; },
+};

@@ -11,6 +11,7 @@ const pages = defineCollection({
   loader: glob({ pattern: '*.md', base: './src/content/pages' }),
   schema: z.object({
     title: z.string(), description: z.string().optional(), image: z.string().optional(), showRegisterCta: z.boolean().default(false), draft: z.boolean().default(false),
+    layout: z.enum(['article', 'blocks']).default('article'), blocks: z.array(z.record(z.string(), z.any())).default([]),
   }),
 });
 export const collections = { posts, pages };

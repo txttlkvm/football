@@ -67,47 +67,12 @@
     "text": "Now enrolling:",
     "linkText": "Kids Baking & Cooking Classes — Register →"
   },
-  "hero": {
-    "title": "Hello, Welcome to my Blog",
-    "intro": "I am Diamond. This blog was created to share the knowledge that God has given to me with you. MarriageMotherhoodMeals was inspired by the many roles I display in my household.",
-    "image": "/img/hero.jpg"
-  },
   "classCard": {
-    "show": true,
     "label": "Now enrolling",
-    "title": "Manna's Future Home Chefs",
     "text": "Weekly baking and cooking classes where kids learn real kitchen skills, cooking alongside a parent or guardian.",
     "buttonText": "Register now",
-    "image": "/img/breakfast-table-with-oatmeal-porridge-croissants-and-muffins.jpg",
     "stickyText": "Register for Kids Classes →"
   },
   "logo": "/img/logo.png",
-  "mobileCta": "🍪 Kids Cooking Classes · Register",
-  "featuredTitle": "Featured",
-  "recentPosts": {
-    "show": true,
-    "title": "Recent Posts",
-    "count": 6
-  },
-  "categoriesSection": {
-    "show": true,
-    "title": "Categories",
-    "items": [
-      {
-        "label": "Motherhood",
-        "slug": "motherhood",
-        "image": "/img/happy-sweet-black-curly-millennial-mother-with-towel-kissing-little-baby-enjoy-motherhood.jpg"
-      },
-      {
-        "label": "Marriage",
-        "slug": "marriage",
-        "image": "/img/romantic-mature-black-couple-in-love.jpg"
-      },
-      {
-        "label": "Meals",
-        "slug": "meals",
-        "image": "/img/frozen-vegetables-prepared-for-quick-meals.jpg"
-      }
-    ]
-  }
+  "mobileCta": "🍪 Kids Cooking Classes · Register"
 }

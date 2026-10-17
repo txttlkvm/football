@@ -38,5 +38,5 @@ const path = Astro.url.pathname;
 document.querySelectorAll('.grid').forEach(function(g){Array.prototype.forEach.call(g.children,function(c,i){c.style.setProperty('--d',(i%6)*70+'ms')})});
 if(!('IntersectionObserver' in window)||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
 var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12,rootMargin:'0px 0px -6% 0px'});
-document.querySelectorAll('.card,.feature,.title,.about-block,.about-img,.article .body img,.article .body video,.footer img').forEach(function(el){el.classList.add('reveal');io.observe(el)})})()</script>
+document.querySelectorAll('.card,.feature,.title,.about-block,.about-img,.blk-gallery figure,.cta-band,.blk-columns .col,.it,details,.blk-quote blockquote,.article .body img,.article .body video,.footer img').forEach(function(el){el.classList.add('reveal');io.observe(el)})})()</script>
 </body></html>
