@@ -68,6 +68,8 @@ const cmsCallback = (cms: any) => {
     const m = document.createElement('meta'); m.name = 'theme-color'; m.content = '#ff66c4'; document.head.appendChild(m);
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
     const tidy = () => {
+      document.querySelectorAll('td div, td span, td p, li p, li span').forEach((e: any) => { if (e.children.length === 0 && /^src\/content\//.test((e.textContent || '').trim())) e.style.display = 'none'; });
+      document.querySelectorAll('label').forEach((l: any) => { if (/^Filename\b/.test((l.textContent || '').trim())) { const w = l.closest('div'); if (w && w.parentElement) w.parentElement.style.display = 'none'; } });
       document.querySelectorAll('[class*="border-amber"]').forEach((e: any) => { if (/local mode/.test(e.textContent || '') && e.textContent.length < 80) e.style.display = 'none'; });
       document.querySelectorAll('[class*="border-blue-"]').forEach((e: any) => { if (/configured search/.test(e.textContent || '')) e.style.display = 'none'; });
       document.querySelectorAll('table').forEach((t: any) => {
@@ -145,6 +147,15 @@ export default defineConfig({
           { type: 'string', name: 'siteTitle', label: 'Site name' },
           { type: 'image', name: 'logo', label: 'Logo' },
           { type: 'string', name: 'tagline', label: 'Tagline' },
+          { type: 'object', name: 'announcement', label: 'Top announcement bar', fields: [
+            { type: 'boolean', name: 'show', label: 'Show the bar' },
+            { type: 'string', name: 'text', label: 'Headline' },
+            { type: 'string', name: 'linkText', label: 'Button words' }, { type: 'string', name: 'linkUrl', label: 'Link goes to (leave empty for the Register page)' } ] },
+          { type: 'object', name: 'classCard', label: 'Class sign-up box (shown on pages where you turn it on)', fields: [
+            { type: 'string', name: 'label', label: 'Small label' },
+            { type: 'string', name: 'text', label: 'Description', ui: { component: 'textarea' } },
+            { type: 'string', name: 'buttonText', label: 'Button text' },
+            { type: 'string', name: 'stickyText', label: 'Text on the bottom bar (phones)' } ] },
           { type: 'object', name: 'theme', label: 'Colors & fonts', fields: [
             { type: 'string', name: 'accent', label: 'Accent color (buttons, links)', description: 'Buttons use a slightly deeper shade of this colour so white text stays easy to read.', ui: color },
             { type: 'string', name: 'dark', label: 'Headline color', ui: color },
@@ -156,15 +167,6 @@ export default defineConfig({
             ...link,
             { type: 'object', name: 'children', label: 'Drop-down items', list: true, ui: { itemProps: (i: any) => ({ label: i?.label }) }, fields: link } ] },
           { type: 'string', name: 'registerUrl', label: 'Class sign-up link' },
-          { type: 'object', name: 'announcement', label: 'Top announcement bar', fields: [
-            { type: 'boolean', name: 'show', label: 'Show the bar' },
-            { type: 'string', name: 'text', label: 'Bold text' },
-            { type: 'string', name: 'linkText', label: 'Link text' }, { type: 'string', name: 'linkUrl', label: 'Link goes to (leave empty for the Register page)' } ] },
-          { type: 'object', name: 'classCard', label: 'Class sign-up box (shown on pages where you turn it on)', fields: [
-            { type: 'string', name: 'label', label: 'Small label' },
-            { type: 'string', name: 'text', label: 'Description', ui: { component: 'textarea' } },
-            { type: 'string', name: 'buttonText', label: 'Button text' },
-            { type: 'string', name: 'stickyText', label: 'Text on the bottom bar (phones)' } ] },
           { type: 'string', name: 'mobileCta', label: 'Phone menu: top button text' },
           { type: 'string', name: 'formsKey', label: 'Contact form key', description: 'Free at web3forms.com — enter your email there, they send you a key. Paste it here to turn on the Contact form section.' },
           { type: 'string', name: 'footerText', label: 'Footer text' },

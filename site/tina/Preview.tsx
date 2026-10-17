@@ -36,9 +36,9 @@ el.addEventListener('input',function(){send({type:'text',path:el.getAttribute('d
 el.addEventListener('blur',function(){send({type:'blur'})});
 el.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();el.blur()}});
 });var tb=document.createElement('div');tb.style.cssText='position:absolute;z-index:99999;display:none;gap:2px;background:#2a1a24;border-radius:999px;padding:4px 6px;box-shadow:0 6px 20px rgba(0,0,0,.35)';
-[['\u2191','up','Move up'],['\u2193','down','Move down'],['\u29c9','dup','Duplicate'],['\u2715','del','Delete this section']].forEach(function(a){var b=document.createElement('button');b.textContent=a[0];b.title=a[2];b.setAttribute('aria-label',a[2]);b.dataset.op=a[1];b.style.cssText='all:unset;cursor:pointer;color:#fff;font:600 15px system-ui;padding:4px 9px;border-radius:999px';b.onmouseenter=function(){b.style.background='#ff66c4'};b.onmouseleave=function(){b.style.background='none'};tb.appendChild(b)});
+[['\u2191','up','Move up'],['\u2193','down','Move down'],['\u29c9','dup','Duplicate'],['\u2715','del','Delete this section']].forEach(function(a){var b=document.createElement('button');b.textContent=a[0];b.title=a[2];b.setAttribute('aria-label',a[2]);b.dataset.op=a[1];b.style.cssText='all:unset;cursor:pointer;color:#fff;font:600 15px system-ui;padding:10px 14px;border-radius:999px';b.onmouseenter=function(){b.style.background='#ff66c4'};b.onmouseleave=function(){b.style.background='none'};tb.appendChild(b)});
 document.body.appendChild(tb);var cur=null;
-document.addEventListener('mouseover',function(e){var w=e.target.closest&&e.target.closest('.blk-wrap');if(!w||w===cur||tb.contains(e.target))return;cur=w;var r=w.getBoundingClientRect();tb.style.display='flex';tb.style.top=(scrollY+r.top+10)+'px';tb.style.left=Math.max(8,r.right-tb.offsetWidth-14)+'px'});
+['mouseover','touchstart'].forEach(function(ev){document.addEventListener(ev,function(e){var w=e.target.closest&&e.target.closest('.blk-wrap');if(!w||w===cur||tb.contains(e.target))return;cur=w;var r=w.getBoundingClientRect();tb.style.display='flex';tb.style.top=(scrollY+r.top+10)+'px';tb.style.left=Math.max(8,r.right-tb.offsetWidth-14)+'px'},{passive:true})});
 tb.addEventListener('click',function(e){var b=e.target.closest('button');if(!b||!cur)return;send({type:'block',op:b.dataset.op,i:+cur.dataset.b})});
 })();`;
 
@@ -74,7 +74,7 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
   const formId = tinaForm?.id ?? 'form';
   const draftKey = 'tina-draft:' + formId;
   const [html, setHtml] = React.useState('');
-  const [mode, setMode] = React.useState<'phone' | 'desktop'>(window.innerWidth >= 1000 ? 'desktop' : 'phone');
+  const [mode, setMode] = React.useState<'phone' | 'desktop'>('phone');
   const [open, setOpen] = React.useState(true);
   const [w, setW] = React.useState(300);
   const [restore, setRestore] = React.useState<any>(() => { try { const r = JSON.parse(localStorage.getItem(draftKey) || 'null'); return r && r.t < pageStart && JSON.stringify(r.values) !== JSON.stringify(ff.getState().initialValues) ? r : null; } catch { return null; } });
@@ -87,6 +87,8 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
   const latest = React.useRef('');
   const [auto, setAuto] = React.useState<string>('');
   const idle = React.useRef<any>();
+  const [undo, setUndo] = React.useState<any>(null);
+  const initRef = React.useRef<any>(null);
 
   const push = React.useCallback((doc: string) => {
     latest.current = doc;
@@ -107,6 +109,8 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
     const off = ff.subscribe((s: any) => {
       schedule();
       clearTimeout(idle.current);
+      if (!s.submitting) initRef.current = s.initialValues;
+      if (s.submitFailed && !s.dirty === false && !s.submitSucceeded) setAuto('Not saved — no connection? Your work is kept on this device. Press Save to try again.');
       const v = s.values || {};
       const safe = kind === 'post' && v.draft === true && tinaForm?.crudType !== 'create';
       if (s.dirty && !s.submitting && !safe) setAuto('Unsaved changes — press Save');
@@ -114,8 +118,8 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
         if (!navigator.onLine) { setAuto('Offline — your edits are kept on this device'); return; }
         try { setAuto('Saving…'); await ff.submit(); setAuto(ff.getState().dirty ? 'Not saved yet — your edits are kept on this device' : 'Auto-saved ✓ ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })); } catch (e) { setAuto('Could not auto-save — press Save'); }
       }, 30000);
-      try { if (s.submitSucceeded && !s.dirty) { localStorage.removeItem(draftKey); shell = null; setAuto(kind === 'post' && ff.getState().values?.draft ? 'Saved as a hidden draft — switch off “Keep this post hidden” to publish' : 'Saved ✓ — live on the website in about 1–2 minutes'); } else if (s.dirty) localStorage.setItem(draftKey, JSON.stringify({ t: Date.now(), values: s.values })); } catch (e) { /* storage unavailable */ }
-    }, { values: true, dirty: true, submitSucceeded: true, submitting: true });
+      try { if (s.submitSucceeded && !s.dirty) { localStorage.removeItem(draftKey); shell = null; setUndo(initRef.current); setAuto(kind === 'post' && ff.getState().values?.draft ? 'Saved as a hidden draft — switch off “Keep this post hidden” to publish' : 'Saved ✓ — live on the website in about 1–2 minutes'); } else if (s.dirty) localStorage.setItem(draftKey, JSON.stringify({ t: Date.now(), values: s.values })); } catch (e) { /* storage unavailable */ }
+    }, { values: true, dirty: true, submitSucceeded: true, submitting: true, submitFailed: true, initialValues: true });
     const guard = (e: BeforeUnloadEvent) => { if (ff.getState().dirty) { e.preventDefault(); e.returnValue = ''; } };
     const ks = (e: KeyboardEvent) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); ff.submit(); } };
     window.addEventListener('keydown', ks);
@@ -177,7 +181,7 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
   }, []);
   const big = !inline && vp.w >= 1000;
   const left = 560;
-  const cw = big ? vp.w - left - 16 : Math.min(w, vp.w - 32), ch = big ? vp.h - 118 - 76 - 92 : 540;
+  const cw = big ? vp.w - left - 16 : Math.min(w, vp.w - 32), ch = big ? vp.h - 118 - 76 - 170 : 540;
   const base = big ? (mode === 'phone' ? 390 : 1100) : Math.max(280, cw), k = Math.min(1, cw / base), h = big ? ch / k : ch;
   const frameEl = (
     <div ref={wrap} style={{ width: '100%', height: ch, overflow: 'hidden', borderRadius: big ? 14 : 8, background: big ? '#ece9f0' : '#f2f2f6', position: 'relative' }}>
@@ -196,13 +200,22 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
         <button type="button" style={pill(false)} onClick={() => setOpen(!open)}>{open ? 'Hide preview' : 'Show preview'}</button>
         <span role="status" aria-live="polite" style={{ marginLeft: 'auto', fontSize: 13, fontWeight: 600, color: /^(Could|Not saved|Offline)/.test(auto) ? '#b3261e' : /^Unsaved/.test(auto) ? '#92400e' : '#1b7a3d' }}>{auto || (kind === 'post' ? '● Drafts save automatically' : '● Press Save to publish')}</span>
       </div>
+      {kind === 'post' && (
+        <div style={{ marginTop: 10, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <button type="button" style={{ ...pill(false), flex: 1 }} onClick={() => { ff.change('draft', true); ff.submit(); }}>Save as draft</button>
+          <button type="button" style={{ ...pill(true), flex: 1, fontWeight: 700 }} onClick={() => { ff.change('draft', false); ff.submit(); }}>Publish now</button>
+        </div>
+      )}
+      {undo && (
+        <div style={{ marginTop: 8 }}><button type="button" style={pill(false)} onClick={() => { Object.keys(undo).forEach(k => { if (k !== '_sys' && k !== '__typename' && k !== 'id') ff.change(k, undo[k]); }); setUndo(null); setAuto('Previous version loaded — press Save to keep it'); }}>↩ Undo last save</button></div>
+      )}
       {tip && kind !== 'settings' && (
-        <div style={{ marginTop: 10, padding: '8px 12px', background: '#fff1fa', border: '1px solid #ffc2e6', borderRadius: 8, fontSize: 14, color: '#5a1d44' }}>
+        <div style={{ marginTop: 10, padding: '8px 12px', background: '#fff1fa', border: '1px solid #ffc2e6', borderRadius: 8, fontSize: 14, color: '#5a1d44', whiteSpace: 'normal' }}>
           <strong>Tip:</strong> click any words on the page to type there, or click a photo to swap it. <button type="button" onClick={dismiss} style={{ ...pill(false), marginLeft: 6, padding: '2px 10px' }}>Got it</button>
         </div>
       )}
       {restore && (
-        <div style={{ marginTop: 10, padding: '8px 12px', background: '#fff8e6', border: '1px solid #f0d98a', borderRadius: 8, fontSize: 14 }}>
+        <div style={{ marginTop: 10, whiteSpace: 'normal', padding: '8px 12px', background: '#fff8e6', border: '1px solid #f0d98a', borderRadius: 8, fontSize: 14 }}>
           <strong>You have unsaved changes from earlier</strong> ({new Date(restore.t).toLocaleString()}).
           <span style={{ marginLeft: 8, display: 'inline-flex', gap: 8 }}><button type="button" style={pill(true)} onClick={doRestore}>Bring them back</button><button type="button" style={pill(false)} onClick={discard}>Throw them away</button></span>
         </div>
@@ -214,9 +227,9 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
 }
 
 const pageStart = Date.now();
-let curForm: any = null;
+let curForm: any = null, curKind = '';
 let host: HTMLDivElement | null = null, root: any = null, hashAt = '', narrowed: [HTMLElement, string][] = [];
-const teardown = () => { try { const f = curForm?.finalForm; if (f && f.getState().dirty) f.submit(); } catch (e) { /* draft copy remains */ } curForm = null; if (root) root.unmount(); host?.remove(); host = null; root = null; narrowed.forEach(([el, v]) => { el.style.maxWidth = v; }); narrowed = []; };
+const teardown = () => { try { const f = curForm?.finalForm; if (f && f.getState().dirty && curKind === 'post' && f.getState().values?.draft === true && curForm?.crudType !== 'create') f.submit(); } catch (e) { /* draft copy remains */ } curForm = null; if (root) root.unmount(); host?.remove(); host = null; root = null; narrowed.forEach(([el, v]) => { el.style.maxWidth = v; }); narrowed = []; };
 if (typeof window !== 'undefined') { window.addEventListener('hashchange', () => { if (host && location.hash !== hashAt) teardown(); }); setInterval(() => { if (host && location.hash !== hashAt) teardown(); }, 400); }
 
 function Panel({ kind, tinaForm }: { kind: string; tinaForm: any }) {
@@ -226,7 +239,7 @@ function Panel({ kind, tinaForm }: { kind: string; tinaForm: any }) {
   React.useEffect(() => {
     if (!big) return;
     if (!host) { host = document.createElement('div'); document.body.appendChild(host); root = createRoot(host); }
-    hashAt = location.hash; curForm = tinaForm;
+    hashAt = location.hash; curForm = tinaForm; curKind = kind;
     if (!narrowed.length) for (let el = anchor.current?.parentElement ?? null; el && el !== document.body; el = el.parentElement) {
       if (el.offsetWidth > window.innerWidth * 0.8) { narrowed.push([el, el.style.maxWidth]); el.style.maxWidth = '540px'; }
     }
