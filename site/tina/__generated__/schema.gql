@@ -61,6 +61,8 @@ type Query {
   postConnection(before: String, after: String, first: Float, last: Float, sort: String, filter: PostFilter): PostConnection!
   page(relativePath: String): Page!
   pageConnection(before: String, after: String, first: Float, last: Float, sort: String, filter: PageFilter): PageConnection!
+  home(relativePath: String): Home!
+  homeConnection(before: String, after: String, first: Float, last: Float, sort: String, filter: HomeFilter): HomeConnection!
   settings(relativePath: String): Settings!
   settingsConnection(before: String, after: String, first: Float, last: Float, sort: String, filter: SettingsFilter): SettingsConnection!
 }
@@ -68,6 +70,7 @@ type Query {
 input DocumentFilter {
   post: PostFilter
   page: PageFilter
+  home: HomeFilter
   settings: SettingsFilter
 }
 
@@ -94,9 +97,10 @@ type Collection {
   documents(before: String, after: String, first: Float, last: Float, sort: String, filter: DocumentFilter, folder: String): DocumentConnection!
 }
 
-union DocumentNode = Post | Page | Settings | Folder
+union DocumentNode = Post | Page | Home | Settings | Folder
 
 type Post implements Node & Document {
+  livePreview: String
   title: String!
   draft: Boolean
   date: String!
@@ -176,6 +180,7 @@ input PostBodyFilter {
 }
 
 input PostFilter {
+  livePreview: StringFilter
   title: StringFilter
   draft: BooleanFilter
   date: DatetimeFilter
@@ -199,13 +204,145 @@ type PostConnection implements Connection {
   edges: [PostConnectionEdges]
 }
 
+type PageBlocksHero {
+  image: String
+  heading: String
+  text: String
+  buttonLabel: String
+  buttonUrl: String
+  button2Label: String
+  button2Url: String
+  height: String
+}
+
+type PageBlocksText {
+  heading: String
+  text: String
+  align: String
+  width: String
+  background: String
+}
+
+type PageBlocksImageText {
+  image: String
+  alt: String
+  heading: String
+  text: String
+  buttonLabel: String
+  buttonUrl: String
+  imageSide: String
+  background: String
+}
+
+type PageBlocksGalleryImages {
+  src: String
+  alt: String
+  caption: String
+}
+
+type PageBlocksGallery {
+  title: String
+  perRow: String
+  images: [PageBlocksGalleryImages]
+  background: String
+}
+
+type PageBlocksFeature {
+  image: String
+  eyebrow: String
+  heading: String
+  text: String
+  buttonLabel: String
+  buttonUrl: String
+  linkLabel: String
+  linkUrl: String
+  background: String
+}
+
+type PageBlocksCta {
+  heading: String
+  text: String
+  buttonLabel: String
+  buttonUrl: String
+  style: String
+}
+
+type PageBlocksVideo {
+  url: String
+  file: String
+  caption: String
+  background: String
+}
+
+type PageBlocksQuote {
+  text: String
+  author: String
+  background: String
+}
+
+type PageBlocksPostGrid {
+  title: String
+  count: Float
+  category: String
+  background: String
+}
+
+type PageBlocksFeaturedPost {
+  title: String
+  background: String
+}
+
+type PageBlocksCategoryTilesTiles {
+  label: String
+  slug: String
+  image: String
+}
+
+type PageBlocksCategoryTiles {
+  title: String
+  tiles: [PageBlocksCategoryTilesTiles]
+  background: String
+}
+
+type PageBlocksFaqQuestions {
+  question: String
+  answer: String
+}
+
+type PageBlocksFaq {
+  title: String
+  questions: [PageBlocksFaqQuestions]
+  background: String
+}
+
+type PageBlocksColumnsPoints {
+  icon: String
+  heading: String
+  text: String
+}
+
+type PageBlocksColumns {
+  title: String
+  points: [PageBlocksColumnsPoints]
+  background: String
+}
+
+type PageBlocksSpacer {
+  size: String
+}
+
+union PageBlocks = PageBlocksHero | PageBlocksText | PageBlocksImageText | PageBlocksGallery | PageBlocksFeature | PageBlocksCta | PageBlocksVideo | PageBlocksQuote | PageBlocksPostGrid | PageBlocksFeaturedPost | PageBlocksCategoryTiles | PageBlocksFaq | PageBlocksColumns | PageBlocksSpacer
+
 type Page implements Node & Document {
+  livePreview: String
   title: String!
+  layout: String
   image: String
   body: RichText
   showRegisterCta: Boolean
   description: String
   draft: Boolean
+  blocks: [PageBlocks]
   id: ID!
   _sys: SystemInfo!
   _values: JSON!
@@ -247,13 +384,170 @@ input PageBodyFilter {
   button: PageBodyButtonFilter
 }
 
-input PageFilter {
+input PageBlocksHeroFilter {
+  image: ImageFilter
+  heading: StringFilter
+  text: StringFilter
+  buttonLabel: StringFilter
+  buttonUrl: StringFilter
+  button2Label: StringFilter
+  button2Url: StringFilter
+  height: StringFilter
+}
+
+input PageBlocksTextFilter {
+  heading: StringFilter
+  text: StringFilter
+  align: StringFilter
+  width: StringFilter
+  background: StringFilter
+}
+
+input PageBlocksImageTextFilter {
+  image: ImageFilter
+  alt: StringFilter
+  heading: StringFilter
+  text: StringFilter
+  buttonLabel: StringFilter
+  buttonUrl: StringFilter
+  imageSide: StringFilter
+  background: StringFilter
+}
+
+input PageBlocksGalleryImagesFilter {
+  src: ImageFilter
+  alt: StringFilter
+  caption: StringFilter
+}
+
+input PageBlocksGalleryFilter {
   title: StringFilter
+  perRow: StringFilter
+  images: PageBlocksGalleryImagesFilter
+  background: StringFilter
+}
+
+input PageBlocksFeatureFilter {
+  image: ImageFilter
+  eyebrow: StringFilter
+  heading: StringFilter
+  text: StringFilter
+  buttonLabel: StringFilter
+  buttonUrl: StringFilter
+  linkLabel: StringFilter
+  linkUrl: StringFilter
+  background: StringFilter
+}
+
+input PageBlocksCtaFilter {
+  heading: StringFilter
+  text: StringFilter
+  buttonLabel: StringFilter
+  buttonUrl: StringFilter
+  style: StringFilter
+}
+
+input PageBlocksVideoFilter {
+  url: StringFilter
+  file: ImageFilter
+  caption: StringFilter
+  background: StringFilter
+}
+
+input PageBlocksQuoteFilter {
+  text: StringFilter
+  author: StringFilter
+  background: StringFilter
+}
+
+input NumberFilter {
+  lt: Float
+  lte: Float
+  gte: Float
+  gt: Float
+  eq: Float
+  exists: Boolean
+  in: [Float]
+}
+
+input PageBlocksPostGridFilter {
+  title: StringFilter
+  count: NumberFilter
+  category: StringFilter
+  background: StringFilter
+}
+
+input PageBlocksFeaturedPostFilter {
+  title: StringFilter
+  background: StringFilter
+}
+
+input PageBlocksCategoryTilesTilesFilter {
+  label: StringFilter
+  slug: StringFilter
+  image: ImageFilter
+}
+
+input PageBlocksCategoryTilesFilter {
+  title: StringFilter
+  tiles: PageBlocksCategoryTilesTilesFilter
+  background: StringFilter
+}
+
+input PageBlocksFaqQuestionsFilter {
+  question: StringFilter
+  answer: StringFilter
+}
+
+input PageBlocksFaqFilter {
+  title: StringFilter
+  questions: PageBlocksFaqQuestionsFilter
+  background: StringFilter
+}
+
+input PageBlocksColumnsPointsFilter {
+  icon: StringFilter
+  heading: StringFilter
+  text: StringFilter
+}
+
+input PageBlocksColumnsFilter {
+  title: StringFilter
+  points: PageBlocksColumnsPointsFilter
+  background: StringFilter
+}
+
+input PageBlocksSpacerFilter {
+  size: StringFilter
+}
+
+input PageBlocksFilter {
+  hero: PageBlocksHeroFilter
+  text: PageBlocksTextFilter
+  imageText: PageBlocksImageTextFilter
+  gallery: PageBlocksGalleryFilter
+  feature: PageBlocksFeatureFilter
+  cta: PageBlocksCtaFilter
+  video: PageBlocksVideoFilter
+  quote: PageBlocksQuoteFilter
+  postGrid: PageBlocksPostGridFilter
+  featuredPost: PageBlocksFeaturedPostFilter
+  categoryTiles: PageBlocksCategoryTilesFilter
+  faq: PageBlocksFaqFilter
+  columns: PageBlocksColumnsFilter
+  spacer: PageBlocksSpacerFilter
+}
+
+input PageFilter {
+  livePreview: StringFilter
+  title: StringFilter
+  layout: StringFilter
   image: ImageFilter
   body: PageBodyFilter
   showRegisterCta: BooleanFilter
   description: StringFilter
   draft: BooleanFilter
+  blocks: PageBlocksFilter
 }
 
 type PageConnectionEdges {
@@ -265,6 +559,309 @@ type PageConnection implements Connection {
   pageInfo: PageInfo!
   totalCount: Float!
   edges: [PageConnectionEdges]
+}
+
+type HomeBlocksHero {
+  image: String
+  heading: String
+  text: String
+  buttonLabel: String
+  buttonUrl: String
+  button2Label: String
+  button2Url: String
+  height: String
+}
+
+type HomeBlocksText {
+  heading: String
+  text: String
+  align: String
+  width: String
+  background: String
+}
+
+type HomeBlocksImageText {
+  image: String
+  alt: String
+  heading: String
+  text: String
+  buttonLabel: String
+  buttonUrl: String
+  imageSide: String
+  background: String
+}
+
+type HomeBlocksGalleryImages {
+  src: String
+  alt: String
+  caption: String
+}
+
+type HomeBlocksGallery {
+  title: String
+  perRow: String
+  images: [HomeBlocksGalleryImages]
+  background: String
+}
+
+type HomeBlocksFeature {
+  image: String
+  eyebrow: String
+  heading: String
+  text: String
+  buttonLabel: String
+  buttonUrl: String
+  linkLabel: String
+  linkUrl: String
+  background: String
+}
+
+type HomeBlocksCta {
+  heading: String
+  text: String
+  buttonLabel: String
+  buttonUrl: String
+  style: String
+}
+
+type HomeBlocksVideo {
+  url: String
+  file: String
+  caption: String
+  background: String
+}
+
+type HomeBlocksQuote {
+  text: String
+  author: String
+  background: String
+}
+
+type HomeBlocksPostGrid {
+  title: String
+  count: Float
+  category: String
+  background: String
+}
+
+type HomeBlocksFeaturedPost {
+  title: String
+  background: String
+}
+
+type HomeBlocksCategoryTilesTiles {
+  label: String
+  slug: String
+  image: String
+}
+
+type HomeBlocksCategoryTiles {
+  title: String
+  tiles: [HomeBlocksCategoryTilesTiles]
+  background: String
+}
+
+type HomeBlocksFaqQuestions {
+  question: String
+  answer: String
+}
+
+type HomeBlocksFaq {
+  title: String
+  questions: [HomeBlocksFaqQuestions]
+  background: String
+}
+
+type HomeBlocksColumnsPoints {
+  icon: String
+  heading: String
+  text: String
+}
+
+type HomeBlocksColumns {
+  title: String
+  points: [HomeBlocksColumnsPoints]
+  background: String
+}
+
+type HomeBlocksSpacer {
+  size: String
+}
+
+union HomeBlocks = HomeBlocksHero | HomeBlocksText | HomeBlocksImageText | HomeBlocksGallery | HomeBlocksFeature | HomeBlocksCta | HomeBlocksVideo | HomeBlocksQuote | HomeBlocksPostGrid | HomeBlocksFeaturedPost | HomeBlocksCategoryTiles | HomeBlocksFaq | HomeBlocksColumns | HomeBlocksSpacer
+
+type Home implements Node & Document {
+  livePreview: String
+  blocks: [HomeBlocks]
+  title: String!
+  layout: String
+  description: String
+  id: ID!
+  _sys: SystemInfo!
+  _values: JSON!
+}
+
+input HomeBlocksHeroFilter {
+  image: ImageFilter
+  heading: StringFilter
+  text: StringFilter
+  buttonLabel: StringFilter
+  buttonUrl: StringFilter
+  button2Label: StringFilter
+  button2Url: StringFilter
+  height: StringFilter
+}
+
+input HomeBlocksTextFilter {
+  heading: StringFilter
+  text: StringFilter
+  align: StringFilter
+  width: StringFilter
+  background: StringFilter
+}
+
+input HomeBlocksImageTextFilter {
+  image: ImageFilter
+  alt: StringFilter
+  heading: StringFilter
+  text: StringFilter
+  buttonLabel: StringFilter
+  buttonUrl: StringFilter
+  imageSide: StringFilter
+  background: StringFilter
+}
+
+input HomeBlocksGalleryImagesFilter {
+  src: ImageFilter
+  alt: StringFilter
+  caption: StringFilter
+}
+
+input HomeBlocksGalleryFilter {
+  title: StringFilter
+  perRow: StringFilter
+  images: HomeBlocksGalleryImagesFilter
+  background: StringFilter
+}
+
+input HomeBlocksFeatureFilter {
+  image: ImageFilter
+  eyebrow: StringFilter
+  heading: StringFilter
+  text: StringFilter
+  buttonLabel: StringFilter
+  buttonUrl: StringFilter
+  linkLabel: StringFilter
+  linkUrl: StringFilter
+  background: StringFilter
+}
+
+input HomeBlocksCtaFilter {
+  heading: StringFilter
+  text: StringFilter
+  buttonLabel: StringFilter
+  buttonUrl: StringFilter
+  style: StringFilter
+}
+
+input HomeBlocksVideoFilter {
+  url: StringFilter
+  file: ImageFilter
+  caption: StringFilter
+  background: StringFilter
+}
+
+input HomeBlocksQuoteFilter {
+  text: StringFilter
+  author: StringFilter
+  background: StringFilter
+}
+
+input HomeBlocksPostGridFilter {
+  title: StringFilter
+  count: NumberFilter
+  category: StringFilter
+  background: StringFilter
+}
+
+input HomeBlocksFeaturedPostFilter {
+  title: StringFilter
+  background: StringFilter
+}
+
+input HomeBlocksCategoryTilesTilesFilter {
+  label: StringFilter
+  slug: StringFilter
+  image: ImageFilter
+}
+
+input HomeBlocksCategoryTilesFilter {
+  title: StringFilter
+  tiles: HomeBlocksCategoryTilesTilesFilter
+  background: StringFilter
+}
+
+input HomeBlocksFaqQuestionsFilter {
+  question: StringFilter
+  answer: StringFilter
+}
+
+input HomeBlocksFaqFilter {
+  title: StringFilter
+  questions: HomeBlocksFaqQuestionsFilter
+  background: StringFilter
+}
+
+input HomeBlocksColumnsPointsFilter {
+  icon: StringFilter
+  heading: StringFilter
+  text: StringFilter
+}
+
+input HomeBlocksColumnsFilter {
+  title: StringFilter
+  points: HomeBlocksColumnsPointsFilter
+  background: StringFilter
+}
+
+input HomeBlocksSpacerFilter {
+  size: StringFilter
+}
+
+input HomeBlocksFilter {
+  hero: HomeBlocksHeroFilter
+  text: HomeBlocksTextFilter
+  imageText: HomeBlocksImageTextFilter
+  gallery: HomeBlocksGalleryFilter
+  feature: HomeBlocksFeatureFilter
+  cta: HomeBlocksCtaFilter
+  video: HomeBlocksVideoFilter
+  quote: HomeBlocksQuoteFilter
+  postGrid: HomeBlocksPostGridFilter
+  featuredPost: HomeBlocksFeaturedPostFilter
+  categoryTiles: HomeBlocksCategoryTilesFilter
+  faq: HomeBlocksFaqFilter
+  columns: HomeBlocksColumnsFilter
+  spacer: HomeBlocksSpacerFilter
+}
+
+input HomeFilter {
+  livePreview: StringFilter
+  blocks: HomeBlocksFilter
+  title: StringFilter
+  layout: StringFilter
+  description: StringFilter
+}
+
+type HomeConnectionEdges {
+  cursor: String!
+  node: Home
+}
+
+type HomeConnection implements Connection {
+  pageInfo: PageInfo!
+  totalCount: Float!
+  edges: [HomeConnectionEdges]
 }
 
 type SettingsTheme {
@@ -293,38 +890,11 @@ type SettingsAnnouncement {
   linkText: String
 }
 
-type SettingsHero {
-  image: String
-  title: String
-  intro: String
-}
-
 type SettingsClassCard {
-  show: Boolean
-  image: String
   label: String
-  title: String
   text: String
   buttonText: String
   stickyText: String
-}
-
-type SettingsRecentPosts {
-  show: Boolean
-  title: String
-  count: Float
-}
-
-type SettingsCategoriesSectionItems {
-  label: String
-  slug: String
-  image: String
-}
-
-type SettingsCategoriesSection {
-  show: Boolean
-  title: String
-  items: [SettingsCategoriesSectionItems]
 }
 
 type SettingsSocial {
@@ -333,6 +903,7 @@ type SettingsSocial {
 }
 
 type Settings implements Node & Document {
+  livePreview: String
   siteTitle: String
   logo: String
   tagline: String
@@ -340,12 +911,8 @@ type Settings implements Node & Document {
   nav: [SettingsNav]
   registerUrl: String
   announcement: SettingsAnnouncement
-  hero: SettingsHero
   classCard: SettingsClassCard
   mobileCta: String
-  recentPosts: SettingsRecentPosts
-  featuredTitle: String
-  categoriesSection: SettingsCategoriesSection
   footerText: String
   social: [SettingsSocial]
   id: ID!
@@ -379,48 +946,11 @@ input SettingsAnnouncementFilter {
   linkText: StringFilter
 }
 
-input SettingsHeroFilter {
-  image: ImageFilter
-  title: StringFilter
-  intro: StringFilter
-}
-
 input SettingsClassCardFilter {
-  show: BooleanFilter
-  image: ImageFilter
   label: StringFilter
-  title: StringFilter
   text: StringFilter
   buttonText: StringFilter
   stickyText: StringFilter
-}
-
-input NumberFilter {
-  lt: Float
-  lte: Float
-  gte: Float
-  gt: Float
-  eq: Float
-  exists: Boolean
-  in: [Float]
-}
-
-input SettingsRecentPostsFilter {
-  show: BooleanFilter
-  title: StringFilter
-  count: NumberFilter
-}
-
-input SettingsCategoriesSectionItemsFilter {
-  label: StringFilter
-  slug: StringFilter
-  image: ImageFilter
-}
-
-input SettingsCategoriesSectionFilter {
-  show: BooleanFilter
-  title: StringFilter
-  items: SettingsCategoriesSectionItemsFilter
 }
 
 input SettingsSocialFilter {
@@ -429,6 +959,7 @@ input SettingsSocialFilter {
 }
 
 input SettingsFilter {
+  livePreview: StringFilter
   siteTitle: StringFilter
   logo: ImageFilter
   tagline: StringFilter
@@ -436,12 +967,8 @@ input SettingsFilter {
   nav: SettingsNavFilter
   registerUrl: StringFilter
   announcement: SettingsAnnouncementFilter
-  hero: SettingsHeroFilter
   classCard: SettingsClassCardFilter
   mobileCta: StringFilter
-  recentPosts: SettingsRecentPostsFilter
-  featuredTitle: StringFilter
-  categoriesSection: SettingsCategoriesSectionFilter
   footerText: StringFilter
   social: SettingsSocialFilter
 }
@@ -467,6 +994,8 @@ type Mutation {
   createPost(relativePath: String!, params: PostMutation!): Post!
   updatePage(relativePath: String!, params: PageMutation!): Page!
   createPage(relativePath: String!, params: PageMutation!): Page!
+  updateHome(relativePath: String!, params: HomeMutation!): Home!
+  createHome(relativePath: String!, params: HomeMutation!): Home!
   updateSettings(relativePath: String!, params: SettingsMutation!): Settings!
   createSettings(relativePath: String!, params: SettingsMutation!): Settings!
 }
@@ -474,6 +1003,7 @@ type Mutation {
 input DocumentUpdateMutation {
   post: PostMutation
   page: PageMutation
+  home: HomeMutation
   settings: SettingsMutation
   relativePath: String
 }
@@ -481,10 +1011,12 @@ input DocumentUpdateMutation {
 input DocumentMutation {
   post: PostMutation
   page: PageMutation
+  home: HomeMutation
   settings: SettingsMutation
 }
 
 input PostMutation {
+  livePreview: String
   title: String
   draft: Boolean
   date: String
@@ -497,13 +1029,312 @@ input PostMutation {
   featured: Boolean
 }
 
-input PageMutation {
+input PageBlocksHeroMutation {
+  image: String
+  heading: String
+  text: String
+  buttonLabel: String
+  buttonUrl: String
+  button2Label: String
+  button2Url: String
+  height: String
+}
+
+input PageBlocksTextMutation {
+  heading: String
+  text: String
+  align: String
+  width: String
+  background: String
+}
+
+input PageBlocksImageTextMutation {
+  image: String
+  alt: String
+  heading: String
+  text: String
+  buttonLabel: String
+  buttonUrl: String
+  imageSide: String
+  background: String
+}
+
+input PageBlocksGalleryImagesMutation {
+  src: String
+  alt: String
+  caption: String
+}
+
+input PageBlocksGalleryMutation {
   title: String
+  perRow: String
+  images: [PageBlocksGalleryImagesMutation]
+  background: String
+}
+
+input PageBlocksFeatureMutation {
+  image: String
+  eyebrow: String
+  heading: String
+  text: String
+  buttonLabel: String
+  buttonUrl: String
+  linkLabel: String
+  linkUrl: String
+  background: String
+}
+
+input PageBlocksCtaMutation {
+  heading: String
+  text: String
+  buttonLabel: String
+  buttonUrl: String
+  style: String
+}
+
+input PageBlocksVideoMutation {
+  url: String
+  file: String
+  caption: String
+  background: String
+}
+
+input PageBlocksQuoteMutation {
+  text: String
+  author: String
+  background: String
+}
+
+input PageBlocksPostGridMutation {
+  title: String
+  count: Float
+  category: String
+  background: String
+}
+
+input PageBlocksFeaturedPostMutation {
+  title: String
+  background: String
+}
+
+input PageBlocksCategoryTilesTilesMutation {
+  label: String
+  slug: String
+  image: String
+}
+
+input PageBlocksCategoryTilesMutation {
+  title: String
+  tiles: [PageBlocksCategoryTilesTilesMutation]
+  background: String
+}
+
+input PageBlocksFaqQuestionsMutation {
+  question: String
+  answer: String
+}
+
+input PageBlocksFaqMutation {
+  title: String
+  questions: [PageBlocksFaqQuestionsMutation]
+  background: String
+}
+
+input PageBlocksColumnsPointsMutation {
+  icon: String
+  heading: String
+  text: String
+}
+
+input PageBlocksColumnsMutation {
+  title: String
+  points: [PageBlocksColumnsPointsMutation]
+  background: String
+}
+
+input PageBlocksSpacerMutation {
+  size: String
+}
+
+input PageBlocksMutation {
+  hero: PageBlocksHeroMutation
+  text: PageBlocksTextMutation
+  imageText: PageBlocksImageTextMutation
+  gallery: PageBlocksGalleryMutation
+  feature: PageBlocksFeatureMutation
+  cta: PageBlocksCtaMutation
+  video: PageBlocksVideoMutation
+  quote: PageBlocksQuoteMutation
+  postGrid: PageBlocksPostGridMutation
+  featuredPost: PageBlocksFeaturedPostMutation
+  categoryTiles: PageBlocksCategoryTilesMutation
+  faq: PageBlocksFaqMutation
+  columns: PageBlocksColumnsMutation
+  spacer: PageBlocksSpacerMutation
+}
+
+input PageMutation {
+  livePreview: String
+  title: String
+  layout: String
   image: String
   body: RichText
   showRegisterCta: Boolean
   description: String
   draft: Boolean
+  blocks: [PageBlocksMutation]
+}
+
+input HomeBlocksHeroMutation {
+  image: String
+  heading: String
+  text: String
+  buttonLabel: String
+  buttonUrl: String
+  button2Label: String
+  button2Url: String
+  height: String
+}
+
+input HomeBlocksTextMutation {
+  heading: String
+  text: String
+  align: String
+  width: String
+  background: String
+}
+
+input HomeBlocksImageTextMutation {
+  image: String
+  alt: String
+  heading: String
+  text: String
+  buttonLabel: String
+  buttonUrl: String
+  imageSide: String
+  background: String
+}
+
+input HomeBlocksGalleryImagesMutation {
+  src: String
+  alt: String
+  caption: String
+}
+
+input HomeBlocksGalleryMutation {
+  title: String
+  perRow: String
+  images: [HomeBlocksGalleryImagesMutation]
+  background: String
+}
+
+input HomeBlocksFeatureMutation {
+  image: String
+  eyebrow: String
+  heading: String
+  text: String
+  buttonLabel: String
+  buttonUrl: String
+  linkLabel: String
+  linkUrl: String
+  background: String
+}
+
+input HomeBlocksCtaMutation {
+  heading: String
+  text: String
+  buttonLabel: String
+  buttonUrl: String
+  style: String
+}
+
+input HomeBlocksVideoMutation {
+  url: String
+  file: String
+  caption: String
+  background: String
+}
+
+input HomeBlocksQuoteMutation {
+  text: String
+  author: String
+  background: String
+}
+
+input HomeBlocksPostGridMutation {
+  title: String
+  count: Float
+  category: String
+  background: String
+}
+
+input HomeBlocksFeaturedPostMutation {
+  title: String
+  background: String
+}
+
+input HomeBlocksCategoryTilesTilesMutation {
+  label: String
+  slug: String
+  image: String
+}
+
+input HomeBlocksCategoryTilesMutation {
+  title: String
+  tiles: [HomeBlocksCategoryTilesTilesMutation]
+  background: String
+}
+
+input HomeBlocksFaqQuestionsMutation {
+  question: String
+  answer: String
+}
+
+input HomeBlocksFaqMutation {
+  title: String
+  questions: [HomeBlocksFaqQuestionsMutation]
+  background: String
+}
+
+input HomeBlocksColumnsPointsMutation {
+  icon: String
+  heading: String
+  text: String
+}
+
+input HomeBlocksColumnsMutation {
+  title: String
+  points: [HomeBlocksColumnsPointsMutation]
+  background: String
+}
+
+input HomeBlocksSpacerMutation {
+  size: String
+}
+
+input HomeBlocksMutation {
+  hero: HomeBlocksHeroMutation
+  text: HomeBlocksTextMutation
+  imageText: HomeBlocksImageTextMutation
+  gallery: HomeBlocksGalleryMutation
+  feature: HomeBlocksFeatureMutation
+  cta: HomeBlocksCtaMutation
+  video: HomeBlocksVideoMutation
+  quote: HomeBlocksQuoteMutation
+  postGrid: HomeBlocksPostGridMutation
+  featuredPost: HomeBlocksFeaturedPostMutation
+  categoryTiles: HomeBlocksCategoryTilesMutation
+  faq: HomeBlocksFaqMutation
+  columns: HomeBlocksColumnsMutation
+  spacer: HomeBlocksSpacerMutation
+}
+
+input HomeMutation {
+  livePreview: String
+  blocks: [HomeBlocksMutation]
+  title: String
+  layout: String
+  description: String
 }
 
 input SettingsThemeMutation {
@@ -532,38 +1363,11 @@ input SettingsAnnouncementMutation {
   linkText: String
 }
 
-input SettingsHeroMutation {
-  image: String
-  title: String
-  intro: String
-}
-
 input SettingsClassCardMutation {
-  show: Boolean
-  image: String
   label: String
-  title: String
   text: String
   buttonText: String
   stickyText: String
-}
-
-input SettingsRecentPostsMutation {
-  show: Boolean
-  title: String
-  count: Float
-}
-
-input SettingsCategoriesSectionItemsMutation {
-  label: String
-  slug: String
-  image: String
-}
-
-input SettingsCategoriesSectionMutation {
-  show: Boolean
-  title: String
-  items: [SettingsCategoriesSectionItemsMutation]
 }
 
 input SettingsSocialMutation {
@@ -572,6 +1376,7 @@ input SettingsSocialMutation {
 }
 
 input SettingsMutation {
+  livePreview: String
   siteTitle: String
   logo: String
   tagline: String
@@ -579,12 +1384,8 @@ input SettingsMutation {
   nav: [SettingsNavMutation]
   registerUrl: String
   announcement: SettingsAnnouncementMutation
-  hero: SettingsHeroMutation
   classCard: SettingsClassCardMutation
   mobileCta: String
-  recentPosts: SettingsRecentPostsMutation
-  featuredTitle: String
-  categoriesSection: SettingsCategoriesSectionMutation
   footerText: String
   social: [SettingsSocialMutation]
 }

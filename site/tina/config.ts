@@ -1,4 +1,6 @@
 import { defineConfig } from 'tinacms';
+import { blocksField } from './blocks';
+import { previewField } from './Preview';
 const branch = process.env.TINA_BRANCH || process.env.VERCEL_GIT_COMMIT_REF || process.env.HEAD || 'main';
 const cats = ['motherhood', 'marriage', 'meals', 'breakfast', 'lunch', 'dinner'].map(v => ({ value: v, label: v[0].toUpperCase() + v.slice(1) }));
 const slugify = (v: any) => (v?.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -57,6 +59,7 @@ export default defineConfig({
         ui: { filename: { slugify }, router, allowedActions: { createNestedFolder: false } },
         defaultItem: () => ({ date: new Date().toISOString(), categories: [], draft: false, featured: false }),
         fields: [
+          previewField('post'),
           { type: 'string', name: 'title', label: 'Title', isTitle: true, required: true },
           { type: 'boolean', name: 'draft', label: 'Hide this post for now (draft)', description: 'Turn on to save without publishing. Turn off and Save to publish.' },
           { type: 'datetime', name: 'date', label: 'Date shown on the post', required: true },
@@ -70,15 +73,29 @@ export default defineConfig({
         ],
       },
       {
-        name: 'page', label: 'Pages', path: 'src/content/pages', format: 'md',
+        name: 'page', label: 'Pages', path: 'src/content/pages', format: 'md', match: { exclude: 'home' },
         ui: { filename: { slugify }, router, allowedActions: { delete: false, createNestedFolder: false } },
         fields: [
+          previewField('page'),
           { type: 'string', name: 'title', label: 'Page title', isTitle: true, required: true },
+          { type: 'string', name: 'layout', label: 'Page style', options: [{ value: 'article', label: 'Article (title, photo and text, then sections below)' }, { value: 'blocks', label: 'Sections only (like the home page)' }] },
           { type: 'image', name: 'image', label: 'Top photo' },
           { type: 'rich-text', name: 'body', label: 'Page content', isBody: true, templates: embeds, toolbarOverride: ['heading', 'link', 'image', 'quote', 'ul', 'ol', 'bold', 'italic', 'hr', 'embed'] },
           { type: 'boolean', name: 'showRegisterCta', label: 'Show the "Register" box and button on this page' },
           { type: 'string', name: 'description', label: 'Search-engine description (optional)', ui: { component: 'textarea' } },
           { type: 'boolean', name: 'draft', label: 'Draft — keep hidden from the website' },
+          blocksField,
+        ],
+      },
+      {
+        name: 'home', label: 'Home Page', path: 'src/content/pages', format: 'md', match: { include: 'home' },
+        ui: { router: () => '/', allowedActions: { create: false, delete: false, createNestedFolder: false } },
+        fields: [
+          previewField('page'),
+          blocksField,
+          { type: 'string', name: 'title', label: 'Page name (leave as Home)', isTitle: true, required: true },
+          { type: 'string', name: 'layout', label: 'Layout', ui: { component: 'hidden' } },
+          { type: 'string', name: 'description', label: 'Search-engine description', ui: { component: 'textarea' } },
         ],
       },
       {
@@ -86,6 +103,7 @@ export default defineConfig({
         match: { include: 'settings' },
         ui: { allowedActions: { create: false, delete: false } },
         fields: [
+          previewField('settings'),
           { type: 'string', name: 'siteTitle', label: 'Site name' },
           { type: 'image', name: 'logo', label: 'Logo' },
           { type: 'string', name: 'tagline', label: 'Tagline' },
@@ -104,26 +122,12 @@ export default defineConfig({
             { type: 'boolean', name: 'show', label: 'Show the bar' },
             { type: 'string', name: 'text', label: 'Bold text' },
             { type: 'string', name: 'linkText', label: 'Link text' } ] },
-          { type: 'object', name: 'hero', label: 'Home page welcome banner', fields: [
-            { type: 'image', name: 'image', label: 'Background photo' },
-            { type: 'string', name: 'title', label: 'Headline' },
-            { type: 'string', name: 'intro', label: 'Intro text', ui: { component: 'textarea' } } ] },
-          { type: 'object', name: 'classCard', label: 'Kids class card', fields: [
-            { type: 'boolean', name: 'show', label: 'Show the card' },
-            { type: 'image', name: 'image', label: 'Card photo' },
+          { type: 'object', name: 'classCard', label: 'Class sign-up box (shown on pages where you turn it on)', fields: [
             { type: 'string', name: 'label', label: 'Small label' },
-            { type: 'string', name: 'title', label: 'Title' },
             { type: 'string', name: 'text', label: 'Description', ui: { component: 'textarea' } },
             { type: 'string', name: 'buttonText', label: 'Button text' },
             { type: 'string', name: 'stickyText', label: 'Text on the bottom bar (phones)' } ] },
           { type: 'string', name: 'mobileCta', label: 'Phone menu: top button text' },
-          { type: 'object', name: 'recentPosts', label: 'Home page: recent posts', fields: [
-            { type: 'boolean', name: 'show', label: 'Show this section' }, { type: 'string', name: 'title', label: 'Section title' }, { type: 'number', name: 'count', label: 'How many posts' } ] },
-          { type: 'string', name: 'featuredTitle', label: 'Home page: title for the featured post' },
-          { type: 'object', name: 'categoriesSection', label: 'Home page: category tiles', fields: [
-            { type: 'boolean', name: 'show', label: 'Show this section' }, { type: 'string', name: 'title', label: 'Section title' },
-            { type: 'object', name: 'items', label: 'Tiles', list: true, ui: { itemProps: (i: any) => ({ label: i?.label }) }, fields: [
-              { type: 'string', name: 'label', label: 'Name' }, { type: 'string', name: 'slug', label: 'Category (marriage, motherhood, meals, breakfast, lunch, dinner)' }, { type: 'image', name: 'image', label: 'Photo' } ] } ] },
           { type: 'string', name: 'footerText', label: 'Footer text' },
           { type: 'object', name: 'social', label: 'Social links (footer)', list: true, ui: { itemProps: (i: any) => ({ label: i?.label }) }, fields: [
             { type: 'string', name: 'label', label: 'Name (e.g. Instagram)' }, { type: 'string', name: 'url', label: 'Link' } ] },

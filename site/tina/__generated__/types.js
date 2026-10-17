@@ -8,13 +8,14 @@ export function gql(strings, ...args) {
 export const PostPartsFragmentDoc = gql`
     fragment PostParts on Post {
   __typename
+  livePreview
   title
+  draft
   date
   categories
   image
   excerpt
   body
-  draft
   publishDate
   description
   featured
@@ -23,18 +24,255 @@ export const PostPartsFragmentDoc = gql`
 export const PagePartsFragmentDoc = gql`
     fragment PageParts on Page {
   __typename
+  livePreview
   title
+  layout
   image
   body
   showRegisterCta
   description
   draft
+  blocks {
+    __typename
+    ... on PageBlocksHero {
+      image
+      heading
+      text
+      buttonLabel
+      buttonUrl
+      button2Label
+      button2Url
+      height
+    }
+    ... on PageBlocksText {
+      heading
+      text
+      align
+      width
+      background
+    }
+    ... on PageBlocksImageText {
+      image
+      alt
+      heading
+      text
+      buttonLabel
+      buttonUrl
+      imageSide
+      background
+    }
+    ... on PageBlocksGallery {
+      title
+      perRow
+      images {
+        __typename
+        src
+        alt
+        caption
+      }
+      background
+    }
+    ... on PageBlocksFeature {
+      image
+      eyebrow
+      heading
+      text
+      buttonLabel
+      buttonUrl
+      linkLabel
+      linkUrl
+      background
+    }
+    ... on PageBlocksCta {
+      heading
+      text
+      buttonLabel
+      buttonUrl
+      style
+    }
+    ... on PageBlocksVideo {
+      url
+      file
+      caption
+      background
+    }
+    ... on PageBlocksQuote {
+      text
+      author
+      background
+    }
+    ... on PageBlocksPostGrid {
+      title
+      count
+      category
+      background
+    }
+    ... on PageBlocksFeaturedPost {
+      title
+      background
+    }
+    ... on PageBlocksCategoryTiles {
+      title
+      tiles {
+        __typename
+        label
+        slug
+        image
+      }
+      background
+    }
+    ... on PageBlocksFaq {
+      title
+      questions {
+        __typename
+        question
+        answer
+      }
+      background
+    }
+    ... on PageBlocksColumns {
+      title
+      points {
+        __typename
+        icon
+        heading
+        text
+      }
+      background
+    }
+    ... on PageBlocksSpacer {
+      size
+    }
+  }
+}
+    `;
+export const HomePartsFragmentDoc = gql`
+    fragment HomeParts on Home {
+  __typename
+  livePreview
+  blocks {
+    __typename
+    ... on HomeBlocksHero {
+      image
+      heading
+      text
+      buttonLabel
+      buttonUrl
+      button2Label
+      button2Url
+      height
+    }
+    ... on HomeBlocksText {
+      heading
+      text
+      align
+      width
+      background
+    }
+    ... on HomeBlocksImageText {
+      image
+      alt
+      heading
+      text
+      buttonLabel
+      buttonUrl
+      imageSide
+      background
+    }
+    ... on HomeBlocksGallery {
+      title
+      perRow
+      images {
+        __typename
+        src
+        alt
+        caption
+      }
+      background
+    }
+    ... on HomeBlocksFeature {
+      image
+      eyebrow
+      heading
+      text
+      buttonLabel
+      buttonUrl
+      linkLabel
+      linkUrl
+      background
+    }
+    ... on HomeBlocksCta {
+      heading
+      text
+      buttonLabel
+      buttonUrl
+      style
+    }
+    ... on HomeBlocksVideo {
+      url
+      file
+      caption
+      background
+    }
+    ... on HomeBlocksQuote {
+      text
+      author
+      background
+    }
+    ... on HomeBlocksPostGrid {
+      title
+      count
+      category
+      background
+    }
+    ... on HomeBlocksFeaturedPost {
+      title
+      background
+    }
+    ... on HomeBlocksCategoryTiles {
+      title
+      tiles {
+        __typename
+        label
+        slug
+        image
+      }
+      background
+    }
+    ... on HomeBlocksFaq {
+      title
+      questions {
+        __typename
+        question
+        answer
+      }
+      background
+    }
+    ... on HomeBlocksColumns {
+      title
+      points {
+        __typename
+        icon
+        heading
+        text
+      }
+      background
+    }
+    ... on HomeBlocksSpacer {
+      size
+    }
+  }
+  title
+  layout
+  description
 }
     `;
 export const SettingsPartsFragmentDoc = gql`
     fragment SettingsParts on Settings {
   __typename
+  livePreview
   siteTitle
+  logo
   tagline
   theme {
     __typename
@@ -62,19 +300,14 @@ export const SettingsPartsFragmentDoc = gql`
     text
     linkText
   }
-  hero {
-    __typename
-    title
-    intro
-  }
   classCard {
     __typename
-    show
     label
-    title
     text
     buttonText
+    stickyText
   }
+  mobileCta
   footerText
   social {
     __typename
@@ -197,6 +430,63 @@ export const PageConnectionDocument = gql`
   }
 }
     ${PagePartsFragmentDoc}`;
+export const HomeDocument = gql`
+    query home($relativePath: String!) {
+  home(relativePath: $relativePath) {
+    ... on Document {
+      _sys {
+        filename
+        basename
+        hasReferences
+        breadcrumbs
+        path
+        relativePath
+        extension
+      }
+      id
+    }
+    ...HomeParts
+  }
+}
+    ${HomePartsFragmentDoc}`;
+export const HomeConnectionDocument = gql`
+    query homeConnection($before: String, $after: String, $first: Float, $last: Float, $sort: String, $filter: HomeFilter) {
+  homeConnection(
+    before: $before
+    after: $after
+    first: $first
+    last: $last
+    sort: $sort
+    filter: $filter
+  ) {
+    pageInfo {
+      hasPreviousPage
+      hasNextPage
+      startCursor
+      endCursor
+    }
+    totalCount
+    edges {
+      cursor
+      node {
+        ... on Document {
+          _sys {
+            filename
+            basename
+            hasReferences
+            breadcrumbs
+            path
+            relativePath
+            extension
+          }
+          id
+        }
+        ...HomeParts
+      }
+    }
+  }
+}
+    ${HomePartsFragmentDoc}`;
 export const SettingsDocument = gql`
     query settings($relativePath: String!) {
   settings(relativePath: $relativePath) {
@@ -267,6 +557,12 @@ export function getSdk(requester) {
     },
     pageConnection(variables, options) {
       return requester(PageConnectionDocument, variables, options);
+    },
+    home(variables, options) {
+      return requester(HomeDocument, variables, options);
+    },
+    homeConnection(variables, options) {
+      return requester(HomeConnectionDocument, variables, options);
     },
     settings(variables, options) {
       return requester(SettingsDocument, variables, options);
