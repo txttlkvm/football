@@ -3,7 +3,12 @@ import { blocksField } from './blocks';
 import { previewField } from './Preview';
 const branch = process.env.TINA_BRANCH || process.env.VERCEL_GIT_COMMIT_REF || process.env.HEAD || 'main';
 const cats = ['motherhood', 'marriage', 'meals', 'breakfast', 'lunch', 'dinner'].map(v => ({ value: v, label: v[0].toUpperCase() + v.slice(1) }));
-const slugify = (v: any) => (v?.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const RESERVED = ['about-me', 'home-chefs', 'home-bakery', 'home', 'category', 'rss', 'admin', 'posts', 'sitemap', '404', 'index'];
+const slugify = (v: any) => {
+  let t = (v?.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60).replace(/-$/, '');
+  if (!t) t = 'post-' + new Date().toISOString().slice(0, 10);
+  return RESERVED.includes(t) ? t + '-post' : t;
+};
 const embeds = [
   {
     name: 'video', label: 'Video', match: { start: '{{<', end: '>}}' },
@@ -85,12 +90,12 @@ export default defineConfig({
     collections: [
       {
         name: 'post', label: 'Blog Posts', path: 'src/content/posts', format: 'md',
-        ui: { filename: { slugify }, router, allowedActions: { createNestedFolder: false } },
-        defaultItem: () => ({ date: new Date().toISOString(), categories: [], draft: false, featured: false }),
+        ui: { filename: { slugify, readonly: true }, router, allowedActions: { createNestedFolder: false } },
+        defaultItem: () => ({ date: new Date().toISOString(), categories: [], draft: true, featured: false }),
         fields: [
           previewField('post'),
           { type: 'string', name: 'title', label: 'Title', isTitle: true, required: true },
-          { type: 'boolean', name: 'draft', label: 'Hide this post for now (draft)', description: 'Turn on to save without publishing. Turn off and Save to publish.' },
+          { type: 'boolean', name: 'draft', label: 'Keep this post hidden (draft)', description: 'New posts start hidden. Turn this OFF when you are ready for everyone to see it.' },
           { type: 'datetime', name: 'date', label: 'Date shown on the post', required: true },
           { type: 'string', name: 'categories', label: 'Categories (tick any)', list: true, options: cats },
           { type: 'image', name: 'image', label: 'Cover photo' },
