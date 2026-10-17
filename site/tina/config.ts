@@ -2,6 +2,17 @@ import { defineConfig } from 'tinacms';
 const branch = process.env.TINA_BRANCH || process.env.VERCEL_GIT_COMMIT_REF || process.env.HEAD || 'main';
 const cats = ['motherhood', 'marriage', 'meals', 'breakfast', 'lunch', 'dinner'].map(v => ({ value: v, label: v[0].toUpperCase() + v.slice(1) }));
 const slugify = (v: any) => (v?.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const embeds = [
+  {
+    name: 'video', label: 'Video', match: { start: '{{<', end: '>}}' },
+    ui: { defaultItem: { url: '', caption: '' } },
+    fields: [
+      { type: 'string', name: 'url', label: 'Paste a YouTube or Vimeo link', description: 'Easiest for long videos. Or leave this empty and choose a video file below.' },
+      { type: 'image', name: 'file', label: 'Or upload a short video file (MP4, under about 50 MB)' },
+      { type: 'string', name: 'caption', label: 'Caption (optional)' },
+    ],
+  },
+] as any[];
 const router = ({ document }: any) => `/${document._sys.filename}/`;
 const color = { component: 'color', colorFormat: 'hex' } as any;
 const link = [
@@ -26,7 +37,7 @@ export default defineConfig({
           { type: 'string', name: 'categories', label: 'Categories (tick any)', list: true, options: cats },
           { type: 'image', name: 'image', label: 'Cover photo' },
           { type: 'string', name: 'excerpt', label: 'Short summary (shown on cards)', ui: { component: 'textarea' } },
-          { type: 'rich-text', name: 'body', label: 'Write your post', isBody: true },
+          { type: 'rich-text', name: 'body', label: 'Write your post', isBody: true, templates: embeds },
           { type: 'boolean', name: 'draft', label: 'Draft — keep hidden from the website' },
           { type: 'datetime', name: 'publishDate', label: 'Publish on a future date (optional)', description: 'Leave empty to publish right away. A future date keeps the post hidden until then.' },
           { type: 'string', name: 'description', label: 'Search-engine description (optional)', ui: { component: 'textarea' } },
@@ -39,7 +50,7 @@ export default defineConfig({
         fields: [
           { type: 'string', name: 'title', label: 'Page title', isTitle: true, required: true },
           { type: 'image', name: 'image', label: 'Top photo' },
-          { type: 'rich-text', name: 'body', label: 'Page content', isBody: true },
+          { type: 'rich-text', name: 'body', label: 'Page content', isBody: true, templates: embeds },
           { type: 'boolean', name: 'showRegisterCta', label: 'Show the "Register" box and button on this page' },
           { type: 'string', name: 'description', label: 'Search-engine description (optional)', ui: { component: 'textarea' } },
           { type: 'boolean', name: 'draft', label: 'Draft — keep hidden from the website' },

@@ -6,7 +6,7 @@ image: "/img/reading-bible.jpg"
 excerpt: ""
 ---
 
-<video height="1080" width="1920" autoplay="" controls="" muted="" src="/img/PXL_20250717_222857447.mp4"></video>
+{{< video file="/img/PXL_20250717_222857447.mp4" >}}
 
 “Train up a child in the way he should go; even when he is old he will not depart from it” (Proverbs 22:6). This is a command. Training our children is not optional. The Bible remains true and should be displayed in our ever-so-changing routines. My husband and I love seeing how we can insert biblical truth to our children throughout the day. We are passionate about our children knowing who God is and how we can understand him through the people and things he has made. In order for our children to understand truth at a young age, there are a few things we do to help ensure the gospel is present in our home.
 

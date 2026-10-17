@@ -35,16 +35,16 @@ In the videos you will hear my baby boy in the background trying to include hims
 
 ### **4\.** [Elemental Phonics: Level 1](https://amzn.to/4oSq2EW)
 
-<video height="1080" width="1920" src="/img/20241213_095220.mp4"></video>
+{{< video file="/img/20241213_095220.mp4" >}}
 
 * * *
 
 ### 5\. [Elemental Phonics: Level 2](https://amzn.to/3Vpug9u)
 
-<video height="1080" width="1920" controls="" src="/img/PXL_20250325_180750385.mp4"></video>
+{{< video file="/img/PXL_20250325_180750385.mp4" >}}
 
 * * *
 
 ### **6.** [Elemental Phonics: Level 3](https://amzn.to/4mPN6Tt)
 
-<video height="1080" width="1920" controls="" src="/img/PXL_20250826_174420860.mp4"></video>
+{{< video file="/img/PXL_20250826_174420860.mp4" >}}

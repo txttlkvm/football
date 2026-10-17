@@ -123,3 +123,7 @@ body{animation:pageIn .5s ease backwards}
 .footer .social a{margin:0 8px}
 .article .body h2:first-child{margin-top:.4em}
 .page-about-me .page-hero-img{max-width:420px}
+.video-figure{margin:1.6em 0}.video-embed{position:relative;aspect-ratio:16/9;background:#000;border-radius:8px;overflow:hidden}
+.video-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.video-figure video{width:100%;max-height:80vh;background:#000;border-radius:8px;display:block}
+.video-figure figcaption{font-size:.9rem;color:#8a8680;text-align:center;margin-top:.6em}
