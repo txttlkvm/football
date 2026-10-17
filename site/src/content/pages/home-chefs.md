@@ -3,6 +3,17 @@ title: "Manna's Bakehouse Future Home Chefs"
 description: "Weekly baking and cooking classes that prepare youth with fundamental kitchen skills."
 image: "/img/breakfast-table-with-oatmeal-porridge-croissants-and-muffins.jpg"
 showRegisterCta: true
+blocks:
+  - _template: facts
+    title: "Class details"
+    background: soft
+    items:
+      - label: "Price"
+        value: "$150 per month"
+      - label: "Day"
+        value: "Thursdays"
+      - label: "Start date, times & ages"
+        value: "See the flyer below"
 ---
 
 ## Welcome to Manna's Future Home Chefs
@@ -41,6 +52,6 @@ Lessons on how meals require an understanding of cost of goods and utilizing all
 
 Diamond is a stay at home mother of five children ages 7, 6, 4, 2 and 3 months. She considers herself a student always as she learns different skills about baking and cooking. Her goal is to share what she has learned to children to encourage knowledge and participation in the kitchen. Children love to eat and should know the hard work and skill it takes for their parents/guardians to put food before them every day. She believes that children are capable of learning how to prepare a meal for themselves if they are willing to learn.
 
-![Manna's Bakehouse flyer](/img/Mannas-Bakehouse-flyer-2.png)
+![Manna's Bakehouse Future Home Chefs class flyer with dates, times and pricing](/img/Mannas-Bakehouse-flyer-2.png)
 
 ![](/img/1000003996.jpg)

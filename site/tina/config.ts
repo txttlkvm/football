@@ -52,11 +52,12 @@ const link = [
   { type: 'string', name: 'href', label: 'Link (e.g. /about-me/ or https://…)', required: true },
 ] as any[];
 
-const SKIN = `@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+const SKIN = `[class*="drag"] svg,[class*="pencil"] svg,[class*="Pencil"] svg{color:#6b6660!important}button[aria-label*="elete"] svg,[class*="trash"] svg{color:#b3261e!important;opacity:1!important}
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 body,button,input,textarea,select{font-family:'Poppins',system-ui,sans-serif!important}
 :root{--tina-color-primary:#b0246f}
 [class*="bg-orange"],[class*="from-orange"],[class*="to-orange"]{background:#b0246f!important;background-image:none!important;border-color:#b0246f!important;color:#fff!important}
-[class*="text-orange"]{color:#a01f65!important}[class*="border-orange"]{border-color:#ff66c4!important}
+[class*="text-orange"]{color:#8a1b5a!important}[class*="border-orange"]{border-color:#ff66c4!important}
 [class*="orange"] svg{color:inherit}
 input:focus,textarea:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid #8a1b5a!important;outline-offset:2px}`;
 const cmsCallback = (cms: any) => {
@@ -67,6 +68,8 @@ const cmsCallback = (cms: any) => {
     const m = document.createElement('meta'); m.name = 'theme-color'; m.content = '#ff66c4'; document.head.appendChild(m);
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
     const tidy = () => {
+      document.querySelectorAll('td div, td span, td p, li p, li span').forEach((e: any) => { if (e.children.length === 0 && /^src\/content\//.test((e.textContent || '').trim())) e.style.display = 'none'; });
+      document.querySelectorAll('label').forEach((l: any) => { if (/^Filename\b/.test((l.textContent || '').trim())) { const w = l.closest('div'); if (w && w.parentElement) w.parentElement.style.display = 'none'; } });
       document.querySelectorAll('[class*="border-amber"]').forEach((e: any) => { if (/local mode/.test(e.textContent || '') && e.textContent.length < 80) e.style.display = 'none'; });
       document.querySelectorAll('[class*="border-blue-"]').forEach((e: any) => { if (/configured search/.test(e.textContent || '')) e.style.display = 'none'; });
       document.querySelectorAll('table').forEach((t: any) => {
@@ -91,17 +94,17 @@ export default defineConfig({
     collections: [
       {
         name: 'post', label: 'Blog Posts', path: 'src/content/posts', format: 'md',
-        ui: { filename: { slugify, readonly: true }, router, allowedActions: { createNestedFolder: false } },
+        ui: { filename: { slugify, readonly: true }, allowedActions: { createNestedFolder: false } },
         defaultItem: () => ({ date: new Date().toISOString(), categories: [], draft: true, featured: false }),
         fields: [
           { type: 'string', name: 'title', label: 'Title', isTitle: true, required: true },
+          { type: 'boolean', name: 'draft', label: 'Keep this post hidden (draft)', description: 'New posts start hidden. Turn this OFF when you are ready for everyone to see it.' },
           { type: 'image', name: 'image', label: 'Cover photo' },
           { type: 'string', name: 'imageFocus', label: 'Which part of the cover photo to keep in view', options: [{ value: 'center', label: 'Center' }, { value: 'top', label: 'Top' }, { value: 'bottom', label: 'Bottom' }, { value: 'left', label: 'Left' }, { value: 'right', label: 'Right' }, { value: 'face', label: 'Upper middle (faces)' }] },
           { type: 'rich-text', name: 'body', label: 'Write your post', isBody: true, templates: embeds, toolbarOverride: ['heading', 'link', 'image', 'quote', 'ul', 'ol', 'bold', 'italic', 'hr', 'embed'] },
           { type: 'string', name: 'excerpt', label: 'Short summary (shown on cards)', ui: { component: 'textarea' } },
           { type: 'string', name: 'categories', label: 'Categories (tick any)', list: true, options: cats },
           { type: 'datetime', name: 'date', label: 'Date shown on the post', required: true },
-          { type: 'boolean', name: 'draft', label: 'Keep this post hidden (draft)', description: 'New posts start hidden. Turn this OFF when you are ready for everyone to see it.' },
           { type: 'boolean', name: 'featured', label: 'Feature this post at the top of the home page' },
           { type: 'datetime', name: 'publishDate', label: 'Schedule: hide until this date (optional)', description: 'Leave empty to publish immediately. A scheduled post appears the next time the site updates after this date.' },
           { type: 'string', name: 'description', label: 'Search-engine description (optional)', ui: { component: 'textarea' } },
@@ -111,7 +114,7 @@ export default defineConfig({
       {
         name: 'page', label: 'Pages', path: 'src/content/pages', format: 'md', match: { exclude: 'home' },
         defaultItem: () => ({ layout: 'blocks', blocks: [{ _template: 'hero', heading: 'Page title', text: 'A short welcome.', height: 'short', image: '/img/hero.jpg' }, { _template: 'text', heading: 'About this page', text: '<p>Write something here…</p>', align: 'left', width: 'narrow' }, { _template: 'cta', heading: 'Ready to join us?', buttonLabel: 'Sign up', buttonUrl: '/', style: 'pink' }] }),
-        ui: { filename: { slugify }, router, allowedActions: { delete: false, createNestedFolder: false } },
+        ui: { filename: { slugify }, allowedActions: { delete: false, createNestedFolder: false } },
         fields: [
           previewField('page'),
           { type: 'string', name: 'title', label: 'Page title', isTitle: true, required: true },
@@ -144,8 +147,17 @@ export default defineConfig({
           { type: 'string', name: 'siteTitle', label: 'Site name' },
           { type: 'image', name: 'logo', label: 'Logo' },
           { type: 'string', name: 'tagline', label: 'Tagline' },
+          { type: 'object', name: 'announcement', label: 'Top announcement bar', fields: [
+            { type: 'boolean', name: 'show', label: 'Show the bar' },
+            { type: 'string', name: 'text', label: 'Headline' },
+            { type: 'string', name: 'linkText', label: 'Button words' }, { type: 'string', name: 'linkUrl', label: 'Link goes to (leave empty for the Register page)' } ] },
+          { type: 'object', name: 'classCard', label: 'Class sign-up box (shown on pages where you turn it on)', fields: [
+            { type: 'string', name: 'label', label: 'Small label' },
+            { type: 'string', name: 'text', label: 'Description', ui: { component: 'textarea' } },
+            { type: 'string', name: 'buttonText', label: 'Button text' },
+            { type: 'string', name: 'stickyText', label: 'Text on the bottom bar (phones)' } ] },
           { type: 'object', name: 'theme', label: 'Colors & fonts', fields: [
-            { type: 'string', name: 'accent', label: 'Accent color (buttons, links)', ui: color },
+            { type: 'string', name: 'accent', label: 'Accent color (buttons, links)', description: 'Buttons use a slightly deeper shade of this colour so white text stays easy to read.', ui: color },
             { type: 'string', name: 'dark', label: 'Headline color', ui: color },
             { type: 'string', name: 'text', label: 'Body text color', ui: color },
             { type: 'string', name: 'soft', label: 'Soft background color', ui: color },
@@ -155,15 +167,6 @@ export default defineConfig({
             ...link,
             { type: 'object', name: 'children', label: 'Drop-down items', list: true, ui: { itemProps: (i: any) => ({ label: i?.label }) }, fields: link } ] },
           { type: 'string', name: 'registerUrl', label: 'Class sign-up link' },
-          { type: 'object', name: 'announcement', label: 'Top announcement bar', fields: [
-            { type: 'boolean', name: 'show', label: 'Show the bar' },
-            { type: 'string', name: 'text', label: 'Bold text' },
-            { type: 'string', name: 'linkText', label: 'Link text' }, { type: 'string', name: 'linkUrl', label: 'Link goes to (leave empty for the Register page)' } ] },
-          { type: 'object', name: 'classCard', label: 'Class sign-up box (shown on pages where you turn it on)', fields: [
-            { type: 'string', name: 'label', label: 'Small label' },
-            { type: 'string', name: 'text', label: 'Description', ui: { component: 'textarea' } },
-            { type: 'string', name: 'buttonText', label: 'Button text' },
-            { type: 'string', name: 'stickyText', label: 'Text on the bottom bar (phones)' } ] },
           { type: 'string', name: 'mobileCta', label: 'Phone menu: top button text' },
           { type: 'string', name: 'formsKey', label: 'Contact form key', description: 'Free at web3forms.com — enter your email there, they send you a key. Paste it here to turn on the Contact form section.' },
           { type: 'string', name: 'footerText', label: 'Footer text' },
