@@ -106,6 +106,7 @@ type Post implements Node & Document {
   date: String!
   categories: [String]
   image: String
+  imageFocus: String
   excerpt: String
   body: RichText
   publishDate: String
@@ -186,6 +187,7 @@ input PostFilter {
   date: DatetimeFilter
   categories: StringFilter
   image: ImageFilter
+  imageFocus: StringFilter
   excerpt: StringFilter
   body: PostBodyFilter
   publishDate: DatetimeFilter
@@ -206,6 +208,7 @@ type PostConnection implements Connection {
 
 type PageBlocksHero {
   image: String
+  focus: String
   heading: String
   text: String
   buttonLabel: String
@@ -225,6 +228,8 @@ type PageBlocksText {
 
 type PageBlocksImageText {
   image: String
+  focus: String
+  ratio: String
   alt: String
   heading: String
   text: String
@@ -236,6 +241,7 @@ type PageBlocksImageText {
 
 type PageBlocksGalleryImages {
   src: String
+  focus: String
   alt: String
   caption: String
 }
@@ -244,11 +250,14 @@ type PageBlocksGallery {
   title: String
   perRow: String
   images: [PageBlocksGalleryImages]
+  ratio: String
   background: String
 }
 
 type PageBlocksFeature {
   image: String
+  focus: String
+  ratio: String
   eyebrow: String
   heading: String
   text: String
@@ -327,11 +336,19 @@ type PageBlocksColumns {
   background: String
 }
 
+type PageBlocksForm {
+  title: String
+  intro: String
+  buttonLabel: String
+  successText: String
+  background: String
+}
+
 type PageBlocksSpacer {
   size: String
 }
 
-union PageBlocks = PageBlocksHero | PageBlocksText | PageBlocksImageText | PageBlocksGallery | PageBlocksFeature | PageBlocksCta | PageBlocksVideo | PageBlocksQuote | PageBlocksPostGrid | PageBlocksFeaturedPost | PageBlocksCategoryTiles | PageBlocksFaq | PageBlocksColumns | PageBlocksSpacer
+union PageBlocks = PageBlocksHero | PageBlocksText | PageBlocksImageText | PageBlocksGallery | PageBlocksFeature | PageBlocksCta | PageBlocksVideo | PageBlocksQuote | PageBlocksPostGrid | PageBlocksFeaturedPost | PageBlocksCategoryTiles | PageBlocksFaq | PageBlocksColumns | PageBlocksForm | PageBlocksSpacer
 
 type Page implements Node & Document {
   livePreview: String
@@ -386,6 +403,7 @@ input PageBodyFilter {
 
 input PageBlocksHeroFilter {
   image: ImageFilter
+  focus: StringFilter
   heading: StringFilter
   text: StringFilter
   buttonLabel: StringFilter
@@ -405,6 +423,8 @@ input PageBlocksTextFilter {
 
 input PageBlocksImageTextFilter {
   image: ImageFilter
+  focus: StringFilter
+  ratio: StringFilter
   alt: StringFilter
   heading: StringFilter
   text: StringFilter
@@ -416,6 +436,7 @@ input PageBlocksImageTextFilter {
 
 input PageBlocksGalleryImagesFilter {
   src: ImageFilter
+  focus: StringFilter
   alt: StringFilter
   caption: StringFilter
 }
@@ -424,11 +445,14 @@ input PageBlocksGalleryFilter {
   title: StringFilter
   perRow: StringFilter
   images: PageBlocksGalleryImagesFilter
+  ratio: StringFilter
   background: StringFilter
 }
 
 input PageBlocksFeatureFilter {
   image: ImageFilter
+  focus: StringFilter
+  ratio: StringFilter
   eyebrow: StringFilter
   heading: StringFilter
   text: StringFilter
@@ -517,6 +541,14 @@ input PageBlocksColumnsFilter {
   background: StringFilter
 }
 
+input PageBlocksFormFilter {
+  title: StringFilter
+  intro: StringFilter
+  buttonLabel: StringFilter
+  successText: StringFilter
+  background: StringFilter
+}
+
 input PageBlocksSpacerFilter {
   size: StringFilter
 }
@@ -535,6 +567,7 @@ input PageBlocksFilter {
   categoryTiles: PageBlocksCategoryTilesFilter
   faq: PageBlocksFaqFilter
   columns: PageBlocksColumnsFilter
+  form: PageBlocksFormFilter
   spacer: PageBlocksSpacerFilter
 }
 
@@ -563,6 +596,7 @@ type PageConnection implements Connection {
 
 type HomeBlocksHero {
   image: String
+  focus: String
   heading: String
   text: String
   buttonLabel: String
@@ -582,6 +616,8 @@ type HomeBlocksText {
 
 type HomeBlocksImageText {
   image: String
+  focus: String
+  ratio: String
   alt: String
   heading: String
   text: String
@@ -593,6 +629,7 @@ type HomeBlocksImageText {
 
 type HomeBlocksGalleryImages {
   src: String
+  focus: String
   alt: String
   caption: String
 }
@@ -601,11 +638,14 @@ type HomeBlocksGallery {
   title: String
   perRow: String
   images: [HomeBlocksGalleryImages]
+  ratio: String
   background: String
 }
 
 type HomeBlocksFeature {
   image: String
+  focus: String
+  ratio: String
   eyebrow: String
   heading: String
   text: String
@@ -684,11 +724,19 @@ type HomeBlocksColumns {
   background: String
 }
 
+type HomeBlocksForm {
+  title: String
+  intro: String
+  buttonLabel: String
+  successText: String
+  background: String
+}
+
 type HomeBlocksSpacer {
   size: String
 }
 
-union HomeBlocks = HomeBlocksHero | HomeBlocksText | HomeBlocksImageText | HomeBlocksGallery | HomeBlocksFeature | HomeBlocksCta | HomeBlocksVideo | HomeBlocksQuote | HomeBlocksPostGrid | HomeBlocksFeaturedPost | HomeBlocksCategoryTiles | HomeBlocksFaq | HomeBlocksColumns | HomeBlocksSpacer
+union HomeBlocks = HomeBlocksHero | HomeBlocksText | HomeBlocksImageText | HomeBlocksGallery | HomeBlocksFeature | HomeBlocksCta | HomeBlocksVideo | HomeBlocksQuote | HomeBlocksPostGrid | HomeBlocksFeaturedPost | HomeBlocksCategoryTiles | HomeBlocksFaq | HomeBlocksColumns | HomeBlocksForm | HomeBlocksSpacer
 
 type Home implements Node & Document {
   livePreview: String
@@ -703,6 +751,7 @@ type Home implements Node & Document {
 
 input HomeBlocksHeroFilter {
   image: ImageFilter
+  focus: StringFilter
   heading: StringFilter
   text: StringFilter
   buttonLabel: StringFilter
@@ -722,6 +771,8 @@ input HomeBlocksTextFilter {
 
 input HomeBlocksImageTextFilter {
   image: ImageFilter
+  focus: StringFilter
+  ratio: StringFilter
   alt: StringFilter
   heading: StringFilter
   text: StringFilter
@@ -733,6 +784,7 @@ input HomeBlocksImageTextFilter {
 
 input HomeBlocksGalleryImagesFilter {
   src: ImageFilter
+  focus: StringFilter
   alt: StringFilter
   caption: StringFilter
 }
@@ -741,11 +793,14 @@ input HomeBlocksGalleryFilter {
   title: StringFilter
   perRow: StringFilter
   images: HomeBlocksGalleryImagesFilter
+  ratio: StringFilter
   background: StringFilter
 }
 
 input HomeBlocksFeatureFilter {
   image: ImageFilter
+  focus: StringFilter
+  ratio: StringFilter
   eyebrow: StringFilter
   heading: StringFilter
   text: StringFilter
@@ -824,6 +879,14 @@ input HomeBlocksColumnsFilter {
   background: StringFilter
 }
 
+input HomeBlocksFormFilter {
+  title: StringFilter
+  intro: StringFilter
+  buttonLabel: StringFilter
+  successText: StringFilter
+  background: StringFilter
+}
+
 input HomeBlocksSpacerFilter {
   size: StringFilter
 }
@@ -842,6 +905,7 @@ input HomeBlocksFilter {
   categoryTiles: HomeBlocksCategoryTilesFilter
   faq: HomeBlocksFaqFilter
   columns: HomeBlocksColumnsFilter
+  form: HomeBlocksFormFilter
   spacer: HomeBlocksSpacerFilter
 }
 
@@ -913,6 +977,7 @@ type Settings implements Node & Document {
   announcement: SettingsAnnouncement
   classCard: SettingsClassCard
   mobileCta: String
+  formsKey: String
   footerText: String
   social: [SettingsSocial]
   id: ID!
@@ -969,6 +1034,7 @@ input SettingsFilter {
   announcement: SettingsAnnouncementFilter
   classCard: SettingsClassCardFilter
   mobileCta: StringFilter
+  formsKey: StringFilter
   footerText: StringFilter
   social: SettingsSocialFilter
 }
@@ -1022,6 +1088,7 @@ input PostMutation {
   date: String
   categories: [String]
   image: String
+  imageFocus: String
   excerpt: String
   body: RichText
   publishDate: String
@@ -1031,6 +1098,7 @@ input PostMutation {
 
 input PageBlocksHeroMutation {
   image: String
+  focus: String
   heading: String
   text: String
   buttonLabel: String
@@ -1050,6 +1118,8 @@ input PageBlocksTextMutation {
 
 input PageBlocksImageTextMutation {
   image: String
+  focus: String
+  ratio: String
   alt: String
   heading: String
   text: String
@@ -1061,6 +1131,7 @@ input PageBlocksImageTextMutation {
 
 input PageBlocksGalleryImagesMutation {
   src: String
+  focus: String
   alt: String
   caption: String
 }
@@ -1069,11 +1140,14 @@ input PageBlocksGalleryMutation {
   title: String
   perRow: String
   images: [PageBlocksGalleryImagesMutation]
+  ratio: String
   background: String
 }
 
 input PageBlocksFeatureMutation {
   image: String
+  focus: String
+  ratio: String
   eyebrow: String
   heading: String
   text: String
@@ -1152,6 +1226,14 @@ input PageBlocksColumnsMutation {
   background: String
 }
 
+input PageBlocksFormMutation {
+  title: String
+  intro: String
+  buttonLabel: String
+  successText: String
+  background: String
+}
+
 input PageBlocksSpacerMutation {
   size: String
 }
@@ -1170,6 +1252,7 @@ input PageBlocksMutation {
   categoryTiles: PageBlocksCategoryTilesMutation
   faq: PageBlocksFaqMutation
   columns: PageBlocksColumnsMutation
+  form: PageBlocksFormMutation
   spacer: PageBlocksSpacerMutation
 }
 
@@ -1187,6 +1270,7 @@ input PageMutation {
 
 input HomeBlocksHeroMutation {
   image: String
+  focus: String
   heading: String
   text: String
   buttonLabel: String
@@ -1206,6 +1290,8 @@ input HomeBlocksTextMutation {
 
 input HomeBlocksImageTextMutation {
   image: String
+  focus: String
+  ratio: String
   alt: String
   heading: String
   text: String
@@ -1217,6 +1303,7 @@ input HomeBlocksImageTextMutation {
 
 input HomeBlocksGalleryImagesMutation {
   src: String
+  focus: String
   alt: String
   caption: String
 }
@@ -1225,11 +1312,14 @@ input HomeBlocksGalleryMutation {
   title: String
   perRow: String
   images: [HomeBlocksGalleryImagesMutation]
+  ratio: String
   background: String
 }
 
 input HomeBlocksFeatureMutation {
   image: String
+  focus: String
+  ratio: String
   eyebrow: String
   heading: String
   text: String
@@ -1308,6 +1398,14 @@ input HomeBlocksColumnsMutation {
   background: String
 }
 
+input HomeBlocksFormMutation {
+  title: String
+  intro: String
+  buttonLabel: String
+  successText: String
+  background: String
+}
+
 input HomeBlocksSpacerMutation {
   size: String
 }
@@ -1326,6 +1424,7 @@ input HomeBlocksMutation {
   categoryTiles: HomeBlocksCategoryTilesMutation
   faq: HomeBlocksFaqMutation
   columns: HomeBlocksColumnsMutation
+  form: HomeBlocksFormMutation
   spacer: HomeBlocksSpacerMutation
 }
 
@@ -1386,6 +1485,7 @@ input SettingsMutation {
   announcement: SettingsAnnouncementMutation
   classCard: SettingsClassCardMutation
   mobileCta: String
+  formsKey: String
   footerText: String
   social: [SettingsSocialMutation]
 }

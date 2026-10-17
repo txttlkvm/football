@@ -20,6 +20,7 @@ export const REGISTER_URL = settings.registerUrl;
 
 import { existsSync } from 'node:fs';
 export const renderCtx = {
+  formsKey: (settings as any).formsKey || '',
   posts: allPosts.map(p => ({ slug: p.slug, title: p.title, date: p.date, img: p.img, excerpt: p.excerpt, cats: p.cats, featured: p.featured })),
   posterFor: (src: string) => { const p = src.replace(/\.(mp4|webm|mov)$/i, '-poster.jpg'); return p !== src && src.startsWith('/') && existsSync('public' + p) ? p : ''; },
 };
