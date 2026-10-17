@@ -11,11 +11,11 @@ const ratio = pick0('ratio', 'Photo shape', [['original', 'Original'], ['4/3', '
 const img = (name: string, label: string) => ({ type: 'image', name, label });
 const pick = (name: string, label: string, opts: [string, string][]) => s(name, label, { options: opts.map(([value, label]) => ({ value, label })) });
 const bg = pick('background', 'Background', [['', 'White'], ['soft', 'Soft color'], ['dark', 'Dark']]);
-const label = (icon: string, name: string) => `${icon}  ${name}`;
+const label = (_icon: string, name: string) => name;
 const item = (...keys: string[]) => ({ itemProps: (i: any) => ({ label: keys.map(k => i?.[k]).find(Boolean) || 'Untitled' }) });
 
 export const blockTemplates = [
-  { name: 'hero', label: label('🌅', 'Big banner (photo, headline, buttons)'),
+  { name: 'hero', label: label('🌅', 'Big banner'),
     ui: { defaultItem: { heading: 'A big, friendly headline', text: 'One or two sentences that welcome people.', buttonLabel: 'Learn more', buttonUrl: '/', height: 'medium', image: '/img/hero.jpg' } },
     fields: [img('image', 'Background photo'), focus, s('heading', 'Headline'), text('text', 'Text under the headline', 'Plain text'), s('buttonLabel', 'Button 1 text'), s('buttonUrl', 'Button 1 link'), s('button2Label', 'Button 2 text (optional)'), s('button2Url', 'Button 2 link'), pick('height', 'Height', [['tall', 'Tall'], ['medium', 'Medium'], ['short', 'Short']])] },
   { name: 'text', label: label('📝', 'Text'),
@@ -27,7 +27,7 @@ export const blockTemplates = [
   { name: 'gallery', label: label('🏞️', 'Photo gallery'),
     ui: { defaultItem: { title: 'Gallery', perRow: '3' } },
     fields: [s('title', 'Title (optional)'), pick('perRow', 'Photos per row', [['2', '2'], ['3', '3'], ['4', '4']]), { type: 'object', name: 'images', label: 'Photos', list: true, ui: item('alt', 'caption'), fields: [img('src', 'Photo'), focus, s('alt', 'Describe the photo'), s('caption', 'Caption (optional)')] }, ratio, bg] },
-  { name: 'feature', label: label('⭐', 'Highlight card (photo, title, button)'),
+  { name: 'feature', label: label('⭐', 'Highlight card'),
     ui: { defaultItem: { eyebrow: 'New', heading: 'Something worth sharing', text: 'A short description.', buttonLabel: 'Learn more', buttonUrl: '/', background: 'soft' } },
     fields: [img('image', 'Photo'), focus, ratio, s('eyebrow', 'Small label above the title'), s('heading', 'Title'), rich('text', 'Text'), s('buttonLabel', 'Button text'), s('buttonUrl', 'Button link'), s('linkLabel', 'Extra text link (optional)'), s('linkUrl', 'Extra link address'), bg] },
   { name: 'cta', label: label('📣', 'Call-to-action band'),
@@ -42,7 +42,7 @@ export const blockTemplates = [
   { name: 'postGrid', label: label('📰', 'Blog posts grid'),
     ui: { defaultItem: { title: 'Latest posts', count: 3 } },
     fields: [s('title', 'Title'), { type: 'number', name: 'count', label: 'How many posts' }, s('category', 'Only from this category', { options: cats }), bg] },
-  { name: 'featuredPost', label: label('📌', 'Featured post (the one marked "Featured")'),
+  { name: 'featuredPost', label: label('📌', 'Featured post'),
     ui: { defaultItem: { title: 'Featured' } }, fields: [s('title', 'Title'), bg] },
   { name: 'categoryTiles', label: label('🗂️', 'Category tiles'),
     ui: { defaultItem: { title: 'Browse by topic' } },

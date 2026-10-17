@@ -60,6 +60,17 @@ const cmsCallback = (cms: any) => {
     const l = document.createElement('link'); l.rel = 'manifest'; l.href = '/admin-manifest.webmanifest'; document.head.appendChild(l);
     const m = document.createElement('meta'); m.name = 'theme-color'; m.content = '#ff66c4'; document.head.appendChild(m);
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+    const tidy = () => {
+      document.querySelectorAll('[class*="border-amber"]').forEach((e: any) => { if (/local mode/.test(e.textContent || '') && e.textContent.length < 80) e.style.display = 'none'; });
+      document.querySelectorAll('[class*="border-blue-"]').forEach((e: any) => { if (/configured search/.test(e.textContent || '')) e.style.display = 'none'; });
+      document.querySelectorAll('table').forEach((t: any) => {
+        const heads = [...t.querySelectorAll('thead th')];
+        heads.forEach((th: any, i: number) => { if (/^(Filename|Extension|Template)$/.test(th.textContent.trim())) { th.style.display = 'none'; t.querySelectorAll('tbody tr').forEach((r: any) => { const c = r.children[i]; if (c) c.style.display = 'none'; }); } });
+      });
+      document.querySelectorAll('a,button').forEach((e: any) => { if (e.children.length === 0 && /^Add File$/.test(e.textContent.trim())) e.textContent = 'New post / page'; });
+    };
+    new MutationObserver(tidy).observe(document.body, { childList: true, subtree: true });
+    let ev: any; window.addEventListener('beforeinstallprompt', (e: any) => { e.preventDefault(); ev = e; const b = document.createElement('button'); b.textContent = '📱 Install this editor on your phone'; b.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:84px;z-index:99;padding:10px 18px;border-radius:999px;border:0;background:#ff66c4;color:#fff;font:600 14px Poppins,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.2);cursor:pointer'; b.onclick = () => { ev.prompt(); b.remove(); }; document.body.appendChild(b); });
   } catch (e) { /* cosmetic only */ }
   return cms;
 };
