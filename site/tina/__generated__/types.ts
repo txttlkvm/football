@@ -86,6 +86,8 @@ export type Query = {
   document: DocumentNode;
   post: Post;
   postConnection: PostConnection;
+  page: Page;
+  pageConnection: PageConnection;
   settings: Settings;
   settingsConnection: SettingsConnection;
 };
@@ -127,6 +129,21 @@ export type QueryPostConnectionArgs = {
 };
 
 
+export type QueryPageArgs = {
+  relativePath?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryPageConnectionArgs = {
+  before?: InputMaybe<Scalars['String']['input']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Float']['input']>;
+  last?: InputMaybe<Scalars['Float']['input']>;
+  sort?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<PageFilter>;
+};
+
+
 export type QuerySettingsArgs = {
   relativePath?: InputMaybe<Scalars['String']['input']>;
 };
@@ -143,6 +160,7 @@ export type QuerySettingsConnectionArgs = {
 
 export type DocumentFilter = {
   post?: InputMaybe<PostFilter>;
+  page?: InputMaybe<PageFilter>;
   settings?: InputMaybe<SettingsFilter>;
 };
 
@@ -183,7 +201,7 @@ export type CollectionDocumentsArgs = {
   folder?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type DocumentNode = Post | Settings | Folder;
+export type DocumentNode = Post | Page | Settings | Folder;
 
 export type Post = Node & Document & {
   __typename?: 'Post';
@@ -193,6 +211,10 @@ export type Post = Node & Document & {
   image?: Maybe<Scalars['String']['output']>;
   excerpt?: Maybe<Scalars['String']['output']>;
   body?: Maybe<Scalars['RichText']['output']>;
+  draft?: Maybe<Scalars['Boolean']['output']>;
+  publishDate?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  featured?: Maybe<Scalars['Boolean']['output']>;
   id: Scalars['ID']['output'];
   _sys: SystemInfo;
   _values: Scalars['JSON']['output'];
@@ -226,6 +248,11 @@ export type RichTextFilter = {
   exists?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+export type BooleanFilter = {
+  eq?: InputMaybe<Scalars['Boolean']['input']>;
+  exists?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 export type PostFilter = {
   title?: InputMaybe<StringFilter>;
   date?: InputMaybe<DatetimeFilter>;
@@ -233,6 +260,10 @@ export type PostFilter = {
   image?: InputMaybe<ImageFilter>;
   excerpt?: InputMaybe<StringFilter>;
   body?: InputMaybe<RichTextFilter>;
+  draft?: InputMaybe<BooleanFilter>;
+  publishDate?: InputMaybe<DatetimeFilter>;
+  description?: InputMaybe<StringFilter>;
+  featured?: InputMaybe<BooleanFilter>;
 };
 
 export type PostConnectionEdges = {
@@ -246,6 +277,64 @@ export type PostConnection = Connection & {
   pageInfo: PageInfo;
   totalCount: Scalars['Float']['output'];
   edges?: Maybe<Array<Maybe<PostConnectionEdges>>>;
+};
+
+export type Page = Node & Document & {
+  __typename?: 'Page';
+  title: Scalars['String']['output'];
+  image?: Maybe<Scalars['String']['output']>;
+  body?: Maybe<Scalars['RichText']['output']>;
+  showRegisterCta?: Maybe<Scalars['Boolean']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  draft?: Maybe<Scalars['Boolean']['output']>;
+  id: Scalars['ID']['output'];
+  _sys: SystemInfo;
+  _values: Scalars['JSON']['output'];
+};
+
+export type PageFilter = {
+  title?: InputMaybe<StringFilter>;
+  image?: InputMaybe<ImageFilter>;
+  body?: InputMaybe<RichTextFilter>;
+  showRegisterCta?: InputMaybe<BooleanFilter>;
+  description?: InputMaybe<StringFilter>;
+  draft?: InputMaybe<BooleanFilter>;
+};
+
+export type PageConnectionEdges = {
+  __typename?: 'PageConnectionEdges';
+  cursor: Scalars['String']['output'];
+  node?: Maybe<Page>;
+};
+
+export type PageConnection = Connection & {
+  __typename?: 'PageConnection';
+  pageInfo: PageInfo;
+  totalCount: Scalars['Float']['output'];
+  edges?: Maybe<Array<Maybe<PageConnectionEdges>>>;
+};
+
+export type SettingsTheme = {
+  __typename?: 'SettingsTheme';
+  accent?: Maybe<Scalars['String']['output']>;
+  dark?: Maybe<Scalars['String']['output']>;
+  text?: Maybe<Scalars['String']['output']>;
+  soft?: Maybe<Scalars['String']['output']>;
+  headingFont?: Maybe<Scalars['String']['output']>;
+  bodyFont?: Maybe<Scalars['String']['output']>;
+};
+
+export type SettingsNavChildren = {
+  __typename?: 'SettingsNavChildren';
+  label: Scalars['String']['output'];
+  href: Scalars['String']['output'];
+};
+
+export type SettingsNav = {
+  __typename?: 'SettingsNav';
+  label: Scalars['String']['output'];
+  href: Scalars['String']['output'];
+  children?: Maybe<Array<Maybe<SettingsNavChildren>>>;
 };
 
 export type SettingsAnnouncement = {
@@ -270,20 +359,47 @@ export type SettingsClassCard = {
   buttonText?: Maybe<Scalars['String']['output']>;
 };
 
+export type SettingsSocial = {
+  __typename?: 'SettingsSocial';
+  label?: Maybe<Scalars['String']['output']>;
+  url?: Maybe<Scalars['String']['output']>;
+};
+
 export type Settings = Node & Document & {
   __typename?: 'Settings';
+  siteTitle?: Maybe<Scalars['String']['output']>;
+  tagline?: Maybe<Scalars['String']['output']>;
+  theme?: Maybe<SettingsTheme>;
+  nav?: Maybe<Array<Maybe<SettingsNav>>>;
   registerUrl?: Maybe<Scalars['String']['output']>;
   announcement?: Maybe<SettingsAnnouncement>;
   hero?: Maybe<SettingsHero>;
   classCard?: Maybe<SettingsClassCard>;
+  footerText?: Maybe<Scalars['String']['output']>;
+  social?: Maybe<Array<Maybe<SettingsSocial>>>;
   id: Scalars['ID']['output'];
   _sys: SystemInfo;
   _values: Scalars['JSON']['output'];
 };
 
-export type BooleanFilter = {
-  eq?: InputMaybe<Scalars['Boolean']['input']>;
-  exists?: InputMaybe<Scalars['Boolean']['input']>;
+export type SettingsThemeFilter = {
+  accent?: InputMaybe<StringFilter>;
+  dark?: InputMaybe<StringFilter>;
+  text?: InputMaybe<StringFilter>;
+  soft?: InputMaybe<StringFilter>;
+  headingFont?: InputMaybe<StringFilter>;
+  bodyFont?: InputMaybe<StringFilter>;
+};
+
+export type SettingsNavChildrenFilter = {
+  label?: InputMaybe<StringFilter>;
+  href?: InputMaybe<StringFilter>;
+};
+
+export type SettingsNavFilter = {
+  label?: InputMaybe<StringFilter>;
+  href?: InputMaybe<StringFilter>;
+  children?: InputMaybe<SettingsNavChildrenFilter>;
 };
 
 export type SettingsAnnouncementFilter = {
@@ -305,11 +421,22 @@ export type SettingsClassCardFilter = {
   buttonText?: InputMaybe<StringFilter>;
 };
 
+export type SettingsSocialFilter = {
+  label?: InputMaybe<StringFilter>;
+  url?: InputMaybe<StringFilter>;
+};
+
 export type SettingsFilter = {
+  siteTitle?: InputMaybe<StringFilter>;
+  tagline?: InputMaybe<StringFilter>;
+  theme?: InputMaybe<SettingsThemeFilter>;
+  nav?: InputMaybe<SettingsNavFilter>;
   registerUrl?: InputMaybe<StringFilter>;
   announcement?: InputMaybe<SettingsAnnouncementFilter>;
   hero?: InputMaybe<SettingsHeroFilter>;
   classCard?: InputMaybe<SettingsClassCardFilter>;
+  footerText?: InputMaybe<StringFilter>;
+  social?: InputMaybe<SettingsSocialFilter>;
 };
 
 export type SettingsConnectionEdges = {
@@ -334,6 +461,8 @@ export type Mutation = {
   createFolder: DocumentNode;
   updatePost: Post;
   createPost: Post;
+  updatePage: Page;
+  createPage: Page;
   updateSettings: Settings;
   createSettings: Settings;
 };
@@ -384,6 +513,18 @@ export type MutationCreatePostArgs = {
 };
 
 
+export type MutationUpdatePageArgs = {
+  relativePath: Scalars['String']['input'];
+  params: PageMutation;
+};
+
+
+export type MutationCreatePageArgs = {
+  relativePath: Scalars['String']['input'];
+  params: PageMutation;
+};
+
+
 export type MutationUpdateSettingsArgs = {
   relativePath: Scalars['String']['input'];
   params: SettingsMutation;
@@ -397,12 +538,14 @@ export type MutationCreateSettingsArgs = {
 
 export type DocumentUpdateMutation = {
   post?: InputMaybe<PostMutation>;
+  page?: InputMaybe<PageMutation>;
   settings?: InputMaybe<SettingsMutation>;
   relativePath?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type DocumentMutation = {
   post?: InputMaybe<PostMutation>;
+  page?: InputMaybe<PageMutation>;
   settings?: InputMaybe<SettingsMutation>;
 };
 
@@ -413,6 +556,39 @@ export type PostMutation = {
   image?: InputMaybe<Scalars['String']['input']>;
   excerpt?: InputMaybe<Scalars['String']['input']>;
   body?: InputMaybe<Scalars['RichText']['input']>;
+  draft?: InputMaybe<Scalars['Boolean']['input']>;
+  publishDate?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  featured?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type PageMutation = {
+  title?: InputMaybe<Scalars['String']['input']>;
+  image?: InputMaybe<Scalars['String']['input']>;
+  body?: InputMaybe<Scalars['RichText']['input']>;
+  showRegisterCta?: InputMaybe<Scalars['Boolean']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  draft?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type SettingsThemeMutation = {
+  accent?: InputMaybe<Scalars['String']['input']>;
+  dark?: InputMaybe<Scalars['String']['input']>;
+  text?: InputMaybe<Scalars['String']['input']>;
+  soft?: InputMaybe<Scalars['String']['input']>;
+  headingFont?: InputMaybe<Scalars['String']['input']>;
+  bodyFont?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SettingsNavChildrenMutation = {
+  label?: InputMaybe<Scalars['String']['input']>;
+  href?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SettingsNavMutation = {
+  label?: InputMaybe<Scalars['String']['input']>;
+  href?: InputMaybe<Scalars['String']['input']>;
+  children?: InputMaybe<Array<InputMaybe<SettingsNavChildrenMutation>>>;
 };
 
 export type SettingsAnnouncementMutation = {
@@ -434,11 +610,22 @@ export type SettingsClassCardMutation = {
   buttonText?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type SettingsSocialMutation = {
+  label?: InputMaybe<Scalars['String']['input']>;
+  url?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type SettingsMutation = {
+  siteTitle?: InputMaybe<Scalars['String']['input']>;
+  tagline?: InputMaybe<Scalars['String']['input']>;
+  theme?: InputMaybe<SettingsThemeMutation>;
+  nav?: InputMaybe<Array<InputMaybe<SettingsNavMutation>>>;
   registerUrl?: InputMaybe<Scalars['String']['input']>;
   announcement?: InputMaybe<SettingsAnnouncementMutation>;
   hero?: InputMaybe<SettingsHeroMutation>;
   classCard?: InputMaybe<SettingsClassCardMutation>;
+  footerText?: InputMaybe<Scalars['String']['input']>;
+  social?: InputMaybe<Array<InputMaybe<SettingsSocialMutation>>>;
 };
 
 export type StringFilter = {
@@ -469,6 +656,11 @@ export type RichTextFilter = {
   exists?: boolean | null | undefined;
 };
 
+export type BooleanFilter = {
+  eq?: boolean | null | undefined;
+  exists?: boolean | null | undefined;
+};
+
 export type PostFilter = {
   title?: StringFilter | null | undefined;
   date?: DatetimeFilter | null | undefined;
@@ -476,11 +668,39 @@ export type PostFilter = {
   image?: ImageFilter | null | undefined;
   excerpt?: StringFilter | null | undefined;
   body?: RichTextFilter | null | undefined;
+  draft?: BooleanFilter | null | undefined;
+  publishDate?: DatetimeFilter | null | undefined;
+  description?: StringFilter | null | undefined;
+  featured?: BooleanFilter | null | undefined;
 };
 
-export type BooleanFilter = {
-  eq?: boolean | null | undefined;
-  exists?: boolean | null | undefined;
+export type PageFilter = {
+  title?: StringFilter | null | undefined;
+  image?: ImageFilter | null | undefined;
+  body?: RichTextFilter | null | undefined;
+  showRegisterCta?: BooleanFilter | null | undefined;
+  description?: StringFilter | null | undefined;
+  draft?: BooleanFilter | null | undefined;
+};
+
+export type SettingsThemeFilter = {
+  accent?: StringFilter | null | undefined;
+  dark?: StringFilter | null | undefined;
+  text?: StringFilter | null | undefined;
+  soft?: StringFilter | null | undefined;
+  headingFont?: StringFilter | null | undefined;
+  bodyFont?: StringFilter | null | undefined;
+};
+
+export type SettingsNavChildrenFilter = {
+  label?: StringFilter | null | undefined;
+  href?: StringFilter | null | undefined;
+};
+
+export type SettingsNavFilter = {
+  label?: StringFilter | null | undefined;
+  href?: StringFilter | null | undefined;
+  children?: SettingsNavChildrenFilter | null | undefined;
 };
 
 export type SettingsAnnouncementFilter = {
@@ -502,23 +722,36 @@ export type SettingsClassCardFilter = {
   buttonText?: StringFilter | null | undefined;
 };
 
+export type SettingsSocialFilter = {
+  label?: StringFilter | null | undefined;
+  url?: StringFilter | null | undefined;
+};
+
 export type SettingsFilter = {
+  siteTitle?: StringFilter | null | undefined;
+  tagline?: StringFilter | null | undefined;
+  theme?: SettingsThemeFilter | null | undefined;
+  nav?: SettingsNavFilter | null | undefined;
   registerUrl?: StringFilter | null | undefined;
   announcement?: SettingsAnnouncementFilter | null | undefined;
   hero?: SettingsHeroFilter | null | undefined;
   classCard?: SettingsClassCardFilter | null | undefined;
+  footerText?: StringFilter | null | undefined;
+  social?: SettingsSocialFilter | null | undefined;
 };
 
-export type PostPartsFragment = { __typename: 'Post', title: string, date: string, categories: Array<string | null> | null, image: string | null, excerpt: string | null, body: TinaMarkdownContent | null };
+export type PostPartsFragment = { __typename: 'Post', title: string, date: string, categories: Array<string | null> | null, image: string | null, excerpt: string | null, body: TinaMarkdownContent | null, draft: boolean | null, publishDate: string | null, description: string | null, featured: boolean | null };
 
-export type SettingsPartsFragment = { __typename: 'Settings', registerUrl: string | null, announcement: { __typename: 'SettingsAnnouncement', show: boolean | null, text: string | null, linkText: string | null } | null, hero: { __typename: 'SettingsHero', title: string | null, intro: string | null } | null, classCard: { __typename: 'SettingsClassCard', show: boolean | null, label: string | null, title: string | null, text: string | null, buttonText: string | null } | null };
+export type PagePartsFragment = { __typename: 'Page', title: string, image: string | null, body: TinaMarkdownContent | null, showRegisterCta: boolean | null, description: string | null, draft: boolean | null };
+
+export type SettingsPartsFragment = { __typename: 'Settings', siteTitle: string | null, tagline: string | null, registerUrl: string | null, footerText: string | null, theme: { __typename: 'SettingsTheme', accent: string | null, dark: string | null, text: string | null, soft: string | null, headingFont: string | null, bodyFont: string | null } | null, nav: Array<{ __typename: 'SettingsNav', label: string, href: string, children: Array<{ __typename: 'SettingsNavChildren', label: string, href: string } | null> | null } | null> | null, announcement: { __typename: 'SettingsAnnouncement', show: boolean | null, text: string | null, linkText: string | null } | null, hero: { __typename: 'SettingsHero', title: string | null, intro: string | null } | null, classCard: { __typename: 'SettingsClassCard', show: boolean | null, label: string | null, title: string | null, text: string | null, buttonText: string | null } | null, social: Array<{ __typename: 'SettingsSocial', label: string | null, url: string | null } | null> | null };
 
 export type PostQueryVariables = Exact<{
   relativePath: string;
 }>;
 
 
-export type PostQuery = { post: { __typename: 'Post', id: string, title: string, date: string, categories: Array<string | null> | null, image: string | null, excerpt: string | null, body: TinaMarkdownContent | null, _sys: { filename: string, basename: string, hasReferences: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } };
+export type PostQuery = { post: { __typename: 'Post', id: string, title: string, date: string, categories: Array<string | null> | null, image: string | null, excerpt: string | null, body: TinaMarkdownContent | null, draft: boolean | null, publishDate: string | null, description: string | null, featured: boolean | null, _sys: { filename: string, basename: string, hasReferences: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } };
 
 export type PostConnectionQueryVariables = Exact<{
   before?: string | null | undefined;
@@ -530,14 +763,33 @@ export type PostConnectionQueryVariables = Exact<{
 }>;
 
 
-export type PostConnectionQuery = { postConnection: { totalCount: number, pageInfo: { hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges: Array<{ cursor: string, node: { __typename: 'Post', id: string, title: string, date: string, categories: Array<string | null> | null, image: string | null, excerpt: string | null, body: TinaMarkdownContent | null, _sys: { filename: string, basename: string, hasReferences: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } | null } | null> | null } };
+export type PostConnectionQuery = { postConnection: { totalCount: number, pageInfo: { hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges: Array<{ cursor: string, node: { __typename: 'Post', id: string, title: string, date: string, categories: Array<string | null> | null, image: string | null, excerpt: string | null, body: TinaMarkdownContent | null, draft: boolean | null, publishDate: string | null, description: string | null, featured: boolean | null, _sys: { filename: string, basename: string, hasReferences: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } | null } | null> | null } };
+
+export type PageQueryVariables = Exact<{
+  relativePath: string;
+}>;
+
+
+export type PageQuery = { page: { __typename: 'Page', id: string, title: string, image: string | null, body: TinaMarkdownContent | null, showRegisterCta: boolean | null, description: string | null, draft: boolean | null, _sys: { filename: string, basename: string, hasReferences: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } };
+
+export type PageConnectionQueryVariables = Exact<{
+  before?: string | null | undefined;
+  after?: string | null | undefined;
+  first?: number | null | undefined;
+  last?: number | null | undefined;
+  sort?: string | null | undefined;
+  filter?: PageFilter | null | undefined;
+}>;
+
+
+export type PageConnectionQuery = { pageConnection: { totalCount: number, pageInfo: { hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges: Array<{ cursor: string, node: { __typename: 'Page', id: string, title: string, image: string | null, body: TinaMarkdownContent | null, showRegisterCta: boolean | null, description: string | null, draft: boolean | null, _sys: { filename: string, basename: string, hasReferences: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } | null } | null> | null } };
 
 export type SettingsQueryVariables = Exact<{
   relativePath: string;
 }>;
 
 
-export type SettingsQuery = { settings: { __typename: 'Settings', id: string, registerUrl: string | null, _sys: { filename: string, basename: string, hasReferences: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, announcement: { __typename: 'SettingsAnnouncement', show: boolean | null, text: string | null, linkText: string | null } | null, hero: { __typename: 'SettingsHero', title: string | null, intro: string | null } | null, classCard: { __typename: 'SettingsClassCard', show: boolean | null, label: string | null, title: string | null, text: string | null, buttonText: string | null } | null } };
+export type SettingsQuery = { settings: { __typename: 'Settings', id: string, siteTitle: string | null, tagline: string | null, registerUrl: string | null, footerText: string | null, _sys: { filename: string, basename: string, hasReferences: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, theme: { __typename: 'SettingsTheme', accent: string | null, dark: string | null, text: string | null, soft: string | null, headingFont: string | null, bodyFont: string | null } | null, nav: Array<{ __typename: 'SettingsNav', label: string, href: string, children: Array<{ __typename: 'SettingsNavChildren', label: string, href: string } | null> | null } | null> | null, announcement: { __typename: 'SettingsAnnouncement', show: boolean | null, text: string | null, linkText: string | null } | null, hero: { __typename: 'SettingsHero', title: string | null, intro: string | null } | null, classCard: { __typename: 'SettingsClassCard', show: boolean | null, label: string | null, title: string | null, text: string | null, buttonText: string | null } | null, social: Array<{ __typename: 'SettingsSocial', label: string | null, url: string | null } | null> | null } };
 
 export type SettingsConnectionQueryVariables = Exact<{
   before?: string | null | undefined;
@@ -549,7 +801,7 @@ export type SettingsConnectionQueryVariables = Exact<{
 }>;
 
 
-export type SettingsConnectionQuery = { settingsConnection: { totalCount: number, pageInfo: { hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges: Array<{ cursor: string, node: { __typename: 'Settings', id: string, registerUrl: string | null, _sys: { filename: string, basename: string, hasReferences: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, announcement: { __typename: 'SettingsAnnouncement', show: boolean | null, text: string | null, linkText: string | null } | null, hero: { __typename: 'SettingsHero', title: string | null, intro: string | null } | null, classCard: { __typename: 'SettingsClassCard', show: boolean | null, label: string | null, title: string | null, text: string | null, buttonText: string | null } | null } | null } | null> | null } };
+export type SettingsConnectionQuery = { settingsConnection: { totalCount: number, pageInfo: { hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges: Array<{ cursor: string, node: { __typename: 'Settings', id: string, siteTitle: string | null, tagline: string | null, registerUrl: string | null, footerText: string | null, _sys: { filename: string, basename: string, hasReferences: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, theme: { __typename: 'SettingsTheme', accent: string | null, dark: string | null, text: string | null, soft: string | null, headingFont: string | null, bodyFont: string | null } | null, nav: Array<{ __typename: 'SettingsNav', label: string, href: string, children: Array<{ __typename: 'SettingsNavChildren', label: string, href: string } | null> | null } | null> | null, announcement: { __typename: 'SettingsAnnouncement', show: boolean | null, text: string | null, linkText: string | null } | null, hero: { __typename: 'SettingsHero', title: string | null, intro: string | null } | null, classCard: { __typename: 'SettingsClassCard', show: boolean | null, label: string | null, title: string | null, text: string | null, buttonText: string | null } | null, social: Array<{ __typename: 'SettingsSocial', label: string | null, url: string | null } | null> | null } | null } | null> | null } };
 
 export const PostPartsFragmentDoc = gql`
     fragment PostParts on Post {
@@ -560,11 +812,47 @@ export const PostPartsFragmentDoc = gql`
   image
   excerpt
   body
+  draft
+  publishDate
+  description
+  featured
+}
+    `;
+export const PagePartsFragmentDoc = gql`
+    fragment PageParts on Page {
+  __typename
+  title
+  image
+  body
+  showRegisterCta
+  description
+  draft
 }
     `;
 export const SettingsPartsFragmentDoc = gql`
     fragment SettingsParts on Settings {
   __typename
+  siteTitle
+  tagline
+  theme {
+    __typename
+    accent
+    dark
+    text
+    soft
+    headingFont
+    bodyFont
+  }
+  nav {
+    __typename
+    label
+    href
+    children {
+      __typename
+      label
+      href
+    }
+  }
   registerUrl
   announcement {
     __typename
@@ -584,6 +872,12 @@ export const SettingsPartsFragmentDoc = gql`
     title
     text
     buttonText
+  }
+  footerText
+  social {
+    __typename
+    label
+    url
   }
 }
     `;
@@ -644,6 +938,63 @@ export const PostConnectionDocument = gql`
   }
 }
     ${PostPartsFragmentDoc}`;
+export const PageDocument = gql`
+    query page($relativePath: String!) {
+  page(relativePath: $relativePath) {
+    ... on Document {
+      _sys {
+        filename
+        basename
+        hasReferences
+        breadcrumbs
+        path
+        relativePath
+        extension
+      }
+      id
+    }
+    ...PageParts
+  }
+}
+    ${PagePartsFragmentDoc}`;
+export const PageConnectionDocument = gql`
+    query pageConnection($before: String, $after: String, $first: Float, $last: Float, $sort: String, $filter: PageFilter) {
+  pageConnection(
+    before: $before
+    after: $after
+    first: $first
+    last: $last
+    sort: $sort
+    filter: $filter
+  ) {
+    pageInfo {
+      hasPreviousPage
+      hasNextPage
+      startCursor
+      endCursor
+    }
+    totalCount
+    edges {
+      cursor
+      node {
+        ... on Document {
+          _sys {
+            filename
+            basename
+            hasReferences
+            breadcrumbs
+            path
+            relativePath
+            extension
+          }
+          id
+        }
+        ...PageParts
+      }
+    }
+  }
+}
+    ${PagePartsFragmentDoc}`;
 export const SettingsDocument = gql`
     query settings($relativePath: String!) {
   settings(relativePath: $relativePath) {
@@ -710,6 +1061,12 @@ export type Requester<C= {}> = <R, V>(doc: DocumentNode, vars?: V, options?: C) 
     postConnection(variables?: PostConnectionQueryVariables, options?: C): Promise<{data: PostConnectionQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: PostConnectionQueryVariables, query: string}> {
         return requester<{data: PostConnectionQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: PostConnectionQueryVariables, query: string}, PostConnectionQueryVariables>(PostConnectionDocument, variables, options);
       },
+    page(variables: PageQueryVariables, options?: C): Promise<{data: PageQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: PageQueryVariables, query: string}> {
+        return requester<{data: PageQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: PageQueryVariables, query: string}, PageQueryVariables>(PageDocument, variables, options);
+      },
+    pageConnection(variables?: PageConnectionQueryVariables, options?: C): Promise<{data: PageConnectionQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: PageConnectionQueryVariables, query: string}> {
+        return requester<{data: PageConnectionQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: PageConnectionQueryVariables, query: string}, PageConnectionQueryVariables>(PageConnectionDocument, variables, options);
+      },
     settings(variables: SettingsQueryVariables, options?: C): Promise<{data: SettingsQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: SettingsQueryVariables, query: string}> {
         return requester<{data: SettingsQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: SettingsQueryVariables, query: string}, SettingsQueryVariables>(SettingsDocument, variables, options);
       },
@@ -763,7 +1120,7 @@ export const ExperimentalGetTinaClient = () =>
   getSdk(
     generateRequester(
       createClient({
-        url: "https://content.tinajs.io/3.0/content/01789bf2-d73e-4861-a4f9-5960dbbd6392/github/main",
+        url: "http://localhost:4001/graphql",
         queries,
       })
     )
