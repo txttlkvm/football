@@ -69,7 +69,7 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
   const [mode, setMode] = React.useState<'phone' | 'desktop'>(window.innerWidth >= 1000 ? 'desktop' : 'phone');
   const [open, setOpen] = React.useState(true);
   const [w, setW] = React.useState(300);
-  const [restore, setRestore] = React.useState<any>(() => { try { const r = JSON.parse(localStorage.getItem(draftKey) || 'null'); return r && JSON.stringify(r.values) !== JSON.stringify(ff.getState().initialValues) ? r : null; } catch { return null; } });
+  const [restore, setRestore] = React.useState<any>(() => { try { const r = JSON.parse(localStorage.getItem(draftKey) || 'null'); return r && r.t < pageStart && JSON.stringify(r.values) !== JSON.stringify(ff.getState().initialValues) ? r : null; } catch { return null; } });
   const wrap = React.useRef<HTMLDivElement>(null);
   const frame = React.useRef<HTMLIFrameElement>(null);
   const pop = React.useRef<Window | null>(null);
@@ -161,7 +161,7 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
   );
   const dismiss = () => { setTip(false); try { localStorage.setItem('tina-tip-seen', '1'); } catch (e) { /* ignore */ } };
   const controls = (
-    <div style={{ padding: 12, background: '#fff', border: '1px solid #e1e1ea', borderRadius: 10 }}>
+    <div style={{ boxSizing: 'border-box', maxWidth: '100%', padding: 12, background: '#fff', border: '1px solid #e1e1ea', borderRadius: 10 }}>
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
         <span style={{ display: 'inline-flex', border: '1px solid #e1e1ea', borderRadius: 999, overflow: 'hidden' }}>
           <button type="button" aria-label="Phone view" style={{ ...pill(mode === 'phone'), border: 0, borderRadius: 0 }} onClick={() => setMode('phone')}>📱 Phone</button>
@@ -188,8 +188,10 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
   return <div style={{ position: 'fixed', left, right: 16, top: 118, bottom: 76, zIndex: 40, display: 'flex', flexDirection: 'column', gap: 10 }}>{controls}{open && frameEl}</div>;
 }
 
+const pageStart = Date.now();
+let curForm: any = null;
 let host: HTMLDivElement | null = null, root: any = null, hashAt = '', narrowed: [HTMLElement, string][] = [];
-const teardown = () => { if (root) root.unmount(); host?.remove(); host = null; root = null; narrowed.forEach(([el, v]) => { el.style.maxWidth = v; }); narrowed = []; };
+const teardown = () => { try { const f = curForm?.finalForm; if (f && f.getState().dirty) f.submit(); } catch (e) { /* draft copy remains */ } curForm = null; if (root) root.unmount(); host?.remove(); host = null; root = null; narrowed.forEach(([el, v]) => { el.style.maxWidth = v; }); narrowed = []; };
 if (typeof window !== 'undefined') window.addEventListener('hashchange', () => { if (host && location.hash !== hashAt) teardown(); });
 
 function Panel({ kind, tinaForm }: { kind: string; tinaForm: any }) {
@@ -199,7 +201,7 @@ function Panel({ kind, tinaForm }: { kind: string; tinaForm: any }) {
   React.useEffect(() => {
     if (!big) return;
     if (!host) { host = document.createElement('div'); document.body.appendChild(host); root = createRoot(host); }
-    hashAt = location.hash;
+    hashAt = location.hash; curForm = tinaForm;
     if (!narrowed.length) for (let el = anchor.current?.parentElement ?? null; el && el !== document.body; el = el.parentElement) {
       if (el.offsetWidth > window.innerWidth * 0.8) { narrowed.push([el, el.style.maxWidth]); el.style.maxWidth = '540px'; }
     }
