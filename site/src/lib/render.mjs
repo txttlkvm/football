@@ -54,7 +54,7 @@ export const richText = (ast, ctx = {}) => (ast && ast.children ? kids(ast, ctx)
 const bgOf = (b) => (b.background === 'soft' ? 'cream' : b.background === 'dark' ? 'dark' : '');
 const section = (b, cls, inner) => `<section class="section blk ${cls} ${bgOf(b)}"><div class="wrap">${inner}</div></section>`;
 const titleOf = (t) => (t ? `<h2 class="title">${esc(t)}</h2>` : '');
-const card = (p) => `<a class="card" href="/${esc(p.slug)}/">${p.img ? `<img src="${esc(p.img)}" alt="" loading="lazy">` : '<div class="ph"></div>'}<div class="b"><div class="meta">${fmtDate(p.date)}</div><h3>${esc(p.title)}</h3>${p.excerpt ? `<p>${esc(String(p.excerpt).slice(0, 110))}…</p>` : ''}</div></a>`;
+const card = (p) => `<a class="card" href="/${esc(p.slug)}/">${p.img ? `<img src="${esc(p.img)}" alt="" loading="lazy">` : '<div class="ph"></div>'}<div class="b">${(p.cats || [])[0] ? `<div class="cat-eyebrow">${esc(p.cats[0])}</div>` : ''}<h3>${esc(p.title)}</h3>${p.excerpt ? `<p class="clamp">${esc(String(p.excerpt).replace(/…+$|\.{3}$/, ''))}</p>` : ''}<div class="meta">${fmtDate(p.date)}</div></div></a>`;
 
 const blockTypes = {
   hero: (b, ctx, i) => { const e = E(ctx, i); return `<section class="hero hero-${esc(b.height || 'tall')}" style="--hero-img:url(${esc(b.image || '/img/hero.jpg')});--hero-pos:${FOCUS[b.focus] || 'center right'}"${e('image', 'img')}><div class="wrap"><h1${e('heading')}>${esc(b.heading)}</h1>${b.text ? `<p${e('text')}>${esc(b.text)}</p>` : ''}${btn(b.buttonLabel, b.buttonUrl, '', e('buttonLabel'))} ${btn(b.button2Label, b.button2Url, 'btn-outline', e('button2Label'))}</div></section>`; },
