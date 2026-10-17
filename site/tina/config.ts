@@ -65,6 +65,7 @@ export default defineConfig({
           { type: 'datetime', name: 'date', label: 'Date shown on the post', required: true },
           { type: 'string', name: 'categories', label: 'Categories (tick any)', list: true, options: cats },
           { type: 'image', name: 'image', label: 'Cover photo' },
+          { type: 'string', name: 'imageFocus', label: 'Which part of the cover photo to keep in view', options: [{ value: 'center', label: 'Center' }, { value: 'top', label: 'Top' }, { value: 'bottom', label: 'Bottom' }, { value: 'left', label: 'Left' }, { value: 'right', label: 'Right' }, { value: 'face', label: 'Upper middle (faces)' }] },
           { type: 'string', name: 'excerpt', label: 'Short summary (shown on cards)', ui: { component: 'textarea' } },
           { type: 'rich-text', name: 'body', label: 'Write your post', isBody: true, templates: embeds, toolbarOverride: ['heading', 'link', 'image', 'quote', 'ul', 'ol', 'bold', 'italic', 'hr', 'embed'] },
           { type: 'datetime', name: 'publishDate', label: 'Schedule: hide until this date (optional)', description: 'Leave empty to publish immediately. A scheduled post appears the next time the site updates after this date.' },
@@ -74,6 +75,7 @@ export default defineConfig({
       },
       {
         name: 'page', label: 'Pages', path: 'src/content/pages', format: 'md', match: { exclude: 'home' },
+        defaultItem: () => ({ layout: 'blocks', blocks: [{ _template: 'hero', heading: 'Page title', text: 'A short welcome.', height: 'short', image: '/img/hero.jpg' }, { _template: 'text', heading: 'About this page', text: '<p>Write something here…</p>', align: 'left', width: 'narrow' }, { _template: 'cta', heading: 'Ready to join us?', buttonLabel: 'Sign up', buttonUrl: '/', style: 'pink' }] }),
         ui: { filename: { slugify }, router, allowedActions: { delete: false, createNestedFolder: false } },
         fields: [
           previewField('page'),
@@ -128,6 +130,7 @@ export default defineConfig({
             { type: 'string', name: 'buttonText', label: 'Button text' },
             { type: 'string', name: 'stickyText', label: 'Text on the bottom bar (phones)' } ] },
           { type: 'string', name: 'mobileCta', label: 'Phone menu: top button text' },
+          { type: 'string', name: 'formsKey', label: 'Contact form key', description: 'Free at web3forms.com — enter your email there, they send you a key. Paste it here to turn on the Contact form section.' },
           { type: 'string', name: 'footerText', label: 'Footer text' },
           { type: 'object', name: 'social', label: 'Social links (footer)', list: true, ui: { itemProps: (i: any) => ({ label: i?.label }) }, fields: [
             { type: 'string', name: 'label', label: 'Name (e.g. Instagram)' }, { type: 'string', name: 'url', label: 'Link' } ] },

@@ -1,5 +1,7 @@
-// Live preview panel shown at the top of every editing form: phone / desktop view, or pop out to a big window.
+// Live preview + click-on-the-page editing. Click text in the preview to type in place; click a photo to swap it;
+// click formatted text to jump to its box. Also keeps a recoverable copy of unsaved work.
 import React from 'react';
+import { useCMS } from 'tinacms';
 import { richText, blocksHtml, esc } from '../src/lib/render.mjs';
 
 let shell: any = null;
@@ -17,19 +19,30 @@ async function loadShell() {
   return shell;
 }
 const fmt = (d: any) => (d ? new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }) : '');
+const FOCUS: any = { top: '50% 0%', center: '50% 50%', bottom: '50% 100%', left: '0% 50%', right: '100% 50%', face: '50% 25%' };
+
+const IFRAME_SCRIPT = `(function(){
+var send=function(m){parent.postMessage(Object.assign({tinaPreview:1},m),'*')};
+var st=document.createElement('style');st.textContent='[data-e]{cursor:pointer}[data-e]:hover{outline:2px dashed #ff66c4;outline-offset:3px}[data-t="text"]:focus{outline:2px solid #ff66c4;outline-offset:3px;cursor:text}';document.head.appendChild(st);
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a');if(a)e.preventDefault();var el=e.target.closest&&e.target.closest('[data-e]');if(!el)return;var t=el.getAttribute('data-t');if(t==='text')return;e.preventDefault();e.stopPropagation();send({type:t,path:el.getAttribute('data-e')})},true);
+document.querySelectorAll('[data-t="text"]').forEach(function(el){
+try{el.contentEditable='plaintext-only'}catch(x){el.contentEditable='true'}
+el.addEventListener('focus',function(){send({type:'focus'})});
+el.addEventListener('input',function(){send({type:'text',path:el.getAttribute('data-e'),value:el.innerText.replace(/\\n/g,' ')})});
+el.addEventListener('blur',function(){send({type:'blur'})});
+el.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();el.blur()}});
+});})();`;
 
 async function build(kind: string, v: any): Promise<string> {
   const c = await loadShell();
-  const ctx = { posts: c.posts };
+  const ctx: any = { posts: c.posts, edit: kind !== 'settings', formsKey: true };
+  const cover = v.image ? `<img src="${esc(v.image)}" alt="" style="margin:0 auto 1.5em${v.imageFocus && FOCUS[v.imageFocus] ? ';object-position:' + FOCUS[v.imageFocus] : ''}" data-e="image" data-t="img">` : `<p class="empty-hint" data-e="image" data-t="img">Click to add a top photo</p>`;
+  const article = (meta: string) => `<article class="article"><div class="narrow">${meta}<h1 data-e="title" data-t="text">${esc(v.title)}</h1>${cover}<div class="body" data-e="body" data-t="field">${richText(v.body, ctx)}</div></div></article>`;
   let content = '';
-  const cover = v.image ? `<img src="${esc(v.image)}" alt="" style="margin:0 auto 1.5em">` : '';
-  if (kind === 'post') {
-    content = `<article class="article"><div class="narrow"><div class="meta">${fmt(v.date)}</div><h1>${esc(v.title)}</h1>${cover}<div class="body">${richText(v.body, ctx)}</div></div></article>`;
-  } else if (kind === 'page') {
-    const blocks = blocksHtml(v.blocks, ctx);
-    content = v.layout === 'blocks' ? blocks : `<article class="article"><div class="narrow"><h1>${esc(v.title)}</h1>${cover}<div class="body">${richText(v.body, ctx)}</div></div></article>${blocks}`;
-  } else content = c.main;
-  let doc = `<!doctype html><html class="js"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}/" target="_blank">${c.head}<style>*,*::before,*::after{animation:none!important;transition:none!important}.reveal,.js .reveal{opacity:1!important;transform:none!important}.sticky-register{display:none!important}.site-header{position:static}</style></head><body>${c.announce}${c.header}<main>${content}</main>${c.footer}</body></html>`;
+  if (kind === 'post') content = article(`<div class="meta">${fmt(v.date)}</div>`);
+  else if (kind === 'page') { const blocks = blocksHtml(v.blocks, ctx); content = v.layout === 'blocks' ? blocks : article('') + blocks; }
+  else content = c.main;
+  let doc = `<!doctype html><html class="js"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.origin}/" target="_blank">${c.head}<style>*,*::before,*::after{animation:none!important;transition:none!important}.reveal,.js .reveal{opacity:1!important;transform:none!important}.sticky-register{display:none!important}.site-header{position:static}</style></head><body>${c.announce}${c.header}<main>${content}</main>${c.footer}${ctx.edit ? `<script>${IFRAME_SCRIPT}</script>` : ''}</body></html>`;
   if (kind === 'settings') {
     const d = new DOMParser().parseFromString(doc, 'text/html'), t = v.theme || {};
     const st = d.createElement('style');
@@ -44,64 +57,112 @@ async function build(kind: string, v: any): Promise<string> {
   return doc;
 }
 
-const btn = (on: boolean): React.CSSProperties => ({ font: 'inherit', fontSize: 13, padding: '5px 12px', borderRadius: 999, border: '1px solid ' + (on ? '#ec4815' : '#d8d8e0'), background: on ? '#fff1ec' : '#fff', color: on ? '#b93a10' : '#333', cursor: 'pointer' });
+const pill = (on: boolean): React.CSSProperties => ({ font: 'inherit', fontSize: 13, padding: '5px 12px', borderRadius: 999, border: '1px solid ' + (on ? '#ec4815' : '#d8d8e0'), background: on ? '#fff1ec' : '#fff', color: on ? '#b93a10' : '#333', cursor: 'pointer' });
 
-function Panel({ kind, form }: { kind: string; form: any }) {
+function Panel({ kind, tinaForm }: { kind: string; tinaForm: any }) {
+  const cms: any = useCMS();
+  const ff = tinaForm?.finalForm ?? tinaForm;
+  const formId = tinaForm?.id ?? 'form';
+  const draftKey = 'tina-draft:' + formId;
   const [html, setHtml] = React.useState('');
   const [mode, setMode] = React.useState<'phone' | 'desktop'>('phone');
   const [open, setOpen] = React.useState(true);
   const [w, setW] = React.useState(360);
+  const [restore, setRestore] = React.useState<any>(() => { try { const r = JSON.parse(localStorage.getItem(draftKey) || 'null'); return r && JSON.stringify(r.values) !== JSON.stringify(ff.getState().initialValues) ? r : null; } catch { return null; } });
   const wrap = React.useRef<HTMLDivElement>(null);
+  const frame = React.useRef<HTMLIFrameElement>(null);
   const pop = React.useRef<Window | null>(null);
   const timer = React.useRef<any>();
-  const ff = form?.finalForm ?? form;
+  const typing = React.useRef(false);
+  const scroll = React.useRef(0);
+  const latest = React.useRef('');
+
+  const push = React.useCallback((doc: string) => {
+    latest.current = doc;
+    scroll.current = frame.current?.contentWindow?.scrollY ?? 0;
+    setHtml(doc);
+    const p = pop.current;
+    if (p && !p.closed) (p.document.getElementById('f') as HTMLIFrameElement | null)?.setAttribute('srcdoc', doc);
+  }, []);
+  const schedule = React.useCallback(() => {
+    clearTimeout(timer.current);
+    timer.current = setTimeout(async () => {
+      if (typing.current) return;
+      try { push(await build(kind, ff.getState().values)); } catch (e) { /* keep the last good preview */ }
+    }, 300);
+  }, [ff, kind, push]);
+
   React.useEffect(() => {
-    const run = () => {
-      clearTimeout(timer.current);
-      timer.current = setTimeout(async () => {
-        try {
-          const doc = await build(kind, ff.getState().values);
-          setHtml(doc);
-          const p = pop.current;
-          if (p && !p.closed) (p.document.getElementById('f') as HTMLIFrameElement | null)?.setAttribute('srcdoc', doc);
-        } catch (e) { /* keep the last good preview */ }
-      }, 300);
+    schedule();
+    const off = ff.subscribe((s: any) => {
+      schedule();
+      try { if (s.submitSucceeded && !s.dirty) localStorage.removeItem(draftKey); else if (s.dirty) localStorage.setItem(draftKey, JSON.stringify({ t: Date.now(), values: s.values })); } catch (e) { /* storage unavailable */ }
+    }, { values: true, dirty: true, submitSucceeded: true });
+    const guard = (e: BeforeUnloadEvent) => { if (ff.getState().dirty) { e.preventDefault(); e.returnValue = ''; } };
+    window.addEventListener('beforeunload', guard);
+    return () => { off(); clearTimeout(timer.current); window.removeEventListener('beforeunload', guard); };
+  }, [ff, schedule, draftKey]);
+
+  React.useEffect(() => {
+    const onMsg = (e: MessageEvent) => {
+      const m: any = e.data;
+      if (!m || !m.tinaPreview) return;
+      const ok = e.source === frame.current?.contentWindow || (pop.current && e.source === pop.current);
+      if (!ok) return;
+      if (m.type === 'focus') typing.current = true;
+      else if (m.type === 'blur') { typing.current = false; schedule(); }
+      else if (m.type === 'text') { typing.current = true; ff.change(m.path, m.value); }
+      else if (m.type === 'img') cms.media.open({ allowDelete: false, onSelect: (media: any) => ff.change(m.path, media.src) });
+      else if (m.type === 'field') cms.dispatch({ type: 'forms:set-active-field-name', value: { formId: tinaForm.id, fieldName: m.path } });
     };
-    run();
-    const off = ff.subscribe(run, { values: true });
-    return () => { off(); clearTimeout(timer.current); };
-  }, [ff, kind]);
+    window.addEventListener('message', onMsg);
+    return () => window.removeEventListener('message', onMsg);
+  }, [cms, ff, tinaForm, schedule]);
+
   React.useEffect(() => {
     if (!wrap.current) return;
     const ro = new ResizeObserver(e => setW(Math.max(200, Math.floor(e[0].contentRect.width))));
     ro.observe(wrap.current);
     return () => ro.disconnect();
   }, [open]);
+
   const popOut = () => {
     const p = window.open('', 'site-preview', 'width=1280,height=900');
     if (!p) return;
     p.document.open();
-    p.document.write('<!doctype html><title>Live preview</title><body style="margin:0;font:14px sans-serif"><div style="padding:8px 14px;background:#222;color:#fff">Live preview — updates as you type. Close this window when you are done.</div><iframe id="f" style="border:0;width:100%;height:calc(100vh - 36px)"></iframe></body>');
+    p.document.write('<!doctype html><title>Live preview</title><body style="margin:0;font:14px sans-serif"><div style="padding:8px 14px;background:#222;color:#fff">Live preview — click text to type, click a photo to swap it. Close this window when you are done.</div><iframe id="f" style="border:0;width:100%;height:calc(100vh - 36px)"></iframe><script>window.addEventListener("message",function(e){if(e.data&&e.data.tinaPreview&&window.opener)window.opener.postMessage(e.data,"*")})</script></body>');
     p.document.close();
     pop.current = p;
-    p.document.getElementById('f')?.setAttribute('srcdoc', html);
+    p.document.getElementById('f')?.setAttribute('srcdoc', latest.current);
   };
+  const doRestore = () => { const vals = restore.values; Object.keys(vals).forEach(k => ff.change(k, vals[k])); setRestore(null); };
+  const discard = () => { try { localStorage.removeItem(draftKey); } catch (e) { /* ignore */ } setRestore(null); };
+
   const base = mode === 'phone' ? 390 : 1200, k = Math.min(1, w / base), h = mode === 'phone' ? 760 : 820;
   return (
-    <div style={{ margin: '0 0 22px', padding: 12, background: '#fff', border: '1px solid #e1e1ea', borderRadius: 10 }}>
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: open ? 10 : 0 }}>
-        <strong style={{ fontSize: 14, marginRight: 4 }}>Live preview</strong>
-        <button type="button" style={btn(mode === 'phone')} onClick={() => setMode('phone')}>Phone</button>
-        <button type="button" style={btn(mode === 'desktop')} onClick={() => setMode('desktop')}>Desktop</button>
-        <button type="button" style={btn(false)} onClick={popOut}>Open big ↗</button>
-        <button type="button" style={btn(false)} onClick={() => setOpen(!open)}>{open ? 'Hide' : 'Show'}</button>
-      </div>
-      {open && (
-        <div ref={wrap} style={{ width: '100%', height: h * k, overflow: 'hidden', borderRadius: 8, background: '#f2f2f6', position: 'relative' }}>
-          <iframe title="Live preview" srcDoc={html} style={{ position: 'absolute', left: Math.max(0, (w - base * k) / 2), top: 0, width: base, height: h, border: 0, background: '#fff', transform: `scale(${k})`, transformOrigin: 'top left' }} />
+    <div style={{ margin: '0 0 22px' }}>
+      {restore && (
+        <div style={{ margin: '0 0 12px', padding: '10px 12px', background: '#fff8e6', border: '1px solid #f0d98a', borderRadius: 8, fontSize: 14 }}>
+          <strong>You have unsaved changes from earlier</strong> ({new Date(restore.t).toLocaleString()}).
+          <div style={{ marginTop: 8, display: 'flex', gap: 8 }}><button type="button" style={pill(true)} onClick={doRestore}>Bring them back</button><button type="button" style={pill(false)} onClick={discard}>Throw them away</button></div>
         </div>
       )}
+      <div style={{ padding: 12, background: '#fff', border: '1px solid #e1e1ea', borderRadius: 10 }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: open ? 8 : 0 }}>
+          <strong style={{ fontSize: 14, marginRight: 4 }}>Live preview</strong>
+          <button type="button" style={pill(mode === 'phone')} onClick={() => setMode('phone')}>Phone</button>
+          <button type="button" style={pill(mode === 'desktop')} onClick={() => setMode('desktop')}>Desktop</button>
+          <button type="button" style={pill(false)} onClick={popOut}>Open big ↗</button>
+          <button type="button" style={pill(false)} onClick={() => setOpen(!open)}>{open ? 'Hide' : 'Show'}</button>
+        </div>
+        {open && kind !== 'settings' && <div style={{ fontSize: 12, color: '#6b6b7b', marginBottom: 8 }}>Tip: click any text below to type on the page, or click a photo to change it.</div>}
+        {open && (
+          <div ref={wrap} style={{ width: '100%', height: h * k, overflow: 'hidden', borderRadius: 8, background: '#f2f2f6', position: 'relative' }}>
+            <iframe ref={frame} title="Live preview" srcDoc={html} onLoad={() => { try { frame.current?.contentWindow?.scrollTo(0, scroll.current); } catch (e) { /* ignore */ } }} style={{ position: 'absolute', left: Math.max(0, (w - base * k) / 2), top: 0, width: base, height: h, border: 0, background: '#fff', transform: `scale(${k})`, transformOrigin: 'top left' }} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
-export const previewField = (kind: string) => ({ type: 'string', name: 'livePreview', label: 'Live preview', ui: { component: (props: any) => <Panel kind={kind} form={props.tinaForm ?? props.form} /> } }) as any;
+export const previewField = (kind: string) => ({ type: 'string', name: 'livePreview', label: 'Live preview', ui: { component: (props: any) => <Panel kind={kind} tinaForm={props.tinaForm ?? props.form} /> } }) as any;

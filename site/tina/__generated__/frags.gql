@@ -6,6 +6,7 @@ fragment PostParts on Post {
   date
   categories
   image
+  imageFocus
   excerpt
   body
   publishDate
@@ -27,6 +28,7 @@ fragment PageParts on Page {
     __typename
     ... on PageBlocksHero {
       image
+      focus
       heading
       text
       buttonLabel
@@ -44,6 +46,8 @@ fragment PageParts on Page {
     }
     ... on PageBlocksImageText {
       image
+      focus
+      ratio
       alt
       heading
       text
@@ -58,13 +62,17 @@ fragment PageParts on Page {
       images {
         __typename
         src
+        focus
         alt
         caption
       }
+      ratio
       background
     }
     ... on PageBlocksFeature {
       image
+      focus
+      ratio
       eyebrow
       heading
       text
@@ -131,6 +139,13 @@ fragment PageParts on Page {
       }
       background
     }
+    ... on PageBlocksForm {
+      title
+      intro
+      buttonLabel
+      successText
+      background
+    }
     ... on PageBlocksSpacer {
       size
     }
@@ -144,6 +159,7 @@ fragment HomeParts on Home {
     __typename
     ... on HomeBlocksHero {
       image
+      focus
       heading
       text
       buttonLabel
@@ -161,6 +177,8 @@ fragment HomeParts on Home {
     }
     ... on HomeBlocksImageText {
       image
+      focus
+      ratio
       alt
       heading
       text
@@ -175,13 +193,17 @@ fragment HomeParts on Home {
       images {
         __typename
         src
+        focus
         alt
         caption
       }
+      ratio
       background
     }
     ... on HomeBlocksFeature {
       image
+      focus
+      ratio
       eyebrow
       heading
       text
@@ -248,6 +270,13 @@ fragment HomeParts on Home {
       }
       background
     }
+    ... on HomeBlocksForm {
+      title
+      intro
+      buttonLabel
+      successText
+      background
+    }
     ... on HomeBlocksSpacer {
       size
     }
@@ -297,6 +326,7 @@ fragment SettingsParts on Settings {
     stickyText
   }
   mobileCta
+  formsKey
   footerText
   social {
     __typename

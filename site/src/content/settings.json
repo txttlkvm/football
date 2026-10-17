@@ -74,5 +74,6 @@
     "stickyText": "Register for Kids Classes →"
   },
   "logo": "/img/logo.png",
-  "mobileCta": "🍪 Kids Cooking Classes · Register"
+  "mobileCta": "🍪 Kids Cooking Classes · Register",
+  "formsKey": ""
 }

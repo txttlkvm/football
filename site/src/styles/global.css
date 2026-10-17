@@ -169,3 +169,11 @@ body{animation:pageIn .5s ease backwards}
 .spacer-small{height:24px}.spacer-medium{height:56px}.spacer-large{height:110px}
 .hero-short{padding:clamp(36px,7vw,64px) 0}.hero-medium{padding:clamp(48px,9vw,90px) 0}
 @media(max-width:760px){.it,.cols-2,.cols-3,.cols-4{grid-template-columns:1fr}.side-right .it-img{order:0}.gal-3,.gal-4{grid-template-columns:repeat(2,1fr)}}
+
+/* focal point + forms + inline-edit hints */
+.hero::before{background-position:var(--hero-pos,center right)}
+.empty-hint{color:#8a8680;font-style:italic;text-align:center;margin:1em 0}
+.contact{display:grid;gap:14px;margin-top:1.2em}.contact label{display:grid;gap:6px;font-weight:500;color:var(--ink)}
+.contact input,.contact textarea{font:inherit;padding:12px 14px;border:1px solid #e0d6d0;border-radius:8px;background:#fff;color:var(--text)}.contact input:focus,.contact textarea:focus{outline:2px solid var(--pink);outline-offset:1px}
+.contact .hp{position:absolute;left:-9999px}.form-status{margin:0;font-weight:600}.form-intro{text-align:center;margin-top:-.4em}
+.article>.narrow>img{width:100%;max-height:520px;object-fit:cover}
