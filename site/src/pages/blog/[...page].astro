@@ -10,7 +10,7 @@ const { page } = Astro.props;
 <h1 style="text-align:center">All posts</h1>
 <p class="lede" style="text-align:center">Faith, family and food — {allPosts.length} posts and counting.</p>
 <form class="blog-search" role="search" onsubmit="return false"><label class="sr" for="q">Search posts</label><input id="q" type="search" placeholder="Search posts…" autocomplete="off"></form>
-<div class="grid" id="list">{page.data.map((p: any) => <PostCard post={p} />)}</div>
+<h2 class="sr">Posts</h2><div class="grid" id="list">{page.data.map((p: any) => <PostCard post={p} />)}</div>
 <p id="none" hidden style="text-align:center">No posts match that search.</p>
 {(page.url.prev || page.url.next) && <nav class="pager" aria-label="Pages">{page.url.prev ? <a href={page.url.prev}>← Newer</a> : <span></span>}<span>Page {page.currentPage} of {page.lastPage}</span>{page.url.next ? <a href={page.url.next}>Older →</a> : <span></span>}</nav>}
 </div></section></Base>

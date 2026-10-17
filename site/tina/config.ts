@@ -52,11 +52,12 @@ const link = [
   { type: 'string', name: 'href', label: 'Link (e.g. /about-me/ or https://…)', required: true },
 ] as any[];
 
-const SKIN = `@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+const SKIN = `[class*="drag"] svg,[class*="pencil"] svg,[class*="Pencil"] svg{color:#6b6660!important}button[aria-label*="elete"] svg,[class*="trash"] svg{color:#b3261e!important;opacity:1!important}
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 body,button,input,textarea,select{font-family:'Poppins',system-ui,sans-serif!important}
 :root{--tina-color-primary:#b0246f}
 [class*="bg-orange"],[class*="from-orange"],[class*="to-orange"]{background:#b0246f!important;background-image:none!important;border-color:#b0246f!important;color:#fff!important}
-[class*="text-orange"]{color:#a01f65!important}[class*="border-orange"]{border-color:#ff66c4!important}
+[class*="text-orange"]{color:#8a1b5a!important}[class*="border-orange"]{border-color:#ff66c4!important}
 [class*="orange"] svg{color:inherit}
 input:focus,textarea:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid #8a1b5a!important;outline-offset:2px}`;
 const cmsCallback = (cms: any) => {
@@ -91,17 +92,17 @@ export default defineConfig({
     collections: [
       {
         name: 'post', label: 'Blog Posts', path: 'src/content/posts', format: 'md',
-        ui: { filename: { slugify, readonly: true }, router, allowedActions: { createNestedFolder: false } },
+        ui: { filename: { slugify, readonly: true }, allowedActions: { createNestedFolder: false } },
         defaultItem: () => ({ date: new Date().toISOString(), categories: [], draft: true, featured: false }),
         fields: [
           { type: 'string', name: 'title', label: 'Title', isTitle: true, required: true },
+          { type: 'boolean', name: 'draft', label: 'Keep this post hidden (draft)', description: 'New posts start hidden. Turn this OFF when you are ready for everyone to see it.' },
           { type: 'image', name: 'image', label: 'Cover photo' },
           { type: 'string', name: 'imageFocus', label: 'Which part of the cover photo to keep in view', options: [{ value: 'center', label: 'Center' }, { value: 'top', label: 'Top' }, { value: 'bottom', label: 'Bottom' }, { value: 'left', label: 'Left' }, { value: 'right', label: 'Right' }, { value: 'face', label: 'Upper middle (faces)' }] },
           { type: 'rich-text', name: 'body', label: 'Write your post', isBody: true, templates: embeds, toolbarOverride: ['heading', 'link', 'image', 'quote', 'ul', 'ol', 'bold', 'italic', 'hr', 'embed'] },
           { type: 'string', name: 'excerpt', label: 'Short summary (shown on cards)', ui: { component: 'textarea' } },
           { type: 'string', name: 'categories', label: 'Categories (tick any)', list: true, options: cats },
           { type: 'datetime', name: 'date', label: 'Date shown on the post', required: true },
-          { type: 'boolean', name: 'draft', label: 'Keep this post hidden (draft)', description: 'New posts start hidden. Turn this OFF when you are ready for everyone to see it.' },
           { type: 'boolean', name: 'featured', label: 'Feature this post at the top of the home page' },
           { type: 'datetime', name: 'publishDate', label: 'Schedule: hide until this date (optional)', description: 'Leave empty to publish immediately. A scheduled post appears the next time the site updates after this date.' },
           { type: 'string', name: 'description', label: 'Search-engine description (optional)', ui: { component: 'textarea' } },
@@ -111,7 +112,7 @@ export default defineConfig({
       {
         name: 'page', label: 'Pages', path: 'src/content/pages', format: 'md', match: { exclude: 'home' },
         defaultItem: () => ({ layout: 'blocks', blocks: [{ _template: 'hero', heading: 'Page title', text: 'A short welcome.', height: 'short', image: '/img/hero.jpg' }, { _template: 'text', heading: 'About this page', text: '<p>Write something here…</p>', align: 'left', width: 'narrow' }, { _template: 'cta', heading: 'Ready to join us?', buttonLabel: 'Sign up', buttonUrl: '/', style: 'pink' }] }),
-        ui: { filename: { slugify }, router, allowedActions: { delete: false, createNestedFolder: false } },
+        ui: { filename: { slugify }, allowedActions: { delete: false, createNestedFolder: false } },
         fields: [
           previewField('page'),
           { type: 'string', name: 'title', label: 'Page title', isTitle: true, required: true },
@@ -145,7 +146,7 @@ export default defineConfig({
           { type: 'image', name: 'logo', label: 'Logo' },
           { type: 'string', name: 'tagline', label: 'Tagline' },
           { type: 'object', name: 'theme', label: 'Colors & fonts', fields: [
-            { type: 'string', name: 'accent', label: 'Accent color (buttons, links)', ui: color },
+            { type: 'string', name: 'accent', label: 'Accent color (buttons, links)', description: 'Buttons use a slightly deeper shade of this colour so white text stays easy to read.', ui: color },
             { type: 'string', name: 'dark', label: 'Headline color', ui: color },
             { type: 'string', name: 'text', label: 'Body text color', ui: color },
             { type: 'string', name: 'soft', label: 'Soft background color', ui: color },

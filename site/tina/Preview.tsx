@@ -27,6 +27,7 @@ const IFRAME_SCRIPT = `(function(){
 var send=function(m){parent.postMessage(Object.assign({tinaPreview:1},m),'*')};
 var st=document.createElement('style');st.textContent='[data-e]{cursor:pointer}[data-e]:hover{outline:2px dashed #ff66c4;outline-offset:3px}[data-t="text"]:focus{outline:2px solid #ff66c4;outline-offset:3px;cursor:text}';document.head.appendChild(st);
 addEventListener('scroll',function(){send({type:'scroll',y:scrollY})},{passive:true});
+document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();send({type:'save'})}});
 document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a');if(a)e.preventDefault();var el=e.target.closest&&e.target.closest('[data-e]');if(!el)return;var t=el.getAttribute('data-t');if(t==='text')return;e.preventDefault();e.stopPropagation();send({type:t,path:el.getAttribute('data-e')})},true);
 document.querySelectorAll('[data-t="text"]').forEach(function(el){
 try{el.contentEditable='plaintext-only'}catch(x){el.contentEditable='true'}
@@ -66,7 +67,7 @@ async function build(kind: string, v: any, y = 0): Promise<string> {
   return doc;
 }
 
-const pill = (on: boolean): React.CSSProperties => ({ font: 'inherit', fontSize: 13, padding: '5px 12px', borderRadius: 999, border: '1px solid ' + (on ? '#b0246f' : '#d8d8e0'), background: on ? '#fff0f8' : '#fff', color: on ? '#8a1b5a' : '#333', cursor: 'pointer' });
+const pill = (on: boolean): React.CSSProperties => ({ font: 'inherit', fontSize: 14, minHeight: 40, padding: '8px 14px', borderRadius: 999, border: '1px solid ' + (on ? '#b0246f' : '#d8d8e0'), background: on ? '#fff0f8' : '#fff', color: on ? '#8a1b5a' : '#333', cursor: 'pointer' });
 
 function Canvas({ kind, tinaForm, cms, inline }: any) {
   const ff = tinaForm?.finalForm ?? tinaForm;
@@ -108,12 +109,12 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
       clearTimeout(idle.current);
       const v = s.values || {};
       const safe = kind === 'post' && v.draft === true && tinaForm?.crudType !== 'create';
-      if (s.dirty && !s.submitting && !safe) setAuto('Unsaved — press Save to publish your changes');
+      if (s.dirty && !s.submitting && !safe) setAuto('Unsaved changes — press Save');
       if (s.dirty && !s.submitting && safe) idle.current = setTimeout(async () => {
         if (!navigator.onLine) { setAuto('Offline — your edits are kept on this device'); return; }
         try { setAuto('Saving…'); await ff.submit(); setAuto(ff.getState().dirty ? 'Not saved yet — your edits are kept on this device' : 'Auto-saved ✓ ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })); } catch (e) { setAuto('Could not auto-save — press Save'); }
       }, 30000);
-      try { if (s.submitSucceeded && !s.dirty) { localStorage.removeItem(draftKey); shell = null; setAuto('Saved ✓ — live on the website in about 1–2 minutes'); } else if (s.dirty) localStorage.setItem(draftKey, JSON.stringify({ t: Date.now(), values: s.values })); } catch (e) { /* storage unavailable */ }
+      try { if (s.submitSucceeded && !s.dirty) { localStorage.removeItem(draftKey); shell = null; setAuto(kind === 'post' && ff.getState().values?.draft ? 'Saved as a hidden draft — switch off “Keep this post hidden” to publish' : 'Saved ✓ — live on the website in about 1–2 minutes'); } else if (s.dirty) localStorage.setItem(draftKey, JSON.stringify({ t: Date.now(), values: s.values })); } catch (e) { /* storage unavailable */ }
     }, { values: true, dirty: true, submitSucceeded: true, submitting: true });
     const guard = (e: BeforeUnloadEvent) => { if (ff.getState().dirty) { e.preventDefault(); e.returnValue = ''; } };
     const ks = (e: KeyboardEvent) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); ff.submit(); } };
@@ -129,6 +130,7 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
       const ok = e.source === frame.current?.contentWindow || (pop.current && e.source === pop.current);
       if (!ok) return;
       if (m.type === 'scroll') scroll.current = m.y;
+      else if (m.type === 'save') ff.submit();
       else if (m.type === 'block') {
         const arr = [...(ff.getState().values.blocks || [])]; const i = m.i;
         if (m.op === 'up' && i > 0) [arr[i - 1], arr[i]] = [arr[i], arr[i - 1]];
@@ -192,7 +194,7 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
         </span>
         <button type="button" style={pill(false)} onClick={popOut}>Full screen ↗</button>
         <button type="button" style={pill(false)} onClick={() => setOpen(!open)}>{open ? 'Hide preview' : 'Show preview'}</button>
-        <span role="status" aria-live="polite" style={{ marginLeft: 'auto', fontSize: 13, fontWeight: 600, color: /^(Could|Not saved|Offline)/.test(auto) ? '#b3261e' : '#1b7a3d' }}>{auto || (kind === 'post' ? '● Drafts save automatically' : '● Press Save to publish')}</span>
+        <span role="status" aria-live="polite" style={{ marginLeft: 'auto', fontSize: 13, fontWeight: 600, color: /^(Could|Not saved|Offline)/.test(auto) ? '#b3261e' : /^Unsaved/.test(auto) ? '#92400e' : '#1b7a3d' }}>{auto || (kind === 'post' ? '● Drafts save automatically' : '● Press Save to publish')}</span>
       </div>
       {tip && kind !== 'settings' && (
         <div style={{ marginTop: 10, padding: '8px 12px', background: '#fff1fa', border: '1px solid #ffc2e6', borderRadius: 8, fontSize: 14, color: '#5a1d44' }}>
@@ -215,7 +217,7 @@ const pageStart = Date.now();
 let curForm: any = null;
 let host: HTMLDivElement | null = null, root: any = null, hashAt = '', narrowed: [HTMLElement, string][] = [];
 const teardown = () => { try { const f = curForm?.finalForm; if (f && f.getState().dirty) f.submit(); } catch (e) { /* draft copy remains */ } curForm = null; if (root) root.unmount(); host?.remove(); host = null; root = null; narrowed.forEach(([el, v]) => { el.style.maxWidth = v; }); narrowed = []; };
-if (typeof window !== 'undefined') window.addEventListener('hashchange', () => { if (host && location.hash !== hashAt) teardown(); });
+if (typeof window !== 'undefined') { window.addEventListener('hashchange', () => { if (host && location.hash !== hashAt) teardown(); }); setInterval(() => { if (host && location.hash !== hashAt) teardown(); }, 400); }
 
 function Panel({ kind, tinaForm }: { kind: string; tinaForm: any }) {
   const cms: any = useCMS();

@@ -1,7 +1,9 @@
 /* Design polish layer: one system for rhythm, radius, shadow and type.
    Loaded after global.css so it refines rather than fights it. */
 :root{
-  --r-sm:10px;--r-md:18px;--r-lg:28px;
+  --muted:#6b6660;--line:#e8dcd6;--text:#3a3836;
+  --dur-1:150ms;--dur-2:250ms;--dur-3:600ms;
+  --r-sm:8px;--r-md:16px;--r-lg:28px;
   --shadow-1:0 1px 2px rgba(40,20,30,.04),0 6px 18px rgba(40,20,30,.06);
   --shadow-2:0 2px 4px rgba(40,20,30,.05),0 18px 44px rgba(40,20,30,.12);
   --ease:cubic-bezier(.22,.8,.2,1);
@@ -32,7 +34,8 @@ img,video{border-radius:var(--r-sm)}
 .hero-short{min-height:0}.hero-medium{min-height:min(56vh,520px)}
 .hero h1{font-size:clamp(2.6rem,6.6vw,5rem);line-height:1.02;max-width:13ch;margin-bottom:.45em;text-shadow:0 2px 40px rgba(20,8,16,.35)}
 .hero p{font-size:clamp(1.05rem,1.7vw,1.25rem);line-height:1.65;max-width:44ch;opacity:.96}
-.hero::after{background:linear-gradient(100deg,rgba(46,18,36,.82) 0%,rgba(46,18,36,.55) 38%,rgba(46,18,36,0) 78%)}
+.hero::after{background:linear-gradient(100deg,rgba(46,18,36,.86) 0%,rgba(46,18,36,.72) 45%,rgba(46,18,36,.15) 85%)}
+@media(max-width:1100px){.hero::after{background:rgba(46,18,36,.7)}}
 .hero .btn{margin:6px 10px 0 0}
 
 /* sections: generous, even rhythm */
@@ -87,3 +90,10 @@ img,video{border-radius:var(--r-sm)}
 .fcols ul{display:grid;grid-template-columns:1fr 1fr;gap:0 24px}.fcols li{margin:0}.fcols a{padding:5px 0}
 @media(max-width:700px){.fcols ul{grid-template-columns:1fr 1fr}}
 @media(max-width:700px){.card.cat img{aspect-ratio:1/1}.hdr-register{padding:9px 18px;font-size:.9rem}}
+
+.card.cat .b{background:linear-gradient(transparent,rgba(30,10,22,.55) 35%,rgba(30,10,22,.88))}
+.menu a{padding:11px 12px}.announce button{min-width:44px;min-height:44px}
+.fcols a{padding:10px 0}.meta a{display:inline-block;padding:4px 0}
+.nf h1{font-size:clamp(2.6rem,8vw,4.4rem)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.js .reveal{transition-duration:var(--dur-3)}
