@@ -21,18 +21,18 @@ const path = Astro.url.pathname;
 <script is:inline>document.documentElement.classList.add("js");if("serviceWorker" in navigator)addEventListener("load",function(){navigator.serviceWorker.register("/sw.js")})</script>
 </head><body>
 <a class="skip" href="#main">Skip to content</a>
-{settings.announcement.show&&path==='/'&&<div class="announce" id="announce" hidden><p><strong>{settings.announcement.text}</strong> <a href={REGISTER_URL}>{settings.announcement.linkText}</a></p><button type="button" id="ax" aria-label="Dismiss announcement">×</button></div>}
+{settings.announcement.show&&path==='/'&&<div class="announce" id="announce" hidden><p><strong>{settings.announcement.text}</strong> <a href={settings.announcement.linkUrl||REGISTER_URL} target="_blank" rel="noopener">{settings.announcement.linkText}</a></p><button type="button" id="ax" aria-label="Dismiss announcement">×</button></div>}
 <header class="site-header"><div class="wrap">
 <a class="brand" href="/"><img src={settings.logo} alt={settings.siteTitle} width="900" height="197"></a>
-<a class="btn hdr-register pulse" href={REGISTER_URL}>Register</a>
+<a class="btn hdr-register pulse" href={REGISTER_URL} target="_blank" rel="noopener">Register</a>
 <button class="toggle" aria-expanded="false" aria-controls="menu" id="tg" aria-label="Menu"><span class="bars" aria-hidden="true"></span></button>
 <nav aria-label="Main menu"><ul class="menu" id="menu">
 <li class="nav-mobile-cta"><a class="btn pulse" href="/home-chefs/">{settings.mobileCta}</a></li>
 {nav.map(i=>(<li><a href={i.href} aria-current={path===i.href?'page':undefined}>{i.label}{i.children&&<svg class="chev" width="10" height="6" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>}</a>
 {i.children&&<ul class="sub">{i.children.map(c=>(<li><a href={c.href}>{c.label}</a></li>))}</ul>}</li>))}
-<li class="nav-cta"><a class="btn pulse" href={REGISTER_URL}>Register</a></li></ul></nav></div></header>
+<li class="nav-cta"><a class="btn pulse" href={REGISTER_URL} target="_blank" rel="noopener">Register</a></li></ul></nav></div></header>
 <main id="main"><slot/></main>
-<footer class="footer"><div class="wrap fcols"><div><img src={settings.logo} alt={settings.siteTitle} width="900" height="197" loading="lazy"><p>{settings.tagline}</p></div><nav aria-label="Footer"><strong>Explore</strong><ul>{nav.map(i=>(<li><a href={i.href}>{i.label}</a></li>))}</ul></nav><div><strong>Kids classes</strong><p><a class="btn" href={REGISTER_URL}>Register</a></p>{settings.social.length>0&&<p class="social">{settings.social.map(x=>(<a href={x.url} rel="noopener">{x.label}</a>))}</p>}</div></div><p class="copy">© {new Date().getFullYear()} {settings.footerText}</p></footer>
+<footer class="footer"><div class="wrap fcols"><div><img src={settings.logo} alt={settings.siteTitle} width="900" height="197" loading="lazy"><p>{settings.tagline}</p></div><nav aria-label="Footer"><strong>Explore</strong><ul>{nav.map(i=>(<li><a href={i.href}>{i.label}</a></li>))}</ul></nav><div><strong>Kids classes</strong><p><a class="btn" href={REGISTER_URL} target="_blank" rel="noopener">Register</a></p>{settings.social.length>0&&<p class="social">{settings.social.map(x=>(<a href={x.url} rel="noopener">{x.label}</a>))}</p>}</div></div><p class="copy"><a href="/rss.xml">RSS</a> · © {new Date().getFullYear()} {settings.footerText}</p></footer>
 <script is:inline>const a=document.getElementById('announce');if(a){try{if(!sessionStorage.getItem('ax'))a.hidden=false}catch(e){a.hidden=false}document.getElementById('ax').addEventListener('click',()=>{a.hidden=true;try{sessionStorage.setItem('ax','1')}catch(e){}})}const t=document.getElementById('tg'),m=document.getElementById('menu');t.addEventListener('click',()=>{const o=m.classList.toggle('open');t.setAttribute('aria-expanded',o)})</script>
 <script is:inline>(function(){var hd=document.querySelector('.site-header');var sc=function(){hd.classList.toggle('scrolled',window.scrollY>8)};sc();window.addEventListener('scroll',sc,{passive:true});
 document.querySelectorAll('.grid').forEach(function(g){Array.prototype.forEach.call(g.children,function(c,i){c.style.setProperty('--d',(i%6)*70+'ms')})});

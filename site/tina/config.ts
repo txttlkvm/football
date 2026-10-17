@@ -158,7 +158,7 @@ export default defineConfig({
           { type: 'object', name: 'announcement', label: 'Top announcement bar', fields: [
             { type: 'boolean', name: 'show', label: 'Show the bar' },
             { type: 'string', name: 'text', label: 'Bold text' },
-            { type: 'string', name: 'linkText', label: 'Link text' } ] },
+            { type: 'string', name: 'linkText', label: 'Link text' }, { type: 'string', name: 'linkUrl', label: 'Link goes to (leave empty for the Register page)' } ] },
           { type: 'object', name: 'classCard', label: 'Class sign-up box (shown on pages where you turn it on)', fields: [
             { type: 'string', name: 'label', label: 'Small label' },
             { type: 'string', name: 'text', label: 'Description', ui: { component: 'textarea' } },

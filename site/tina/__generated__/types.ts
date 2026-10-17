@@ -225,12 +225,13 @@ export type Post = Node & Document & {
   __typename?: 'Post';
   livePreview?: Maybe<Scalars['String']['output']>;
   title: Scalars['String']['output'];
+  body?: Maybe<Scalars['RichText']['output']>;
   draft?: Maybe<Scalars['Boolean']['output']>;
   date: Scalars['String']['output'];
   categories?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   image?: Maybe<Scalars['String']['output']>;
+  imageFocus?: Maybe<Scalars['String']['output']>;
   excerpt?: Maybe<Scalars['String']['output']>;
-  body?: Maybe<Scalars['RichText']['output']>;
   publishDate?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   featured?: Maybe<Scalars['Boolean']['output']>;
@@ -241,19 +242,6 @@ export type Post = Node & Document & {
 
 export type StringFilter = {
   startsWith?: InputMaybe<Scalars['String']['input']>;
-  eq?: InputMaybe<Scalars['String']['input']>;
-  exists?: InputMaybe<Scalars['Boolean']['input']>;
-  in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-};
-
-export type BooleanFilter = {
-  eq?: InputMaybe<Scalars['Boolean']['input']>;
-  exists?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-export type DatetimeFilter = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
   eq?: InputMaybe<Scalars['String']['input']>;
   exists?: InputMaybe<Scalars['Boolean']['input']>;
   in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
@@ -302,15 +290,29 @@ export type PostBodyFilter = {
   button?: InputMaybe<PostBodyButtonFilter>;
 };
 
+export type BooleanFilter = {
+  eq?: InputMaybe<Scalars['Boolean']['input']>;
+  exists?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type DatetimeFilter = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  eq?: InputMaybe<Scalars['String']['input']>;
+  exists?: InputMaybe<Scalars['Boolean']['input']>;
+  in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
 export type PostFilter = {
   livePreview?: InputMaybe<StringFilter>;
   title?: InputMaybe<StringFilter>;
+  body?: InputMaybe<PostBodyFilter>;
   draft?: InputMaybe<BooleanFilter>;
   date?: InputMaybe<DatetimeFilter>;
   categories?: InputMaybe<StringFilter>;
   image?: InputMaybe<ImageFilter>;
+  imageFocus?: InputMaybe<StringFilter>;
   excerpt?: InputMaybe<StringFilter>;
-  body?: InputMaybe<PostBodyFilter>;
   publishDate?: InputMaybe<DatetimeFilter>;
   description?: InputMaybe<StringFilter>;
   featured?: InputMaybe<BooleanFilter>;
@@ -332,6 +334,7 @@ export type PostConnection = Connection & {
 export type PageBlocksHero = {
   __typename?: 'PageBlocksHero';
   image?: Maybe<Scalars['String']['output']>;
+  focus?: Maybe<Scalars['String']['output']>;
   heading?: Maybe<Scalars['String']['output']>;
   text?: Maybe<Scalars['String']['output']>;
   buttonLabel?: Maybe<Scalars['String']['output']>;
@@ -353,6 +356,8 @@ export type PageBlocksText = {
 export type PageBlocksImageText = {
   __typename?: 'PageBlocksImageText';
   image?: Maybe<Scalars['String']['output']>;
+  focus?: Maybe<Scalars['String']['output']>;
+  ratio?: Maybe<Scalars['String']['output']>;
   alt?: Maybe<Scalars['String']['output']>;
   heading?: Maybe<Scalars['String']['output']>;
   text?: Maybe<Scalars['String']['output']>;
@@ -365,6 +370,7 @@ export type PageBlocksImageText = {
 export type PageBlocksGalleryImages = {
   __typename?: 'PageBlocksGalleryImages';
   src?: Maybe<Scalars['String']['output']>;
+  focus?: Maybe<Scalars['String']['output']>;
   alt?: Maybe<Scalars['String']['output']>;
   caption?: Maybe<Scalars['String']['output']>;
 };
@@ -374,12 +380,15 @@ export type PageBlocksGallery = {
   title?: Maybe<Scalars['String']['output']>;
   perRow?: Maybe<Scalars['String']['output']>;
   images?: Maybe<Array<Maybe<PageBlocksGalleryImages>>>;
+  ratio?: Maybe<Scalars['String']['output']>;
   background?: Maybe<Scalars['String']['output']>;
 };
 
 export type PageBlocksFeature = {
   __typename?: 'PageBlocksFeature';
   image?: Maybe<Scalars['String']['output']>;
+  focus?: Maybe<Scalars['String']['output']>;
+  ratio?: Maybe<Scalars['String']['output']>;
   eyebrow?: Maybe<Scalars['String']['output']>;
   heading?: Maybe<Scalars['String']['output']>;
   text?: Maybe<Scalars['String']['output']>;
@@ -469,12 +478,21 @@ export type PageBlocksColumns = {
   background?: Maybe<Scalars['String']['output']>;
 };
 
+export type PageBlocksForm = {
+  __typename?: 'PageBlocksForm';
+  title?: Maybe<Scalars['String']['output']>;
+  intro?: Maybe<Scalars['String']['output']>;
+  buttonLabel?: Maybe<Scalars['String']['output']>;
+  successText?: Maybe<Scalars['String']['output']>;
+  background?: Maybe<Scalars['String']['output']>;
+};
+
 export type PageBlocksSpacer = {
   __typename?: 'PageBlocksSpacer';
   size?: Maybe<Scalars['String']['output']>;
 };
 
-export type PageBlocks = PageBlocksHero | PageBlocksText | PageBlocksImageText | PageBlocksGallery | PageBlocksFeature | PageBlocksCta | PageBlocksVideo | PageBlocksQuote | PageBlocksPostGrid | PageBlocksFeaturedPost | PageBlocksCategoryTiles | PageBlocksFaq | PageBlocksColumns | PageBlocksSpacer;
+export type PageBlocks = PageBlocksHero | PageBlocksText | PageBlocksImageText | PageBlocksGallery | PageBlocksFeature | PageBlocksCta | PageBlocksVideo | PageBlocksQuote | PageBlocksPostGrid | PageBlocksFeaturedPost | PageBlocksCategoryTiles | PageBlocksFaq | PageBlocksColumns | PageBlocksForm | PageBlocksSpacer;
 
 export type Page = Node & Document & {
   __typename?: 'Page';
@@ -530,6 +548,7 @@ export type PageBodyFilter = {
 
 export type PageBlocksHeroFilter = {
   image?: InputMaybe<ImageFilter>;
+  focus?: InputMaybe<StringFilter>;
   heading?: InputMaybe<StringFilter>;
   text?: InputMaybe<StringFilter>;
   buttonLabel?: InputMaybe<StringFilter>;
@@ -549,6 +568,8 @@ export type PageBlocksTextFilter = {
 
 export type PageBlocksImageTextFilter = {
   image?: InputMaybe<ImageFilter>;
+  focus?: InputMaybe<StringFilter>;
+  ratio?: InputMaybe<StringFilter>;
   alt?: InputMaybe<StringFilter>;
   heading?: InputMaybe<StringFilter>;
   text?: InputMaybe<StringFilter>;
@@ -560,6 +581,7 @@ export type PageBlocksImageTextFilter = {
 
 export type PageBlocksGalleryImagesFilter = {
   src?: InputMaybe<ImageFilter>;
+  focus?: InputMaybe<StringFilter>;
   alt?: InputMaybe<StringFilter>;
   caption?: InputMaybe<StringFilter>;
 };
@@ -568,11 +590,14 @@ export type PageBlocksGalleryFilter = {
   title?: InputMaybe<StringFilter>;
   perRow?: InputMaybe<StringFilter>;
   images?: InputMaybe<PageBlocksGalleryImagesFilter>;
+  ratio?: InputMaybe<StringFilter>;
   background?: InputMaybe<StringFilter>;
 };
 
 export type PageBlocksFeatureFilter = {
   image?: InputMaybe<ImageFilter>;
+  focus?: InputMaybe<StringFilter>;
+  ratio?: InputMaybe<StringFilter>;
   eyebrow?: InputMaybe<StringFilter>;
   heading?: InputMaybe<StringFilter>;
   text?: InputMaybe<StringFilter>;
@@ -661,6 +686,14 @@ export type PageBlocksColumnsFilter = {
   background?: InputMaybe<StringFilter>;
 };
 
+export type PageBlocksFormFilter = {
+  title?: InputMaybe<StringFilter>;
+  intro?: InputMaybe<StringFilter>;
+  buttonLabel?: InputMaybe<StringFilter>;
+  successText?: InputMaybe<StringFilter>;
+  background?: InputMaybe<StringFilter>;
+};
+
 export type PageBlocksSpacerFilter = {
   size?: InputMaybe<StringFilter>;
 };
@@ -679,6 +712,7 @@ export type PageBlocksFilter = {
   categoryTiles?: InputMaybe<PageBlocksCategoryTilesFilter>;
   faq?: InputMaybe<PageBlocksFaqFilter>;
   columns?: InputMaybe<PageBlocksColumnsFilter>;
+  form?: InputMaybe<PageBlocksFormFilter>;
   spacer?: InputMaybe<PageBlocksSpacerFilter>;
 };
 
@@ -710,6 +744,7 @@ export type PageConnection = Connection & {
 export type HomeBlocksHero = {
   __typename?: 'HomeBlocksHero';
   image?: Maybe<Scalars['String']['output']>;
+  focus?: Maybe<Scalars['String']['output']>;
   heading?: Maybe<Scalars['String']['output']>;
   text?: Maybe<Scalars['String']['output']>;
   buttonLabel?: Maybe<Scalars['String']['output']>;
@@ -731,6 +766,8 @@ export type HomeBlocksText = {
 export type HomeBlocksImageText = {
   __typename?: 'HomeBlocksImageText';
   image?: Maybe<Scalars['String']['output']>;
+  focus?: Maybe<Scalars['String']['output']>;
+  ratio?: Maybe<Scalars['String']['output']>;
   alt?: Maybe<Scalars['String']['output']>;
   heading?: Maybe<Scalars['String']['output']>;
   text?: Maybe<Scalars['String']['output']>;
@@ -743,6 +780,7 @@ export type HomeBlocksImageText = {
 export type HomeBlocksGalleryImages = {
   __typename?: 'HomeBlocksGalleryImages';
   src?: Maybe<Scalars['String']['output']>;
+  focus?: Maybe<Scalars['String']['output']>;
   alt?: Maybe<Scalars['String']['output']>;
   caption?: Maybe<Scalars['String']['output']>;
 };
@@ -752,12 +790,15 @@ export type HomeBlocksGallery = {
   title?: Maybe<Scalars['String']['output']>;
   perRow?: Maybe<Scalars['String']['output']>;
   images?: Maybe<Array<Maybe<HomeBlocksGalleryImages>>>;
+  ratio?: Maybe<Scalars['String']['output']>;
   background?: Maybe<Scalars['String']['output']>;
 };
 
 export type HomeBlocksFeature = {
   __typename?: 'HomeBlocksFeature';
   image?: Maybe<Scalars['String']['output']>;
+  focus?: Maybe<Scalars['String']['output']>;
+  ratio?: Maybe<Scalars['String']['output']>;
   eyebrow?: Maybe<Scalars['String']['output']>;
   heading?: Maybe<Scalars['String']['output']>;
   text?: Maybe<Scalars['String']['output']>;
@@ -847,12 +888,21 @@ export type HomeBlocksColumns = {
   background?: Maybe<Scalars['String']['output']>;
 };
 
+export type HomeBlocksForm = {
+  __typename?: 'HomeBlocksForm';
+  title?: Maybe<Scalars['String']['output']>;
+  intro?: Maybe<Scalars['String']['output']>;
+  buttonLabel?: Maybe<Scalars['String']['output']>;
+  successText?: Maybe<Scalars['String']['output']>;
+  background?: Maybe<Scalars['String']['output']>;
+};
+
 export type HomeBlocksSpacer = {
   __typename?: 'HomeBlocksSpacer';
   size?: Maybe<Scalars['String']['output']>;
 };
 
-export type HomeBlocks = HomeBlocksHero | HomeBlocksText | HomeBlocksImageText | HomeBlocksGallery | HomeBlocksFeature | HomeBlocksCta | HomeBlocksVideo | HomeBlocksQuote | HomeBlocksPostGrid | HomeBlocksFeaturedPost | HomeBlocksCategoryTiles | HomeBlocksFaq | HomeBlocksColumns | HomeBlocksSpacer;
+export type HomeBlocks = HomeBlocksHero | HomeBlocksText | HomeBlocksImageText | HomeBlocksGallery | HomeBlocksFeature | HomeBlocksCta | HomeBlocksVideo | HomeBlocksQuote | HomeBlocksPostGrid | HomeBlocksFeaturedPost | HomeBlocksCategoryTiles | HomeBlocksFaq | HomeBlocksColumns | HomeBlocksForm | HomeBlocksSpacer;
 
 export type Home = Node & Document & {
   __typename?: 'Home';
@@ -868,6 +918,7 @@ export type Home = Node & Document & {
 
 export type HomeBlocksHeroFilter = {
   image?: InputMaybe<ImageFilter>;
+  focus?: InputMaybe<StringFilter>;
   heading?: InputMaybe<StringFilter>;
   text?: InputMaybe<StringFilter>;
   buttonLabel?: InputMaybe<StringFilter>;
@@ -887,6 +938,8 @@ export type HomeBlocksTextFilter = {
 
 export type HomeBlocksImageTextFilter = {
   image?: InputMaybe<ImageFilter>;
+  focus?: InputMaybe<StringFilter>;
+  ratio?: InputMaybe<StringFilter>;
   alt?: InputMaybe<StringFilter>;
   heading?: InputMaybe<StringFilter>;
   text?: InputMaybe<StringFilter>;
@@ -898,6 +951,7 @@ export type HomeBlocksImageTextFilter = {
 
 export type HomeBlocksGalleryImagesFilter = {
   src?: InputMaybe<ImageFilter>;
+  focus?: InputMaybe<StringFilter>;
   alt?: InputMaybe<StringFilter>;
   caption?: InputMaybe<StringFilter>;
 };
@@ -906,11 +960,14 @@ export type HomeBlocksGalleryFilter = {
   title?: InputMaybe<StringFilter>;
   perRow?: InputMaybe<StringFilter>;
   images?: InputMaybe<HomeBlocksGalleryImagesFilter>;
+  ratio?: InputMaybe<StringFilter>;
   background?: InputMaybe<StringFilter>;
 };
 
 export type HomeBlocksFeatureFilter = {
   image?: InputMaybe<ImageFilter>;
+  focus?: InputMaybe<StringFilter>;
+  ratio?: InputMaybe<StringFilter>;
   eyebrow?: InputMaybe<StringFilter>;
   heading?: InputMaybe<StringFilter>;
   text?: InputMaybe<StringFilter>;
@@ -989,6 +1046,14 @@ export type HomeBlocksColumnsFilter = {
   background?: InputMaybe<StringFilter>;
 };
 
+export type HomeBlocksFormFilter = {
+  title?: InputMaybe<StringFilter>;
+  intro?: InputMaybe<StringFilter>;
+  buttonLabel?: InputMaybe<StringFilter>;
+  successText?: InputMaybe<StringFilter>;
+  background?: InputMaybe<StringFilter>;
+};
+
 export type HomeBlocksSpacerFilter = {
   size?: InputMaybe<StringFilter>;
 };
@@ -1007,6 +1072,7 @@ export type HomeBlocksFilter = {
   categoryTiles?: InputMaybe<HomeBlocksCategoryTilesFilter>;
   faq?: InputMaybe<HomeBlocksFaqFilter>;
   columns?: InputMaybe<HomeBlocksColumnsFilter>;
+  form?: InputMaybe<HomeBlocksFormFilter>;
   spacer?: InputMaybe<HomeBlocksSpacerFilter>;
 };
 
@@ -1059,6 +1125,7 @@ export type SettingsAnnouncement = {
   show?: Maybe<Scalars['Boolean']['output']>;
   text?: Maybe<Scalars['String']['output']>;
   linkText?: Maybe<Scalars['String']['output']>;
+  linkUrl?: Maybe<Scalars['String']['output']>;
 };
 
 export type SettingsClassCard = {
@@ -1087,6 +1154,7 @@ export type Settings = Node & Document & {
   announcement?: Maybe<SettingsAnnouncement>;
   classCard?: Maybe<SettingsClassCard>;
   mobileCta?: Maybe<Scalars['String']['output']>;
+  formsKey?: Maybe<Scalars['String']['output']>;
   footerText?: Maybe<Scalars['String']['output']>;
   social?: Maybe<Array<Maybe<SettingsSocial>>>;
   id: Scalars['ID']['output'];
@@ -1118,6 +1186,7 @@ export type SettingsAnnouncementFilter = {
   show?: InputMaybe<BooleanFilter>;
   text?: InputMaybe<StringFilter>;
   linkText?: InputMaybe<StringFilter>;
+  linkUrl?: InputMaybe<StringFilter>;
 };
 
 export type SettingsClassCardFilter = {
@@ -1143,6 +1212,7 @@ export type SettingsFilter = {
   announcement?: InputMaybe<SettingsAnnouncementFilter>;
   classCard?: InputMaybe<SettingsClassCardFilter>;
   mobileCta?: InputMaybe<StringFilter>;
+  formsKey?: InputMaybe<StringFilter>;
   footerText?: InputMaybe<StringFilter>;
   social?: InputMaybe<SettingsSocialFilter>;
 };
@@ -1276,12 +1346,13 @@ export type DocumentMutation = {
 export type PostMutation = {
   livePreview?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
+  body?: InputMaybe<Scalars['RichText']['input']>;
   draft?: InputMaybe<Scalars['Boolean']['input']>;
   date?: InputMaybe<Scalars['String']['input']>;
   categories?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   image?: InputMaybe<Scalars['String']['input']>;
+  imageFocus?: InputMaybe<Scalars['String']['input']>;
   excerpt?: InputMaybe<Scalars['String']['input']>;
-  body?: InputMaybe<Scalars['RichText']['input']>;
   publishDate?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   featured?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1289,6 +1360,7 @@ export type PostMutation = {
 
 export type PageBlocksHeroMutation = {
   image?: InputMaybe<Scalars['String']['input']>;
+  focus?: InputMaybe<Scalars['String']['input']>;
   heading?: InputMaybe<Scalars['String']['input']>;
   text?: InputMaybe<Scalars['String']['input']>;
   buttonLabel?: InputMaybe<Scalars['String']['input']>;
@@ -1308,6 +1380,8 @@ export type PageBlocksTextMutation = {
 
 export type PageBlocksImageTextMutation = {
   image?: InputMaybe<Scalars['String']['input']>;
+  focus?: InputMaybe<Scalars['String']['input']>;
+  ratio?: InputMaybe<Scalars['String']['input']>;
   alt?: InputMaybe<Scalars['String']['input']>;
   heading?: InputMaybe<Scalars['String']['input']>;
   text?: InputMaybe<Scalars['String']['input']>;
@@ -1319,6 +1393,7 @@ export type PageBlocksImageTextMutation = {
 
 export type PageBlocksGalleryImagesMutation = {
   src?: InputMaybe<Scalars['String']['input']>;
+  focus?: InputMaybe<Scalars['String']['input']>;
   alt?: InputMaybe<Scalars['String']['input']>;
   caption?: InputMaybe<Scalars['String']['input']>;
 };
@@ -1327,11 +1402,14 @@ export type PageBlocksGalleryMutation = {
   title?: InputMaybe<Scalars['String']['input']>;
   perRow?: InputMaybe<Scalars['String']['input']>;
   images?: InputMaybe<Array<InputMaybe<PageBlocksGalleryImagesMutation>>>;
+  ratio?: InputMaybe<Scalars['String']['input']>;
   background?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type PageBlocksFeatureMutation = {
   image?: InputMaybe<Scalars['String']['input']>;
+  focus?: InputMaybe<Scalars['String']['input']>;
+  ratio?: InputMaybe<Scalars['String']['input']>;
   eyebrow?: InputMaybe<Scalars['String']['input']>;
   heading?: InputMaybe<Scalars['String']['input']>;
   text?: InputMaybe<Scalars['String']['input']>;
@@ -1410,6 +1488,14 @@ export type PageBlocksColumnsMutation = {
   background?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type PageBlocksFormMutation = {
+  title?: InputMaybe<Scalars['String']['input']>;
+  intro?: InputMaybe<Scalars['String']['input']>;
+  buttonLabel?: InputMaybe<Scalars['String']['input']>;
+  successText?: InputMaybe<Scalars['String']['input']>;
+  background?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type PageBlocksSpacerMutation = {
   size?: InputMaybe<Scalars['String']['input']>;
 };
@@ -1428,6 +1514,7 @@ export type PageBlocksMutation = {
   categoryTiles?: InputMaybe<PageBlocksCategoryTilesMutation>;
   faq?: InputMaybe<PageBlocksFaqMutation>;
   columns?: InputMaybe<PageBlocksColumnsMutation>;
+  form?: InputMaybe<PageBlocksFormMutation>;
   spacer?: InputMaybe<PageBlocksSpacerMutation>;
 };
 
@@ -1445,6 +1532,7 @@ export type PageMutation = {
 
 export type HomeBlocksHeroMutation = {
   image?: InputMaybe<Scalars['String']['input']>;
+  focus?: InputMaybe<Scalars['String']['input']>;
   heading?: InputMaybe<Scalars['String']['input']>;
   text?: InputMaybe<Scalars['String']['input']>;
   buttonLabel?: InputMaybe<Scalars['String']['input']>;
@@ -1464,6 +1552,8 @@ export type HomeBlocksTextMutation = {
 
 export type HomeBlocksImageTextMutation = {
   image?: InputMaybe<Scalars['String']['input']>;
+  focus?: InputMaybe<Scalars['String']['input']>;
+  ratio?: InputMaybe<Scalars['String']['input']>;
   alt?: InputMaybe<Scalars['String']['input']>;
   heading?: InputMaybe<Scalars['String']['input']>;
   text?: InputMaybe<Scalars['String']['input']>;
@@ -1475,6 +1565,7 @@ export type HomeBlocksImageTextMutation = {
 
 export type HomeBlocksGalleryImagesMutation = {
   src?: InputMaybe<Scalars['String']['input']>;
+  focus?: InputMaybe<Scalars['String']['input']>;
   alt?: InputMaybe<Scalars['String']['input']>;
   caption?: InputMaybe<Scalars['String']['input']>;
 };
@@ -1483,11 +1574,14 @@ export type HomeBlocksGalleryMutation = {
   title?: InputMaybe<Scalars['String']['input']>;
   perRow?: InputMaybe<Scalars['String']['input']>;
   images?: InputMaybe<Array<InputMaybe<HomeBlocksGalleryImagesMutation>>>;
+  ratio?: InputMaybe<Scalars['String']['input']>;
   background?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type HomeBlocksFeatureMutation = {
   image?: InputMaybe<Scalars['String']['input']>;
+  focus?: InputMaybe<Scalars['String']['input']>;
+  ratio?: InputMaybe<Scalars['String']['input']>;
   eyebrow?: InputMaybe<Scalars['String']['input']>;
   heading?: InputMaybe<Scalars['String']['input']>;
   text?: InputMaybe<Scalars['String']['input']>;
@@ -1566,6 +1660,14 @@ export type HomeBlocksColumnsMutation = {
   background?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type HomeBlocksFormMutation = {
+  title?: InputMaybe<Scalars['String']['input']>;
+  intro?: InputMaybe<Scalars['String']['input']>;
+  buttonLabel?: InputMaybe<Scalars['String']['input']>;
+  successText?: InputMaybe<Scalars['String']['input']>;
+  background?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type HomeBlocksSpacerMutation = {
   size?: InputMaybe<Scalars['String']['input']>;
 };
@@ -1584,6 +1686,7 @@ export type HomeBlocksMutation = {
   categoryTiles?: InputMaybe<HomeBlocksCategoryTilesMutation>;
   faq?: InputMaybe<HomeBlocksFaqMutation>;
   columns?: InputMaybe<HomeBlocksColumnsMutation>;
+  form?: InputMaybe<HomeBlocksFormMutation>;
   spacer?: InputMaybe<HomeBlocksSpacerMutation>;
 };
 
@@ -1619,6 +1722,7 @@ export type SettingsAnnouncementMutation = {
   show?: InputMaybe<Scalars['Boolean']['input']>;
   text?: InputMaybe<Scalars['String']['input']>;
   linkText?: InputMaybe<Scalars['String']['input']>;
+  linkUrl?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type SettingsClassCardMutation = {
@@ -1644,25 +1748,13 @@ export type SettingsMutation = {
   announcement?: InputMaybe<SettingsAnnouncementMutation>;
   classCard?: InputMaybe<SettingsClassCardMutation>;
   mobileCta?: InputMaybe<Scalars['String']['input']>;
+  formsKey?: InputMaybe<Scalars['String']['input']>;
   footerText?: InputMaybe<Scalars['String']['input']>;
   social?: InputMaybe<Array<InputMaybe<SettingsSocialMutation>>>;
 };
 
 export type StringFilter = {
   startsWith?: string | null | undefined;
-  eq?: string | null | undefined;
-  exists?: boolean | null | undefined;
-  in?: Array<string | null | undefined> | null | undefined;
-};
-
-export type BooleanFilter = {
-  eq?: boolean | null | undefined;
-  exists?: boolean | null | undefined;
-};
-
-export type DatetimeFilter = {
-  after?: string | null | undefined;
-  before?: string | null | undefined;
   eq?: string | null | undefined;
   exists?: boolean | null | undefined;
   in?: Array<string | null | undefined> | null | undefined;
@@ -1711,15 +1803,29 @@ export type PostBodyFilter = {
   button?: PostBodyButtonFilter | null | undefined;
 };
 
+export type BooleanFilter = {
+  eq?: boolean | null | undefined;
+  exists?: boolean | null | undefined;
+};
+
+export type DatetimeFilter = {
+  after?: string | null | undefined;
+  before?: string | null | undefined;
+  eq?: string | null | undefined;
+  exists?: boolean | null | undefined;
+  in?: Array<string | null | undefined> | null | undefined;
+};
+
 export type PostFilter = {
   livePreview?: StringFilter | null | undefined;
   title?: StringFilter | null | undefined;
+  body?: PostBodyFilter | null | undefined;
   draft?: BooleanFilter | null | undefined;
   date?: DatetimeFilter | null | undefined;
   categories?: StringFilter | null | undefined;
   image?: ImageFilter | null | undefined;
+  imageFocus?: StringFilter | null | undefined;
   excerpt?: StringFilter | null | undefined;
-  body?: PostBodyFilter | null | undefined;
   publishDate?: DatetimeFilter | null | undefined;
   description?: StringFilter | null | undefined;
   featured?: BooleanFilter | null | undefined;
@@ -1763,6 +1869,7 @@ export type PageBodyFilter = {
 
 export type PageBlocksHeroFilter = {
   image?: ImageFilter | null | undefined;
+  focus?: StringFilter | null | undefined;
   heading?: StringFilter | null | undefined;
   text?: StringFilter | null | undefined;
   buttonLabel?: StringFilter | null | undefined;
@@ -1782,6 +1889,8 @@ export type PageBlocksTextFilter = {
 
 export type PageBlocksImageTextFilter = {
   image?: ImageFilter | null | undefined;
+  focus?: StringFilter | null | undefined;
+  ratio?: StringFilter | null | undefined;
   alt?: StringFilter | null | undefined;
   heading?: StringFilter | null | undefined;
   text?: StringFilter | null | undefined;
@@ -1793,6 +1902,7 @@ export type PageBlocksImageTextFilter = {
 
 export type PageBlocksGalleryImagesFilter = {
   src?: ImageFilter | null | undefined;
+  focus?: StringFilter | null | undefined;
   alt?: StringFilter | null | undefined;
   caption?: StringFilter | null | undefined;
 };
@@ -1801,11 +1911,14 @@ export type PageBlocksGalleryFilter = {
   title?: StringFilter | null | undefined;
   perRow?: StringFilter | null | undefined;
   images?: PageBlocksGalleryImagesFilter | null | undefined;
+  ratio?: StringFilter | null | undefined;
   background?: StringFilter | null | undefined;
 };
 
 export type PageBlocksFeatureFilter = {
   image?: ImageFilter | null | undefined;
+  focus?: StringFilter | null | undefined;
+  ratio?: StringFilter | null | undefined;
   eyebrow?: StringFilter | null | undefined;
   heading?: StringFilter | null | undefined;
   text?: StringFilter | null | undefined;
@@ -1894,6 +2007,14 @@ export type PageBlocksColumnsFilter = {
   background?: StringFilter | null | undefined;
 };
 
+export type PageBlocksFormFilter = {
+  title?: StringFilter | null | undefined;
+  intro?: StringFilter | null | undefined;
+  buttonLabel?: StringFilter | null | undefined;
+  successText?: StringFilter | null | undefined;
+  background?: StringFilter | null | undefined;
+};
+
 export type PageBlocksSpacerFilter = {
   size?: StringFilter | null | undefined;
 };
@@ -1912,6 +2033,7 @@ export type PageBlocksFilter = {
   categoryTiles?: PageBlocksCategoryTilesFilter | null | undefined;
   faq?: PageBlocksFaqFilter | null | undefined;
   columns?: PageBlocksColumnsFilter | null | undefined;
+  form?: PageBlocksFormFilter | null | undefined;
   spacer?: PageBlocksSpacerFilter | null | undefined;
 };
 
@@ -1929,6 +2051,7 @@ export type PageFilter = {
 
 export type HomeBlocksHeroFilter = {
   image?: ImageFilter | null | undefined;
+  focus?: StringFilter | null | undefined;
   heading?: StringFilter | null | undefined;
   text?: StringFilter | null | undefined;
   buttonLabel?: StringFilter | null | undefined;
@@ -1948,6 +2071,8 @@ export type HomeBlocksTextFilter = {
 
 export type HomeBlocksImageTextFilter = {
   image?: ImageFilter | null | undefined;
+  focus?: StringFilter | null | undefined;
+  ratio?: StringFilter | null | undefined;
   alt?: StringFilter | null | undefined;
   heading?: StringFilter | null | undefined;
   text?: StringFilter | null | undefined;
@@ -1959,6 +2084,7 @@ export type HomeBlocksImageTextFilter = {
 
 export type HomeBlocksGalleryImagesFilter = {
   src?: ImageFilter | null | undefined;
+  focus?: StringFilter | null | undefined;
   alt?: StringFilter | null | undefined;
   caption?: StringFilter | null | undefined;
 };
@@ -1967,11 +2093,14 @@ export type HomeBlocksGalleryFilter = {
   title?: StringFilter | null | undefined;
   perRow?: StringFilter | null | undefined;
   images?: HomeBlocksGalleryImagesFilter | null | undefined;
+  ratio?: StringFilter | null | undefined;
   background?: StringFilter | null | undefined;
 };
 
 export type HomeBlocksFeatureFilter = {
   image?: ImageFilter | null | undefined;
+  focus?: StringFilter | null | undefined;
+  ratio?: StringFilter | null | undefined;
   eyebrow?: StringFilter | null | undefined;
   heading?: StringFilter | null | undefined;
   text?: StringFilter | null | undefined;
@@ -2050,6 +2179,14 @@ export type HomeBlocksColumnsFilter = {
   background?: StringFilter | null | undefined;
 };
 
+export type HomeBlocksFormFilter = {
+  title?: StringFilter | null | undefined;
+  intro?: StringFilter | null | undefined;
+  buttonLabel?: StringFilter | null | undefined;
+  successText?: StringFilter | null | undefined;
+  background?: StringFilter | null | undefined;
+};
+
 export type HomeBlocksSpacerFilter = {
   size?: StringFilter | null | undefined;
 };
@@ -2068,6 +2205,7 @@ export type HomeBlocksFilter = {
   categoryTiles?: HomeBlocksCategoryTilesFilter | null | undefined;
   faq?: HomeBlocksFaqFilter | null | undefined;
   columns?: HomeBlocksColumnsFilter | null | undefined;
+  form?: HomeBlocksFormFilter | null | undefined;
   spacer?: HomeBlocksSpacerFilter | null | undefined;
 };
 
@@ -2103,6 +2241,7 @@ export type SettingsAnnouncementFilter = {
   show?: BooleanFilter | null | undefined;
   text?: StringFilter | null | undefined;
   linkText?: StringFilter | null | undefined;
+  linkUrl?: StringFilter | null | undefined;
 };
 
 export type SettingsClassCardFilter = {
@@ -2128,18 +2267,19 @@ export type SettingsFilter = {
   announcement?: SettingsAnnouncementFilter | null | undefined;
   classCard?: SettingsClassCardFilter | null | undefined;
   mobileCta?: StringFilter | null | undefined;
+  formsKey?: StringFilter | null | undefined;
   footerText?: StringFilter | null | undefined;
   social?: SettingsSocialFilter | null | undefined;
 };
 
-export type PostPartsFragment = { __typename: 'Post', livePreview: string | null, title: string, draft: boolean | null, date: string, categories: Array<string | null> | null, image: string | null, excerpt: string | null, body: TinaMarkdownContent | null, publishDate: string | null, description: string | null, featured: boolean | null };
+export type PostPartsFragment = { __typename: 'Post', livePreview: string | null, title: string, body: TinaMarkdownContent | null, draft: boolean | null, date: string, categories: Array<string | null> | null, image: string | null, imageFocus: string | null, excerpt: string | null, publishDate: string | null, description: string | null, featured: boolean | null };
 
 export type PagePartsFragment = { __typename: 'Page', livePreview: string | null, title: string, layout: string | null, image: string | null, body: TinaMarkdownContent | null, showRegisterCta: boolean | null, description: string | null, draft: boolean | null, blocks: Array<
-    | { __typename: 'PageBlocksHero', image: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, button2Label: string | null, button2Url: string | null, height: string | null }
+    | { __typename: 'PageBlocksHero', image: string | null, focus: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, button2Label: string | null, button2Url: string | null, height: string | null }
     | { __typename: 'PageBlocksText', heading: string | null, text: string | null, align: string | null, width: string | null, background: string | null }
-    | { __typename: 'PageBlocksImageText', image: string | null, alt: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, imageSide: string | null, background: string | null }
-    | { __typename: 'PageBlocksGallery', title: string | null, perRow: string | null, background: string | null, images: Array<{ __typename: 'PageBlocksGalleryImages', src: string | null, alt: string | null, caption: string | null } | null> | null }
-    | { __typename: 'PageBlocksFeature', image: string | null, eyebrow: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, linkLabel: string | null, linkUrl: string | null, background: string | null }
+    | { __typename: 'PageBlocksImageText', image: string | null, focus: string | null, ratio: string | null, alt: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, imageSide: string | null, background: string | null }
+    | { __typename: 'PageBlocksGallery', title: string | null, perRow: string | null, ratio: string | null, background: string | null, images: Array<{ __typename: 'PageBlocksGalleryImages', src: string | null, focus: string | null, alt: string | null, caption: string | null } | null> | null }
+    | { __typename: 'PageBlocksFeature', image: string | null, focus: string | null, ratio: string | null, eyebrow: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, linkLabel: string | null, linkUrl: string | null, background: string | null }
     | { __typename: 'PageBlocksCta', heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, style: string | null }
     | { __typename: 'PageBlocksVideo', url: string | null, file: string | null, caption: string | null, background: string | null }
     | { __typename: 'PageBlocksQuote', text: string | null, author: string | null, background: string | null }
@@ -2148,15 +2288,16 @@ export type PagePartsFragment = { __typename: 'Page', livePreview: string | null
     | { __typename: 'PageBlocksCategoryTiles', title: string | null, background: string | null, tiles: Array<{ __typename: 'PageBlocksCategoryTilesTiles', label: string | null, slug: string | null, image: string | null } | null> | null }
     | { __typename: 'PageBlocksFaq', title: string | null, background: string | null, questions: Array<{ __typename: 'PageBlocksFaqQuestions', question: string | null, answer: string | null } | null> | null }
     | { __typename: 'PageBlocksColumns', title: string | null, background: string | null, points: Array<{ __typename: 'PageBlocksColumnsPoints', icon: string | null, heading: string | null, text: string | null } | null> | null }
+    | { __typename: 'PageBlocksForm', title: string | null, intro: string | null, buttonLabel: string | null, successText: string | null, background: string | null }
     | { __typename: 'PageBlocksSpacer', size: string | null }
    | null> | null };
 
 export type HomePartsFragment = { __typename: 'Home', livePreview: string | null, title: string, layout: string | null, description: string | null, blocks: Array<
-    | { __typename: 'HomeBlocksHero', image: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, button2Label: string | null, button2Url: string | null, height: string | null }
+    | { __typename: 'HomeBlocksHero', image: string | null, focus: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, button2Label: string | null, button2Url: string | null, height: string | null }
     | { __typename: 'HomeBlocksText', heading: string | null, text: string | null, align: string | null, width: string | null, background: string | null }
-    | { __typename: 'HomeBlocksImageText', image: string | null, alt: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, imageSide: string | null, background: string | null }
-    | { __typename: 'HomeBlocksGallery', title: string | null, perRow: string | null, background: string | null, images: Array<{ __typename: 'HomeBlocksGalleryImages', src: string | null, alt: string | null, caption: string | null } | null> | null }
-    | { __typename: 'HomeBlocksFeature', image: string | null, eyebrow: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, linkLabel: string | null, linkUrl: string | null, background: string | null }
+    | { __typename: 'HomeBlocksImageText', image: string | null, focus: string | null, ratio: string | null, alt: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, imageSide: string | null, background: string | null }
+    | { __typename: 'HomeBlocksGallery', title: string | null, perRow: string | null, ratio: string | null, background: string | null, images: Array<{ __typename: 'HomeBlocksGalleryImages', src: string | null, focus: string | null, alt: string | null, caption: string | null } | null> | null }
+    | { __typename: 'HomeBlocksFeature', image: string | null, focus: string | null, ratio: string | null, eyebrow: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, linkLabel: string | null, linkUrl: string | null, background: string | null }
     | { __typename: 'HomeBlocksCta', heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, style: string | null }
     | { __typename: 'HomeBlocksVideo', url: string | null, file: string | null, caption: string | null, background: string | null }
     | { __typename: 'HomeBlocksQuote', text: string | null, author: string | null, background: string | null }
@@ -2165,17 +2306,18 @@ export type HomePartsFragment = { __typename: 'Home', livePreview: string | null
     | { __typename: 'HomeBlocksCategoryTiles', title: string | null, background: string | null, tiles: Array<{ __typename: 'HomeBlocksCategoryTilesTiles', label: string | null, slug: string | null, image: string | null } | null> | null }
     | { __typename: 'HomeBlocksFaq', title: string | null, background: string | null, questions: Array<{ __typename: 'HomeBlocksFaqQuestions', question: string | null, answer: string | null } | null> | null }
     | { __typename: 'HomeBlocksColumns', title: string | null, background: string | null, points: Array<{ __typename: 'HomeBlocksColumnsPoints', icon: string | null, heading: string | null, text: string | null } | null> | null }
+    | { __typename: 'HomeBlocksForm', title: string | null, intro: string | null, buttonLabel: string | null, successText: string | null, background: string | null }
     | { __typename: 'HomeBlocksSpacer', size: string | null }
    | null> | null };
 
-export type SettingsPartsFragment = { __typename: 'Settings', livePreview: string | null, siteTitle: string | null, logo: string | null, tagline: string | null, registerUrl: string | null, mobileCta: string | null, footerText: string | null, theme: { __typename: 'SettingsTheme', accent: string | null, dark: string | null, text: string | null, soft: string | null, headingFont: string | null, bodyFont: string | null } | null, nav: Array<{ __typename: 'SettingsNav', label: string, href: string, children: Array<{ __typename: 'SettingsNavChildren', label: string, href: string } | null> | null } | null> | null, announcement: { __typename: 'SettingsAnnouncement', show: boolean | null, text: string | null, linkText: string | null } | null, classCard: { __typename: 'SettingsClassCard', label: string | null, text: string | null, buttonText: string | null, stickyText: string | null } | null, social: Array<{ __typename: 'SettingsSocial', label: string | null, url: string | null } | null> | null };
+export type SettingsPartsFragment = { __typename: 'Settings', livePreview: string | null, siteTitle: string | null, logo: string | null, tagline: string | null, registerUrl: string | null, mobileCta: string | null, formsKey: string | null, footerText: string | null, theme: { __typename: 'SettingsTheme', accent: string | null, dark: string | null, text: string | null, soft: string | null, headingFont: string | null, bodyFont: string | null } | null, nav: Array<{ __typename: 'SettingsNav', label: string, href: string, children: Array<{ __typename: 'SettingsNavChildren', label: string, href: string } | null> | null } | null> | null, announcement: { __typename: 'SettingsAnnouncement', show: boolean | null, text: string | null, linkText: string | null, linkUrl: string | null } | null, classCard: { __typename: 'SettingsClassCard', label: string | null, text: string | null, buttonText: string | null, stickyText: string | null } | null, social: Array<{ __typename: 'SettingsSocial', label: string | null, url: string | null } | null> | null };
 
 export type PostQueryVariables = Exact<{
   relativePath: string;
 }>;
 
 
-export type PostQuery = { post: { __typename: 'Post', id: string, livePreview: string | null, title: string, draft: boolean | null, date: string, categories: Array<string | null> | null, image: string | null, excerpt: string | null, body: TinaMarkdownContent | null, publishDate: string | null, description: string | null, featured: boolean | null, _sys: { filename: string, basename: string, hasReferences: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } };
+export type PostQuery = { post: { __typename: 'Post', id: string, livePreview: string | null, title: string, body: TinaMarkdownContent | null, draft: boolean | null, date: string, categories: Array<string | null> | null, image: string | null, imageFocus: string | null, excerpt: string | null, publishDate: string | null, description: string | null, featured: boolean | null, _sys: { filename: string, basename: string, hasReferences: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } };
 
 export type PostConnectionQueryVariables = Exact<{
   before?: string | null | undefined;
@@ -2187,7 +2329,7 @@ export type PostConnectionQueryVariables = Exact<{
 }>;
 
 
-export type PostConnectionQuery = { postConnection: { totalCount: number, pageInfo: { hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges: Array<{ cursor: string, node: { __typename: 'Post', id: string, livePreview: string | null, title: string, draft: boolean | null, date: string, categories: Array<string | null> | null, image: string | null, excerpt: string | null, body: TinaMarkdownContent | null, publishDate: string | null, description: string | null, featured: boolean | null, _sys: { filename: string, basename: string, hasReferences: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } | null } | null> | null } };
+export type PostConnectionQuery = { postConnection: { totalCount: number, pageInfo: { hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges: Array<{ cursor: string, node: { __typename: 'Post', id: string, livePreview: string | null, title: string, body: TinaMarkdownContent | null, draft: boolean | null, date: string, categories: Array<string | null> | null, image: string | null, imageFocus: string | null, excerpt: string | null, publishDate: string | null, description: string | null, featured: boolean | null, _sys: { filename: string, basename: string, hasReferences: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } | null } | null> | null } };
 
 export type PageQueryVariables = Exact<{
   relativePath: string;
@@ -2195,11 +2337,11 @@ export type PageQueryVariables = Exact<{
 
 
 export type PageQuery = { page: { __typename: 'Page', id: string, livePreview: string | null, title: string, layout: string | null, image: string | null, body: TinaMarkdownContent | null, showRegisterCta: boolean | null, description: string | null, draft: boolean | null, _sys: { filename: string, basename: string, hasReferences: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, blocks: Array<
-      | { __typename: 'PageBlocksHero', image: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, button2Label: string | null, button2Url: string | null, height: string | null }
+      | { __typename: 'PageBlocksHero', image: string | null, focus: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, button2Label: string | null, button2Url: string | null, height: string | null }
       | { __typename: 'PageBlocksText', heading: string | null, text: string | null, align: string | null, width: string | null, background: string | null }
-      | { __typename: 'PageBlocksImageText', image: string | null, alt: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, imageSide: string | null, background: string | null }
-      | { __typename: 'PageBlocksGallery', title: string | null, perRow: string | null, background: string | null, images: Array<{ __typename: 'PageBlocksGalleryImages', src: string | null, alt: string | null, caption: string | null } | null> | null }
-      | { __typename: 'PageBlocksFeature', image: string | null, eyebrow: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, linkLabel: string | null, linkUrl: string | null, background: string | null }
+      | { __typename: 'PageBlocksImageText', image: string | null, focus: string | null, ratio: string | null, alt: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, imageSide: string | null, background: string | null }
+      | { __typename: 'PageBlocksGallery', title: string | null, perRow: string | null, ratio: string | null, background: string | null, images: Array<{ __typename: 'PageBlocksGalleryImages', src: string | null, focus: string | null, alt: string | null, caption: string | null } | null> | null }
+      | { __typename: 'PageBlocksFeature', image: string | null, focus: string | null, ratio: string | null, eyebrow: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, linkLabel: string | null, linkUrl: string | null, background: string | null }
       | { __typename: 'PageBlocksCta', heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, style: string | null }
       | { __typename: 'PageBlocksVideo', url: string | null, file: string | null, caption: string | null, background: string | null }
       | { __typename: 'PageBlocksQuote', text: string | null, author: string | null, background: string | null }
@@ -2208,6 +2350,7 @@ export type PageQuery = { page: { __typename: 'Page', id: string, livePreview: s
       | { __typename: 'PageBlocksCategoryTiles', title: string | null, background: string | null, tiles: Array<{ __typename: 'PageBlocksCategoryTilesTiles', label: string | null, slug: string | null, image: string | null } | null> | null }
       | { __typename: 'PageBlocksFaq', title: string | null, background: string | null, questions: Array<{ __typename: 'PageBlocksFaqQuestions', question: string | null, answer: string | null } | null> | null }
       | { __typename: 'PageBlocksColumns', title: string | null, background: string | null, points: Array<{ __typename: 'PageBlocksColumnsPoints', icon: string | null, heading: string | null, text: string | null } | null> | null }
+      | { __typename: 'PageBlocksForm', title: string | null, intro: string | null, buttonLabel: string | null, successText: string | null, background: string | null }
       | { __typename: 'PageBlocksSpacer', size: string | null }
      | null> | null } };
 
@@ -2222,11 +2365,11 @@ export type PageConnectionQueryVariables = Exact<{
 
 
 export type PageConnectionQuery = { pageConnection: { totalCount: number, pageInfo: { hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges: Array<{ cursor: string, node: { __typename: 'Page', id: string, livePreview: string | null, title: string, layout: string | null, image: string | null, body: TinaMarkdownContent | null, showRegisterCta: boolean | null, description: string | null, draft: boolean | null, _sys: { filename: string, basename: string, hasReferences: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, blocks: Array<
-          | { __typename: 'PageBlocksHero', image: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, button2Label: string | null, button2Url: string | null, height: string | null }
+          | { __typename: 'PageBlocksHero', image: string | null, focus: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, button2Label: string | null, button2Url: string | null, height: string | null }
           | { __typename: 'PageBlocksText', heading: string | null, text: string | null, align: string | null, width: string | null, background: string | null }
-          | { __typename: 'PageBlocksImageText', image: string | null, alt: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, imageSide: string | null, background: string | null }
-          | { __typename: 'PageBlocksGallery', title: string | null, perRow: string | null, background: string | null, images: Array<{ __typename: 'PageBlocksGalleryImages', src: string | null, alt: string | null, caption: string | null } | null> | null }
-          | { __typename: 'PageBlocksFeature', image: string | null, eyebrow: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, linkLabel: string | null, linkUrl: string | null, background: string | null }
+          | { __typename: 'PageBlocksImageText', image: string | null, focus: string | null, ratio: string | null, alt: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, imageSide: string | null, background: string | null }
+          | { __typename: 'PageBlocksGallery', title: string | null, perRow: string | null, ratio: string | null, background: string | null, images: Array<{ __typename: 'PageBlocksGalleryImages', src: string | null, focus: string | null, alt: string | null, caption: string | null } | null> | null }
+          | { __typename: 'PageBlocksFeature', image: string | null, focus: string | null, ratio: string | null, eyebrow: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, linkLabel: string | null, linkUrl: string | null, background: string | null }
           | { __typename: 'PageBlocksCta', heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, style: string | null }
           | { __typename: 'PageBlocksVideo', url: string | null, file: string | null, caption: string | null, background: string | null }
           | { __typename: 'PageBlocksQuote', text: string | null, author: string | null, background: string | null }
@@ -2235,6 +2378,7 @@ export type PageConnectionQuery = { pageConnection: { totalCount: number, pageIn
           | { __typename: 'PageBlocksCategoryTiles', title: string | null, background: string | null, tiles: Array<{ __typename: 'PageBlocksCategoryTilesTiles', label: string | null, slug: string | null, image: string | null } | null> | null }
           | { __typename: 'PageBlocksFaq', title: string | null, background: string | null, questions: Array<{ __typename: 'PageBlocksFaqQuestions', question: string | null, answer: string | null } | null> | null }
           | { __typename: 'PageBlocksColumns', title: string | null, background: string | null, points: Array<{ __typename: 'PageBlocksColumnsPoints', icon: string | null, heading: string | null, text: string | null } | null> | null }
+          | { __typename: 'PageBlocksForm', title: string | null, intro: string | null, buttonLabel: string | null, successText: string | null, background: string | null }
           | { __typename: 'PageBlocksSpacer', size: string | null }
          | null> | null } | null } | null> | null } };
 
@@ -2244,11 +2388,11 @@ export type HomeQueryVariables = Exact<{
 
 
 export type HomeQuery = { home: { __typename: 'Home', id: string, livePreview: string | null, title: string, layout: string | null, description: string | null, _sys: { filename: string, basename: string, hasReferences: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, blocks: Array<
-      | { __typename: 'HomeBlocksHero', image: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, button2Label: string | null, button2Url: string | null, height: string | null }
+      | { __typename: 'HomeBlocksHero', image: string | null, focus: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, button2Label: string | null, button2Url: string | null, height: string | null }
       | { __typename: 'HomeBlocksText', heading: string | null, text: string | null, align: string | null, width: string | null, background: string | null }
-      | { __typename: 'HomeBlocksImageText', image: string | null, alt: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, imageSide: string | null, background: string | null }
-      | { __typename: 'HomeBlocksGallery', title: string | null, perRow: string | null, background: string | null, images: Array<{ __typename: 'HomeBlocksGalleryImages', src: string | null, alt: string | null, caption: string | null } | null> | null }
-      | { __typename: 'HomeBlocksFeature', image: string | null, eyebrow: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, linkLabel: string | null, linkUrl: string | null, background: string | null }
+      | { __typename: 'HomeBlocksImageText', image: string | null, focus: string | null, ratio: string | null, alt: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, imageSide: string | null, background: string | null }
+      | { __typename: 'HomeBlocksGallery', title: string | null, perRow: string | null, ratio: string | null, background: string | null, images: Array<{ __typename: 'HomeBlocksGalleryImages', src: string | null, focus: string | null, alt: string | null, caption: string | null } | null> | null }
+      | { __typename: 'HomeBlocksFeature', image: string | null, focus: string | null, ratio: string | null, eyebrow: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, linkLabel: string | null, linkUrl: string | null, background: string | null }
       | { __typename: 'HomeBlocksCta', heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, style: string | null }
       | { __typename: 'HomeBlocksVideo', url: string | null, file: string | null, caption: string | null, background: string | null }
       | { __typename: 'HomeBlocksQuote', text: string | null, author: string | null, background: string | null }
@@ -2257,6 +2401,7 @@ export type HomeQuery = { home: { __typename: 'Home', id: string, livePreview: s
       | { __typename: 'HomeBlocksCategoryTiles', title: string | null, background: string | null, tiles: Array<{ __typename: 'HomeBlocksCategoryTilesTiles', label: string | null, slug: string | null, image: string | null } | null> | null }
       | { __typename: 'HomeBlocksFaq', title: string | null, background: string | null, questions: Array<{ __typename: 'HomeBlocksFaqQuestions', question: string | null, answer: string | null } | null> | null }
       | { __typename: 'HomeBlocksColumns', title: string | null, background: string | null, points: Array<{ __typename: 'HomeBlocksColumnsPoints', icon: string | null, heading: string | null, text: string | null } | null> | null }
+      | { __typename: 'HomeBlocksForm', title: string | null, intro: string | null, buttonLabel: string | null, successText: string | null, background: string | null }
       | { __typename: 'HomeBlocksSpacer', size: string | null }
      | null> | null } };
 
@@ -2271,11 +2416,11 @@ export type HomeConnectionQueryVariables = Exact<{
 
 
 export type HomeConnectionQuery = { homeConnection: { totalCount: number, pageInfo: { hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges: Array<{ cursor: string, node: { __typename: 'Home', id: string, livePreview: string | null, title: string, layout: string | null, description: string | null, _sys: { filename: string, basename: string, hasReferences: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, blocks: Array<
-          | { __typename: 'HomeBlocksHero', image: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, button2Label: string | null, button2Url: string | null, height: string | null }
+          | { __typename: 'HomeBlocksHero', image: string | null, focus: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, button2Label: string | null, button2Url: string | null, height: string | null }
           | { __typename: 'HomeBlocksText', heading: string | null, text: string | null, align: string | null, width: string | null, background: string | null }
-          | { __typename: 'HomeBlocksImageText', image: string | null, alt: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, imageSide: string | null, background: string | null }
-          | { __typename: 'HomeBlocksGallery', title: string | null, perRow: string | null, background: string | null, images: Array<{ __typename: 'HomeBlocksGalleryImages', src: string | null, alt: string | null, caption: string | null } | null> | null }
-          | { __typename: 'HomeBlocksFeature', image: string | null, eyebrow: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, linkLabel: string | null, linkUrl: string | null, background: string | null }
+          | { __typename: 'HomeBlocksImageText', image: string | null, focus: string | null, ratio: string | null, alt: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, imageSide: string | null, background: string | null }
+          | { __typename: 'HomeBlocksGallery', title: string | null, perRow: string | null, ratio: string | null, background: string | null, images: Array<{ __typename: 'HomeBlocksGalleryImages', src: string | null, focus: string | null, alt: string | null, caption: string | null } | null> | null }
+          | { __typename: 'HomeBlocksFeature', image: string | null, focus: string | null, ratio: string | null, eyebrow: string | null, heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, linkLabel: string | null, linkUrl: string | null, background: string | null }
           | { __typename: 'HomeBlocksCta', heading: string | null, text: string | null, buttonLabel: string | null, buttonUrl: string | null, style: string | null }
           | { __typename: 'HomeBlocksVideo', url: string | null, file: string | null, caption: string | null, background: string | null }
           | { __typename: 'HomeBlocksQuote', text: string | null, author: string | null, background: string | null }
@@ -2284,6 +2429,7 @@ export type HomeConnectionQuery = { homeConnection: { totalCount: number, pageIn
           | { __typename: 'HomeBlocksCategoryTiles', title: string | null, background: string | null, tiles: Array<{ __typename: 'HomeBlocksCategoryTilesTiles', label: string | null, slug: string | null, image: string | null } | null> | null }
           | { __typename: 'HomeBlocksFaq', title: string | null, background: string | null, questions: Array<{ __typename: 'HomeBlocksFaqQuestions', question: string | null, answer: string | null } | null> | null }
           | { __typename: 'HomeBlocksColumns', title: string | null, background: string | null, points: Array<{ __typename: 'HomeBlocksColumnsPoints', icon: string | null, heading: string | null, text: string | null } | null> | null }
+          | { __typename: 'HomeBlocksForm', title: string | null, intro: string | null, buttonLabel: string | null, successText: string | null, background: string | null }
           | { __typename: 'HomeBlocksSpacer', size: string | null }
          | null> | null } | null } | null> | null } };
 
@@ -2292,7 +2438,7 @@ export type SettingsQueryVariables = Exact<{
 }>;
 
 
-export type SettingsQuery = { settings: { __typename: 'Settings', id: string, livePreview: string | null, siteTitle: string | null, logo: string | null, tagline: string | null, registerUrl: string | null, mobileCta: string | null, footerText: string | null, _sys: { filename: string, basename: string, hasReferences: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, theme: { __typename: 'SettingsTheme', accent: string | null, dark: string | null, text: string | null, soft: string | null, headingFont: string | null, bodyFont: string | null } | null, nav: Array<{ __typename: 'SettingsNav', label: string, href: string, children: Array<{ __typename: 'SettingsNavChildren', label: string, href: string } | null> | null } | null> | null, announcement: { __typename: 'SettingsAnnouncement', show: boolean | null, text: string | null, linkText: string | null } | null, classCard: { __typename: 'SettingsClassCard', label: string | null, text: string | null, buttonText: string | null, stickyText: string | null } | null, social: Array<{ __typename: 'SettingsSocial', label: string | null, url: string | null } | null> | null } };
+export type SettingsQuery = { settings: { __typename: 'Settings', id: string, livePreview: string | null, siteTitle: string | null, logo: string | null, tagline: string | null, registerUrl: string | null, mobileCta: string | null, formsKey: string | null, footerText: string | null, _sys: { filename: string, basename: string, hasReferences: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, theme: { __typename: 'SettingsTheme', accent: string | null, dark: string | null, text: string | null, soft: string | null, headingFont: string | null, bodyFont: string | null } | null, nav: Array<{ __typename: 'SettingsNav', label: string, href: string, children: Array<{ __typename: 'SettingsNavChildren', label: string, href: string } | null> | null } | null> | null, announcement: { __typename: 'SettingsAnnouncement', show: boolean | null, text: string | null, linkText: string | null, linkUrl: string | null } | null, classCard: { __typename: 'SettingsClassCard', label: string | null, text: string | null, buttonText: string | null, stickyText: string | null } | null, social: Array<{ __typename: 'SettingsSocial', label: string | null, url: string | null } | null> | null } };
 
 export type SettingsConnectionQueryVariables = Exact<{
   before?: string | null | undefined;
@@ -2304,19 +2450,20 @@ export type SettingsConnectionQueryVariables = Exact<{
 }>;
 
 
-export type SettingsConnectionQuery = { settingsConnection: { totalCount: number, pageInfo: { hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges: Array<{ cursor: string, node: { __typename: 'Settings', id: string, livePreview: string | null, siteTitle: string | null, logo: string | null, tagline: string | null, registerUrl: string | null, mobileCta: string | null, footerText: string | null, _sys: { filename: string, basename: string, hasReferences: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, theme: { __typename: 'SettingsTheme', accent: string | null, dark: string | null, text: string | null, soft: string | null, headingFont: string | null, bodyFont: string | null } | null, nav: Array<{ __typename: 'SettingsNav', label: string, href: string, children: Array<{ __typename: 'SettingsNavChildren', label: string, href: string } | null> | null } | null> | null, announcement: { __typename: 'SettingsAnnouncement', show: boolean | null, text: string | null, linkText: string | null } | null, classCard: { __typename: 'SettingsClassCard', label: string | null, text: string | null, buttonText: string | null, stickyText: string | null } | null, social: Array<{ __typename: 'SettingsSocial', label: string | null, url: string | null } | null> | null } | null } | null> | null } };
+export type SettingsConnectionQuery = { settingsConnection: { totalCount: number, pageInfo: { hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges: Array<{ cursor: string, node: { __typename: 'Settings', id: string, livePreview: string | null, siteTitle: string | null, logo: string | null, tagline: string | null, registerUrl: string | null, mobileCta: string | null, formsKey: string | null, footerText: string | null, _sys: { filename: string, basename: string, hasReferences: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, theme: { __typename: 'SettingsTheme', accent: string | null, dark: string | null, text: string | null, soft: string | null, headingFont: string | null, bodyFont: string | null } | null, nav: Array<{ __typename: 'SettingsNav', label: string, href: string, children: Array<{ __typename: 'SettingsNavChildren', label: string, href: string } | null> | null } | null> | null, announcement: { __typename: 'SettingsAnnouncement', show: boolean | null, text: string | null, linkText: string | null, linkUrl: string | null } | null, classCard: { __typename: 'SettingsClassCard', label: string | null, text: string | null, buttonText: string | null, stickyText: string | null } | null, social: Array<{ __typename: 'SettingsSocial', label: string | null, url: string | null } | null> | null } | null } | null> | null } };
 
 export const PostPartsFragmentDoc = gql`
     fragment PostParts on Post {
   __typename
   livePreview
   title
+  body
   draft
   date
   categories
   image
+  imageFocus
   excerpt
-  body
   publishDate
   description
   featured
@@ -2337,6 +2484,7 @@ export const PagePartsFragmentDoc = gql`
     __typename
     ... on PageBlocksHero {
       image
+      focus
       heading
       text
       buttonLabel
@@ -2354,6 +2502,8 @@ export const PagePartsFragmentDoc = gql`
     }
     ... on PageBlocksImageText {
       image
+      focus
+      ratio
       alt
       heading
       text
@@ -2368,13 +2518,17 @@ export const PagePartsFragmentDoc = gql`
       images {
         __typename
         src
+        focus
         alt
         caption
       }
+      ratio
       background
     }
     ... on PageBlocksFeature {
       image
+      focus
+      ratio
       eyebrow
       heading
       text
@@ -2441,6 +2595,13 @@ export const PagePartsFragmentDoc = gql`
       }
       background
     }
+    ... on PageBlocksForm {
+      title
+      intro
+      buttonLabel
+      successText
+      background
+    }
     ... on PageBlocksSpacer {
       size
     }
@@ -2455,6 +2616,7 @@ export const HomePartsFragmentDoc = gql`
     __typename
     ... on HomeBlocksHero {
       image
+      focus
       heading
       text
       buttonLabel
@@ -2472,6 +2634,8 @@ export const HomePartsFragmentDoc = gql`
     }
     ... on HomeBlocksImageText {
       image
+      focus
+      ratio
       alt
       heading
       text
@@ -2486,13 +2650,17 @@ export const HomePartsFragmentDoc = gql`
       images {
         __typename
         src
+        focus
         alt
         caption
       }
+      ratio
       background
     }
     ... on HomeBlocksFeature {
       image
+      focus
+      ratio
       eyebrow
       heading
       text
@@ -2559,6 +2727,13 @@ export const HomePartsFragmentDoc = gql`
       }
       background
     }
+    ... on HomeBlocksForm {
+      title
+      intro
+      buttonLabel
+      successText
+      background
+    }
     ... on HomeBlocksSpacer {
       size
     }
@@ -2600,6 +2775,7 @@ export const SettingsPartsFragmentDoc = gql`
     show
     text
     linkText
+    linkUrl
   }
   classCard {
     __typename
@@ -2609,6 +2785,7 @@ export const SettingsPartsFragmentDoc = gql`
     stickyText
   }
   mobileCta
+  formsKey
   footerText
   social {
     __typename
@@ -2919,7 +3096,7 @@ export const ExperimentalGetTinaClient = () =>
   getSdk(
     generateRequester(
       createClient({
-        url: "http://localhost:4001/graphql",
+        url: "http://localhost:4102/graphql",
         queries,
       })
     )

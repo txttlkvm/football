@@ -102,13 +102,13 @@ union DocumentNode = Post | Page | Home | Settings | Folder
 type Post implements Node & Document {
   livePreview: String
   title: String!
+  body: RichText
   draft: Boolean
   date: String!
   categories: [String]
   image: String
   imageFocus: String
   excerpt: String
-  body: RichText
   publishDate: String
   description: String
   featured: Boolean
@@ -119,19 +119,6 @@ type Post implements Node & Document {
 
 input StringFilter {
   startsWith: String
-  eq: String
-  exists: Boolean
-  in: [String]
-}
-
-input BooleanFilter {
-  eq: Boolean
-  exists: Boolean
-}
-
-input DatetimeFilter {
-  after: String
-  before: String
   eq: String
   exists: Boolean
   in: [String]
@@ -180,16 +167,29 @@ input PostBodyFilter {
   button: PostBodyButtonFilter
 }
 
+input BooleanFilter {
+  eq: Boolean
+  exists: Boolean
+}
+
+input DatetimeFilter {
+  after: String
+  before: String
+  eq: String
+  exists: Boolean
+  in: [String]
+}
+
 input PostFilter {
   livePreview: StringFilter
   title: StringFilter
+  body: PostBodyFilter
   draft: BooleanFilter
   date: DatetimeFilter
   categories: StringFilter
   image: ImageFilter
   imageFocus: StringFilter
   excerpt: StringFilter
-  body: PostBodyFilter
   publishDate: DatetimeFilter
   description: StringFilter
   featured: BooleanFilter
@@ -952,6 +952,7 @@ type SettingsAnnouncement {
   show: Boolean
   text: String
   linkText: String
+  linkUrl: String
 }
 
 type SettingsClassCard {
@@ -1009,6 +1010,7 @@ input SettingsAnnouncementFilter {
   show: BooleanFilter
   text: StringFilter
   linkText: StringFilter
+  linkUrl: StringFilter
 }
 
 input SettingsClassCardFilter {
@@ -1084,13 +1086,13 @@ input DocumentMutation {
 input PostMutation {
   livePreview: String
   title: String
+  body: RichText
   draft: Boolean
   date: String
   categories: [String]
   image: String
   imageFocus: String
   excerpt: String
-  body: RichText
   publishDate: String
   description: String
   featured: Boolean
@@ -1460,6 +1462,7 @@ input SettingsAnnouncementMutation {
   show: Boolean
   text: String
   linkText: String
+  linkUrl: String
 }
 
 input SettingsClassCardMutation {
