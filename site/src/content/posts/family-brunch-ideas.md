@@ -18,7 +18,7 @@ Here are three go-to family brunch ideas that check all the boxes: quick, tasty,
 
 * * *
 
-### **1\. Pancake Dippers with Fruit & Yogurt**
+### 1. Pancake Dippers with Fruit & Yogurt
 
 **Why it works:** Kids love to dip things, and pancakes are a classic win.
 
@@ -36,7 +36,7 @@ Here are three go-to family brunch ideas that check all the boxes: quick, tasty,
 
 * * *
 
-### **2\. Egg Muffin Cups**
+### 2. Egg Muffin Cups
 
 **Why it works:** They’re protein-packed, easy to hold, and endlessly customizable.
 
@@ -58,7 +58,7 @@ Here are three go-to family brunch ideas that check all the boxes: quick, tasty,
 
 * * *
 
-### **3\. DIY Breakfast** Burritos
+### 3. DIY Breakfast Burritos
 
 **Why it works:** Everyone builds their own = fewer complaints.
 

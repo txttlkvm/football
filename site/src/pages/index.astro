@@ -1,19 +1,24 @@
 ---
 import Base from '../layouts/Base.astro';
 import PostCard from '../components/PostCard.astro';
-import { allPosts, REGISTER_URL, settings } from '../content/site';
-const cats = [['motherhood','Motherhood','/img/happy-sweet-black-curly-millennial-mother-with-towel-kissing-little-baby-enjoy-motherhood.jpg'],['marriage','Marriage','/img/romantic-mature-black-couple-in-love.jpg'],['meals','Meals','/img/frozen-vegetables-prepared-for-quick-meals.jpg']];
+import { allPosts, REGISTER_URL, settings, fmt } from '../content/site';
+const s = settings;
+const featured = allPosts.find(p => p.featured);
+const recent = allPosts.filter(p => p !== featured).slice(0, s.recentPosts.count);
 ---
 <Base title="Home">
-<section class="hero"><div class="wrap"><h1>{settings.hero.title}</h1>
-<p>{settings.hero.intro}</p>
+<section class="hero" style={`--hero-img:url(${s.hero.image})`}><div class="wrap"><h1>{s.hero.title}</h1>
+<p>{s.hero.intro}</p>
 <a class="btn" href="/about-me/">About Me</a> <a class="btn btn-outline" href="/home-chefs/">Kids Cooking Classes</a></div></section>
-{settings.classCard.show&&<section class="section cream"><div class="wrap"><div class="feature">
-<img src="/img/breakfast-table-with-oatmeal-porridge-croissants-and-muffins.jpg" alt="" loading="lazy">
-<div><p class="eyebrow">{settings.classCard.label}</p><h2>{settings.classCard.title}</h2>
-<p>{settings.classCard.text}</p>
-<p><a class="btn" href={REGISTER_URL}>{settings.classCard.buttonText}</a> <a class="more" href="/home-chefs/">Learn more →</a></p></div></div></div></section>}
-<section class="section"><div class="wrap"><h2 class="title">Recent Posts</h2><div class="grid">{allPosts.slice(0,6).map(p=><PostCard post={p}/>)}</div></div></section>
-<section class="section cream"><div class="wrap"><h2 class="title">Categories</h2><div class="grid">
-{cats.map(([s,n,i])=>(<a class="card cat" href={`/category/${s}/`}><img src={i} alt="" loading="lazy"><div class="b">{n}</div></a>))}</div></div></section>
+{s.classCard.show&&<section class="section cream"><div class="wrap"><div class="feature">
+<img src={s.classCard.image} alt="" loading="lazy">
+<div><p class="eyebrow">{s.classCard.label}</p><h2>{s.classCard.title}</h2>
+<p>{s.classCard.text}</p>
+<p><a class="btn" href={REGISTER_URL}>{s.classCard.buttonText}</a> <a class="more" href="/home-chefs/">Learn more →</a></p></div></div></div></section>}
+{featured&&<section class="section"><div class="wrap"><h2 class="title">{s.featuredTitle}</h2><div class="feature">
+{featured.img&&<img src={featured.img} alt={featured.title} loading="lazy">}
+<div><p class="eyebrow">{fmt(featured.date)}</p><h2>{featured.title}</h2><p>{featured.excerpt}</p><p><a class="btn" href={`/${featured.slug}/`}>Read the post</a></p></div></div></div></section>}
+{s.recentPosts.show&&<section class="section"><div class="wrap"><h2 class="title">{s.recentPosts.title}</h2><div class="grid">{recent.map(p=><PostCard post={p}/>)}</div></div></section>}
+{s.categoriesSection.show&&<section class="section cream"><div class="wrap"><h2 class="title">{s.categoriesSection.title}</h2><div class="grid">
+{s.categoriesSection.items.map(c=>(<a class="card cat" href={`/category/${c.slug}/`}><img src={c.image} alt="" loading="lazy"><div class="b">{c.label}</div></a>))}</div></div></section>}
 </Base>
