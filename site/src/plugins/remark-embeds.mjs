@@ -7,8 +7,9 @@ const fixText = (t) => t.replace(/(https?:)÷/g, '$1//');   // the editor can tu
 function walk(node) {
   if (!node.children) return;
   node.children = node.children.map((ch) => {
-    if (ch.type === 'paragraph' && ch.children?.length === 1 && ch.children[0].type === 'text') {
-      const m = /^\{\{<\s*(\w+)\s+([\s\S]*?)\s*>\}\}$/.exec(ch.children[0].value.trim());
+    const flat = ch.type === 'paragraph' && ch.children?.every((c) => c.type === 'text' || (c.type === 'link' && c.children?.every((x) => x.type === 'text'))) ? ch.children.map((c) => (c.type === 'link' ? c.url : c.value)).join('') : null;
+    if (flat !== null) {
+      const m = /^\{\{<\s*(\w+)\s+([\s\S]*?)\s*>\}\}$/.exec(fixText(flat).trim());
       if (m && embeds[m[1]]) return { type: 'html', value: embeds[m[1]](attrsOf(m[2]), { posterFor }) };
     }
     if (ch.type === 'text') ch.value = fixText(ch.value);

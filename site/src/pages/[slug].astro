@@ -17,7 +17,7 @@ const snippet = plain.length > 155 ? plain.slice(0, 155).replace(/\s+\S*$/, '') 
 const description = (kind === 'post' ? p.description : d.description) || snippet;
 const cn = kind === 'post' ? p.cats.map(s => categories.find(c => c.slug === s)).filter(Boolean) : [];
 const img = d.image;
-const showImg = img && !(kind === 'post' && p.hasImg);
+const showImg = !!img;
 const url = new URL(Astro.url.pathname, Astro.site).href;
 const minutes = Math.max(1, Math.round(plain.split(' ').length / 200));
 const related = kind === 'post' ? allPosts.filter(x => x.slug !== p.slug && x.cats.some(c => p.cats.includes(c))).slice(0, 3) : [];
