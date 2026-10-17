@@ -12,13 +12,13 @@ const path = Astro.url.pathname;
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{full}</title><meta name="description" content={description}>
-<link rel="canonical" href={new URL(path, Astro.site)}><link rel="icon" type="image/png" href="/favicon.png"><link rel="apple-touch-icon" href="/favicon.png">
+<link rel="canonical" href={new URL(path, Astro.site)}><link rel="icon" type="image/png" href="/favicon.png"><link rel="apple-touch-icon" href="/icon-192.png"><link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#ff66c4">
 <meta property="og:title" content={full}><meta property="og:description" content={description}><meta property="og:image" content={new URL(image, Astro.site)}><meta property="og:type" content={ogType}><meta property="og:site_name" content={settings.siteTitle}><meta property="og:url" content={new URL(path, Astro.site)}><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content={new URL(image, Astro.site)}>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href={fontsUrl} rel="stylesheet"><style set:html={themeCss}></style>
 {jsonLd&&<script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>}
 <link rel="alternate" type="application/rss+xml" title={settings.siteTitle} href="/rss.xml">
-<script is:inline>document.documentElement.classList.add("js")</script>
+<script is:inline>document.documentElement.classList.add("js");if("serviceWorker" in navigator)addEventListener("load",function(){navigator.serviceWorker.register("/sw.js")})</script>
 </head><body>
 <a class="skip" href="#main">Skip to content</a>
 {settings.announcement.show&&<div class="announce" id="announce" hidden><p><strong>{settings.announcement.text}</strong> <a href={REGISTER_URL}>{settings.announcement.linkText}</a></p><button type="button" id="ax" aria-label="Dismiss announcement">×</button></div>}
