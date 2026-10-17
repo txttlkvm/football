@@ -34,7 +34,12 @@ el.addEventListener('focus',function(){send({type:'focus'})});
 el.addEventListener('input',function(){send({type:'text',path:el.getAttribute('data-e'),value:el.innerText.replace(/\\n/g,' ')})});
 el.addEventListener('blur',function(){send({type:'blur'})});
 el.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();el.blur()}});
-});})();`;
+});var tb=document.createElement('div');tb.style.cssText='position:absolute;z-index:99999;display:none;gap:2px;background:#2a1a24;border-radius:999px;padding:4px 6px;box-shadow:0 6px 20px rgba(0,0,0,.35)';
+[['\u2191','up','Move up'],['\u2193','down','Move down'],['\u29c9','dup','Duplicate'],['\u2715','del','Delete this section']].forEach(function(a){var b=document.createElement('button');b.textContent=a[0];b.title=a[2];b.setAttribute('aria-label',a[2]);b.dataset.op=a[1];b.style.cssText='all:unset;cursor:pointer;color:#fff;font:600 15px system-ui;padding:4px 9px;border-radius:999px';b.onmouseenter=function(){b.style.background='#ff66c4'};b.onmouseleave=function(){b.style.background='none'};tb.appendChild(b)});
+document.body.appendChild(tb);var cur=null;
+document.addEventListener('mouseover',function(e){var w=e.target.closest&&e.target.closest('.blk-wrap');if(!w||w===cur||tb.contains(e.target))return;cur=w;var r=w.getBoundingClientRect();tb.style.display='flex';tb.style.top=(scrollY+r.top+10)+'px';tb.style.left=Math.max(8,r.right-tb.offsetWidth-14)+'px'});
+tb.addEventListener('click',function(e){var b=e.target.closest('button');if(!b||!cur)return;send({type:'block',op:b.dataset.op,i:+cur.dataset.b})});
+})();`;
 
 async function build(kind: string, v: any, y = 0): Promise<string> {
   const c = await loadShell();
@@ -61,7 +66,7 @@ async function build(kind: string, v: any, y = 0): Promise<string> {
   return doc;
 }
 
-const pill = (on: boolean): React.CSSProperties => ({ font: 'inherit', fontSize: 13, padding: '5px 12px', borderRadius: 999, border: '1px solid ' + (on ? '#ec4815' : '#d8d8e0'), background: on ? '#fff1ec' : '#fff', color: on ? '#b93a10' : '#333', cursor: 'pointer' });
+const pill = (on: boolean): React.CSSProperties => ({ font: 'inherit', fontSize: 13, padding: '5px 12px', borderRadius: 999, border: '1px solid ' + (on ? '#b0246f' : '#d8d8e0'), background: on ? '#fff0f8' : '#fff', color: on ? '#8a1b5a' : '#333', cursor: 'pointer' });
 
 function Canvas({ kind, tinaForm, cms, inline }: any) {
   const ff = tinaForm?.finalForm ?? tinaForm;
@@ -69,7 +74,7 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
   const draftKey = 'tina-draft:' + formId;
   const [html, setHtml] = React.useState('');
   const [mode, setMode] = React.useState<'phone' | 'desktop'>(window.innerWidth >= 1000 ? 'desktop' : 'phone');
-  const [open, setOpen] = React.useState(window.innerWidth >= 700);
+  const [open, setOpen] = React.useState(true);
   const [w, setW] = React.useState(300);
   const [restore, setRestore] = React.useState<any>(() => { try { const r = JSON.parse(localStorage.getItem(draftKey) || 'null'); return r && r.t < pageStart && JSON.stringify(r.values) !== JSON.stringify(ff.getState().initialValues) ? r : null; } catch { return null; } });
   const wrap = React.useRef<HTMLDivElement>(null);
@@ -108,11 +113,13 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
         if (!navigator.onLine) { setAuto('Offline — your edits are kept on this device'); return; }
         try { setAuto('Saving…'); await ff.submit(); setAuto(ff.getState().dirty ? 'Not saved yet — your edits are kept on this device' : 'Auto-saved ✓ ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })); } catch (e) { setAuto('Could not auto-save — press Save'); }
       }, 30000);
-      try { if (s.submitSucceeded && !s.dirty) localStorage.removeItem(draftKey); else if (s.dirty) localStorage.setItem(draftKey, JSON.stringify({ t: Date.now(), values: s.values })); } catch (e) { /* storage unavailable */ }
+      try { if (s.submitSucceeded && !s.dirty) { localStorage.removeItem(draftKey); shell = null; setAuto('Saved ✓ — live on the website in about 1–2 minutes'); } else if (s.dirty) localStorage.setItem(draftKey, JSON.stringify({ t: Date.now(), values: s.values })); } catch (e) { /* storage unavailable */ }
     }, { values: true, dirty: true, submitSucceeded: true, submitting: true });
     const guard = (e: BeforeUnloadEvent) => { if (ff.getState().dirty) { e.preventDefault(); e.returnValue = ''; } };
+    const ks = (e: KeyboardEvent) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); ff.submit(); } };
+    window.addEventListener('keydown', ks);
     window.addEventListener('beforeunload', guard);
-    return () => { off(); clearTimeout(timer.current); clearTimeout(idle.current); window.removeEventListener('beforeunload', guard); };
+    return () => { off(); clearTimeout(timer.current); clearTimeout(idle.current); window.removeEventListener('beforeunload', guard); window.removeEventListener('keydown', ks); };
   }, [ff, schedule, draftKey]);
 
   React.useEffect(() => {
@@ -122,6 +129,14 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
       const ok = e.source === frame.current?.contentWindow || (pop.current && e.source === pop.current);
       if (!ok) return;
       if (m.type === 'scroll') scroll.current = m.y;
+      else if (m.type === 'block') {
+        const arr = [...(ff.getState().values.blocks || [])]; const i = m.i;
+        if (m.op === 'up' && i > 0) [arr[i - 1], arr[i]] = [arr[i], arr[i - 1]];
+        else if (m.op === 'down' && i < arr.length - 1) [arr[i + 1], arr[i]] = [arr[i], arr[i + 1]];
+        else if (m.op === 'dup') arr.splice(i + 1, 0, JSON.parse(JSON.stringify(arr[i])));
+        else if (m.op === 'del') { if (!window.confirm('Delete this section? You can press Reset to undo before saving.')) return; arr.splice(i, 1); }
+        ff.change('blocks', arr);
+      }
       else if (m.type === 'focus') typing.current = true;
       else if (m.type === 'blur') { typing.current = false; schedule(); }
       else if (m.type === 'text') { typing.current = true; ff.change(m.path, m.value); }
@@ -169,7 +184,7 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
   );
   const dismiss = () => { setTip(false); try { localStorage.setItem('tina-tip-seen', '1'); } catch (e) { /* ignore */ } };
   const controls = (
-    <div style={{ boxSizing: 'border-box', maxWidth: '100%', minWidth: 0, overflow: 'hidden', overflowWrap: 'anywhere', padding: 12, background: '#fff', border: '1px solid #e1e1ea', borderRadius: 10 }}>
+    <div style={{ boxSizing: 'border-box', width: '100%', maxWidth: 'calc(100vw - 32px)', minWidth: 0, overflow: 'hidden', overflowWrap: 'anywhere', padding: 12, background: '#fff', border: '1px solid #e1e1ea', borderRadius: 10 }}>
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
         <span style={{ display: 'inline-flex', border: '1px solid #e1e1ea', borderRadius: 999, overflow: 'hidden' }}>
           <button type="button" aria-label="Phone view" style={{ ...pill(mode === 'phone'), border: 0, borderRadius: 0 }} onClick={() => setMode('phone')}>📱 Phone</button>

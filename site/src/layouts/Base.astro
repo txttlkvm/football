@@ -1,12 +1,16 @@
 ---
 import '../styles/global.css';
+import '../styles/polish.css';
 import { nav, REGISTER_URL, settings } from '../content/site';
 const { title, description = "Diamond's blog on Marriage, Motherhood & Meals — sharing the knowledge God has given.", image = '/og.png', ogType = 'website', jsonLd = null } = Astro.props;
 const full = title === 'Home' ? `${settings.siteTitle} – ${settings.tagline.replace(/'/g, '\u2019')}` : `${title} – ${settings.siteTitle}`;
 const t = settings.theme;
 const fontsUrl = 'https://fonts.googleapis.com/css2?' + [...new Set([t.headingFont, t.bodyFont])].map(f => `family=${f.replace(/ /g, '+')}:wght@400;500;600;700`).join('&') + '&display=swap';
 const hex = (v, d) => (/^#[0-9a-f]{3,8}$/i.test(String(v)) ? v : d), fnt = (v, d) => (/^[\w ]{1,40}$/.test(String(v)) ? v : d);
-const themeCss = `html:root{--pink:${hex(t.accent, '#ff66c4')};--ink:${hex(t.dark, '#1a1a1a')};--text:${hex(t.text, '#444444')};--cream:${hex(t.soft, '#fcf5f0')};--font-head:"${fnt(t.headingFont, 'Outfit')}",system-ui,sans-serif;--font-body:"${fnt(t.bodyFont, 'Roboto')}",system-ui,sans-serif}`;
+const lum = (h) => { const c = h.replace('#', ''); const f = c.length === 3 ? c.split('').map((x) => x + x).join('') : c.slice(0, 6); return [0, 2, 4].map((i) => { const v = parseInt(f.slice(i, i + 2), 16) / 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }).reduce((a, v, i) => a + v * [0.2126, 0.7152, 0.0722][i], 0); };
+const deepen = (h) => { let c = h.replace('#', ''); if (c.length === 3) c = c.split('').map((x) => x + x).join(''); let rgb = [0, 2, 4].map((i) => parseInt(c.slice(i, i + 2), 16)); for (let n = 0; n < 40 && 1.05 / (lum('#' + rgb.map((v) => v.toString(16).padStart(2, '0')).join('')) + 0.05) < 4.6; n++) rgb = rgb.map((v) => Math.round(v * 0.94)); return '#' + rgb.map((v) => v.toString(16).padStart(2, '0')).join(''); };
+const accent = hex(t.accent, '#ff66c4'), btn = deepen(accent);
+const themeCss = `html:root{--btn:${btn};--accent-ink:${btn};--pink:${accent};--ink:${hex(t.dark, '#1a1a1a')};--text:${hex(t.text, '#444444')};--cream:${hex(t.soft, '#fcf5f0')};--font-head:"${fnt(t.headingFont, 'Outfit')}",system-ui,sans-serif;--font-body:"${fnt(t.bodyFont, 'Roboto')}",system-ui,sans-serif}`;
 const path = Astro.url.pathname;
 ---
 <!doctype html>
@@ -33,7 +37,7 @@ const path = Astro.url.pathname;
 {i.children&&<ul class="sub">{i.children.map(c=>(<li><a href={c.href}>{c.label}</a></li>))}</ul>}</li>))}
 <li class="nav-cta"><a class="btn pulse" href={REGISTER_URL} target="_blank" rel="noopener">Register</a></li></ul></nav></div></header>
 <main id="main"><slot/></main>
-<footer class="footer"><div class="wrap fcols"><div><img src={settings.logo} alt={settings.siteTitle} width="900" height="197" loading="lazy"><p>{settings.tagline}</p></div><nav aria-label="Footer"><strong>Explore</strong><ul>{nav.map(i=>(<li><a href={i.href}>{i.label}</a></li>))}</ul></nav><div><strong>Kids classes</strong><p><a class="btn" href={REGISTER_URL} target="_blank" rel="noopener">Register</a></p>{settings.social.length>0&&<p class="social">{settings.social.map(x=>(<a href={x.url} rel="noopener">{x.label}</a>))}</p>}</div></div><p class="copy"><a href="/rss.xml">RSS</a> · © {new Date().getFullYear()} {settings.footerText}</p></footer>
+<footer class="footer"><div class="wrap fcols"><div><img src={settings.logo} alt={settings.siteTitle} width="900" height="197" loading="lazy"><p>{settings.tagline}</p></div><nav aria-label="Footer"><strong>Explore</strong><ul>{nav.map(i=>(<li><a href={i.href}>{i.label}</a></li>))}</ul></nav><div><strong>Kids classes</strong><p><a class="btn" href={REGISTER_URL} target="_blank" rel="noopener">Register</a></p>{settings.social.length>0&&<p class="social">{settings.social.map(x=>(<a href={x.url} rel="noopener">{x.label}</a>))}</p>}</div></div><p class="copy"><a href="/blog/">All posts</a> · <a href="/rss.xml">RSS</a> · © {new Date().getFullYear()} {settings.footerText}</p></footer>
 <script is:inline>const a=document.getElementById('announce');if(a){try{if(!sessionStorage.getItem('ax'))a.hidden=false}catch(e){a.hidden=false}document.getElementById('ax').addEventListener('click',()=>{a.hidden=true;try{sessionStorage.setItem('ax','1')}catch(e){}})}const t=document.getElementById('tg'),m=document.getElementById('menu');const setM=o=>{m.classList.toggle('open',o);t.setAttribute('aria-expanded',o);t.setAttribute('aria-label',o?'Close menu':'Open menu');document.documentElement.classList.toggle('menu-open',o)};t.setAttribute('aria-label','Open menu');t.addEventListener('click',()=>setM(!m.classList.contains('open')));document.addEventListener('keydown',e=>{if(e.key==='Escape'&&m.classList.contains('open')){setM(false);t.focus()}});document.addEventListener('click',e=>{if(m.classList.contains('open')&&!m.contains(e.target)&&!t.contains(e.target))setM(false)})</script>
 <script is:inline>(function(){var hd=document.querySelector('.site-header');var sc=function(){hd.classList.toggle('scrolled',window.scrollY>8)};sc();window.addEventListener('scroll',sc,{passive:true});
 document.querySelectorAll('.grid').forEach(function(g){Array.prototype.forEach.call(g.children,function(c,i){c.style.setProperty('--d',(i%6)*70+'ms')})});
