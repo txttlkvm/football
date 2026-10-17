@@ -46,7 +46,25 @@ const link = [
   { type: 'string', name: 'label', label: 'Menu text', required: true },
   { type: 'string', name: 'href', label: 'Link (e.g. /about-me/ or https://…)', required: true },
 ] as any[];
+
+const SKIN = `@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+body,button,input,textarea,select{font-family:'Poppins',system-ui,sans-serif!important}
+:root{--tina-color-primary:#ff66c4}
+[class*="bg-orange"],[class*="from-orange"],[class*="to-orange"]{background:#ff66c4!important;background-image:none!important;border-color:#ff66c4!important;color:#fff!important}
+[class*="text-orange"]{color:#e0359f!important}[class*="border-orange"]{border-color:#ff66c4!important}
+[class*="orange"] svg{color:inherit}
+input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px rgba(255,102,196,.25)!important;border-color:#ff66c4!important}`;
+const cmsCallback = (cms: any) => {
+  try {
+    const st = document.createElement('style'); st.textContent = SKIN; document.head.appendChild(st);
+    const l = document.createElement('link'); l.rel = 'manifest'; l.href = '/admin-manifest.webmanifest'; document.head.appendChild(l);
+    const m = document.createElement('meta'); m.name = 'theme-color'; m.content = '#ff66c4'; document.head.appendChild(m);
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+  } catch (e) { /* cosmetic only */ }
+  return cms;
+};
 export default defineConfig({
+  cmsCallback,
   branch,
   clientId: '01789bf2-d73e-4861-a4f9-5960dbbd6392',
   token: process.env.TINA_TOKEN,

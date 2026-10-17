@@ -76,6 +76,8 @@ function Panel({ kind, tinaForm }: { kind: string; tinaForm: any }) {
   const typing = React.useRef(false);
   const scroll = React.useRef(0);
   const latest = React.useRef('');
+  const [auto, setAuto] = React.useState<string>('');
+  const idle = React.useRef<any>();
 
   const push = React.useCallback((doc: string) => {
     latest.current = doc;
@@ -96,11 +98,13 @@ function Panel({ kind, tinaForm }: { kind: string; tinaForm: any }) {
     schedule();
     const off = ff.subscribe((s: any) => {
       schedule();
+      clearTimeout(idle.current);
+      if (s.dirty && !s.submitting) idle.current = setTimeout(async () => { try { setAuto('Saving…'); await ff.submit(); setAuto('Auto-saved ✓ ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })); } catch (e) { setAuto('Could not auto-save — press Save'); } }, 30000);
       try { if (s.submitSucceeded && !s.dirty) localStorage.removeItem(draftKey); else if (s.dirty) localStorage.setItem(draftKey, JSON.stringify({ t: Date.now(), values: s.values })); } catch (e) { /* storage unavailable */ }
-    }, { values: true, dirty: true, submitSucceeded: true });
+    }, { values: true, dirty: true, submitSucceeded: true, submitting: true });
     const guard = (e: BeforeUnloadEvent) => { if (ff.getState().dirty) { e.preventDefault(); e.returnValue = ''; } };
     window.addEventListener('beforeunload', guard);
-    return () => { off(); clearTimeout(timer.current); window.removeEventListener('beforeunload', guard); };
+    return () => { off(); clearTimeout(timer.current); clearTimeout(idle.current); window.removeEventListener('beforeunload', guard); };
   }, [ff, schedule, draftKey]);
 
   React.useEffect(() => {
@@ -154,6 +158,7 @@ function Panel({ kind, tinaForm }: { kind: string; tinaForm: any }) {
           <button type="button" style={pill(mode === 'desktop')} onClick={() => setMode('desktop')}>Desktop</button>
           <button type="button" style={pill(false)} onClick={popOut}>Open big ↗</button>
           <button type="button" style={pill(false)} onClick={() => setOpen(!open)}>{open ? 'Hide' : 'Show'}</button>
+          <span style={{ marginLeft: 'auto', fontSize: 12, color: '#6b6b7b' }}>{auto || 'Changes save automatically'}</span>
         </div>
         {open && kind !== 'settings' && <div style={{ fontSize: 12, color: '#6b6b7b', marginBottom: 8 }}>Tip: click any text below to type on the page, or click a photo to change it.</div>}
         {open && (
