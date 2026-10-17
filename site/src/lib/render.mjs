@@ -3,7 +3,7 @@ import { marked } from 'marked';
 const YT = /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/;
 const VM = /vimeo\.com\/(?:video\/)?(\d+)/;
 export const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
-const TAGS = new Set('p br strong em b i u s a ul ol li h1 h2 h3 h4 h5 h6 blockquote hr code pre img span div table thead tbody tr th td figure figcaption sup sub mark'.split(' '));
+const TAGS = new Set('p br strong em b i u s a ul ol li h1 h2 h3 h4 h5 h6 blockquote hr code pre img span div table thead tbody tr th td figure figcaption sup sub mark details summary'.split(' '));
 const ATTR = { a: ['href', 'title', 'target', 'rel'], img: ['src', 'alt', 'title', 'width', 'height', 'loading'] };
 const safeUrl = (v) => { const d = String(v).replace(/&#x([0-9a-f]+);?/gi, (_, h) => String.fromCharCode(parseInt(h, 16))).replace(/&#(\d+);?/g, (_, n) => String.fromCharCode(+n)).replace(/&colon;/gi, ':').replace(/[\s\u0000-\u001f]/g, ''); return /^(https?:|mailto:|tel:|\/|#|\.)/i.test(d) || !/^[a-z][a-z0-9+.-]*:/i.test(d); };
 const clean = (h) => String(h).replace(/<!--[\s\S]*?-->/g, '').replace(/<\s*(script|style|iframe|object|embed|svg|math|form|template|noscript)\b[\s\S]*?(<\/\s*\1\s*>|$)/gi, '').replace(/<(\/?)\s*([a-z][a-z0-9]*)\b((?:"[^"]*"|'[^']*'|[^>"'])*)>?/gi, (m, slash, name, attrs) => {
