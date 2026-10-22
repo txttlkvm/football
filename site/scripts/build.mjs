@@ -2,6 +2,7 @@
 // A Tina failure never blocks the site build: the site deploys without /admin and the error is logged.
 import { spawnSync } from 'node:child_process';
 const run = (cmd, args) => spawnSync(cmd, args, { stdio: 'inherit', shell: true }).status;
+run('node', ['scripts/optimize-images.mjs']);
 if (process.env.TINA_TOKEN) {
   if (run('npx', ['tinacms', 'build'])) console.error('::error::Tina editor build failed — /admin will be MISSING from this deploy. Check TINA_TOKEN, and that tina/tina-lock.json matches tina/config.ts (run: npm run check:tina). Original warning: Tina editor build failed (check TINA_TOKEN and that this branch is enabled in Tina Cloud). Building site without /admin.');
 } else console.log('TINA_TOKEN not set: skipping editor build');

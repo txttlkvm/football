@@ -1,8 +1,9 @@
 ---
 import Base from '../layouts/Base.astro';
+import { rimg } from '../lib/render.mjs';
 import PostCard from '../components/PostCard.astro';
 import { render } from 'astro:content';
-import { allPosts, allPages, categories, fmt, settings, REGISTER_URL, renderCtx } from '../content/site';
+import { allPosts, tagSlug, allPages, categories, fmt, settings, REGISTER_URL, renderCtx } from '../content/site';
 import { blocksHtml } from '../lib/render.mjs';
 export const getStaticPaths = () => [
   ...allPosts.map((p, i) => ({ params: { slug: p.slug }, props: { kind: 'post', p, i } })),
@@ -20,10 +21,11 @@ const img = d.image;
 const showImg = !!img;
 const url = new URL(Astro.url.pathname, Astro.site).href;
 const minutes = Math.max(1, Math.round(plain.split(' ').length / 200));
-const related = kind === 'post' ? allPosts.filter(x => x.slug !== p.slug && x.cats.some(c => p.cats.includes(c))).slice(0, 3) : [];
+const related = kind === 'post' ? allPosts.filter(x => x.slug !== p.slug && (x.cats.some(c => p.cats.includes(c)) || x.tags.some(t => p.tags.includes(t)))).slice(0, 3) : [];
 const newer = kind === 'post' ? allPosts[i - 1] : null, older = kind === 'post' ? allPosts[i + 1] : null;
 const jsonLd = kind === 'post' ? { '@context': 'https://schema.org', '@type': 'Article', headline: d.title, datePublished: p.date.toISOString(), image: img ? new URL(img, Astro.site).href : undefined, author: { '@type': 'Person', name: 'Diamond Solomon' }, publisher: { '@type': 'Organization', name: settings.siteTitle }, mainEntityOfPage: url, description } : null;
 const enc = encodeURIComponent;
+const dq = settings.comments?.provider === 'disqus' ? String(settings.comments.disqusShortname || '').replace(/[^a-z0-9-]/gi, '') : '';
 const blocks = kind === 'page' ? blocksHtml(d.blocks, renderCtx) : '';
 const blocksOnly = kind === 'page' && d.layout === 'blocks';
 ---
@@ -32,9 +34,10 @@ const blocksOnly = kind === 'page' && d.layout === 'blocks';
 {kind === 'post' && <div class="meta">{fmt(p.date)} · {cn.map((c,k)=>(<><a href={`/category/${c.slug}/`}>{c.name}</a>{k + 1 < cn.length ? ', ' : ''}</>))} · <span class="reading">{minutes} min read</span></div>}
 <h1>{d.title}</h1>
 {kind === 'page' && d.showRegisterCta && <div class="cta-top"><div><strong>{settings.classCard.label}</strong><span>{settings.classCard.text}</span></div><a class="btn pulse" href={REGISTER_URL}>{settings.classCard.buttonText}</a></div>}
-{showImg && <img class={kind === 'page' ? 'page-hero-img' : ''} src={img} alt={kind === 'post' ? d.title : ''} style={`margin:0 auto 1.5em${d.imageFocus ? `;object-position:${({top:"50% 0%",center:"50% 50%",bottom:"50% 100%",left:"0% 50%",right:"100% 50%",face:"50% 25%"})[d.imageFocus] ?? "50% 50%"}` : ""}`}>}
+{showImg && <Fragment set:html={rimg(img, kind === 'post' ? d.title : '', '(max-width:760px) 100vw, 760px', `class="${kind === 'page' ? 'page-hero-img' : ''}" fetchpriority="high" style="margin:0 auto 1.5em${d.imageFocus ? `;object-position:${({top:'50% 0%',center:'50% 50%',bottom:'50% 100%',left:'0% 50%',right:'100% 50%',face:'50% 25%'})[d.imageFocus] ?? '50% 50%'}` : ''}"`)} />}
 <div class="body"><Content /></div></div>
 {kind === 'post' && <div class="post-extra">
+{kind === 'post' && p.tags.length > 0 && <p class="tags"><strong>Tagged</strong> {p.tags.map(t => <a class="tag" href={`/tag/${tagSlug(t)}/`}>{t}</a>)}</p>}
 <div class="share"><strong>Share</strong>
 <a href={`https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`} rel="noopener" target="_blank">Facebook</a>
 <a href={`https://pinterest.com/pin/create/button/?url=${enc(url)}&description=${enc(d.title)}`} rel="noopener" target="_blank">Pinterest</a>
@@ -43,6 +46,7 @@ const blocksOnly = kind === 'page' && d.layout === 'blocks';
 <button type="button" data-copy={url}>Copy link</button></div>
 <div class="author"><p><strong>Diamond Solomon</strong> — wife, mother and chef of her household, sharing what God has taught her about marriage, motherhood and meals. <a href="/about-me/">About me →</a></p></div>
 {(newer || older) && <nav class="pn" aria-label="More posts">{older ? <a href={`/${older.slug}/`}><span>Older</span>{older.title}</a> : <i></i>}{newer ? <a class="next" href={`/${newer.slug}/`}><span>Newer</span>{newer.title}</a> : <i></i>}</nav>}
+{kind === 'post' && dq && <section class="comments" id="comments"><h2>Comments</h2><div id="disqus_thread"></div><script is:inline define:vars={{ dq, slug: entry.id, url }}>var disqus_config=function(){this.page.url=url;this.page.identifier=slug};var loaded=false;function load(){if(loaded)return;loaded=true;var d=document,s=d.createElement('script');s.src='https://'+dq+'.disqus.com/embed.js';s.setAttribute('data-timestamp',+new Date());(d.head||d.body).appendChild(s)}if('IntersectionObserver' in window){new IntersectionObserver(function(e,o){if(e[0].isIntersecting){load();o.disconnect()}},{rootMargin:'400px'}).observe(document.getElementById('comments'))}else load()</script></section>}
 {related.length > 0 && <section class="related"><h2>You might also like</h2><div class="grid">{related.map(r => <PostCard post={r} />)}</div></section>}
 </div>}
 {kind === 'page' && d.showRegisterCta && <a class="sticky-register btn pulse" href={REGISTER_URL}>{settings.classCard.stickyText}</a>}

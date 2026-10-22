@@ -75,5 +75,9 @@
   },
   "logo": "/img/logo.png",
   "mobileCta": "🍪 Kids Cooking Classes · Register",
-  "formsKey": ""
+  "formsKey": "",
+  "comments": {
+    "provider": "none",
+    "disqusShortname": ""
+  }
 }

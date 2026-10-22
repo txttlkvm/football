@@ -1,0 +1,10 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostCard from '../../components/PostCard.astro';
+import { allPosts, allTags, tagSlug } from '../../content/site';
+export const getStaticPaths = () => allTags.map(t => ({ params: { tag: t.slug }, props: { t } }));
+const { t } = Astro.props;
+const list = allPosts.filter(p => p.tags.some(x => tagSlug(x) === t.slug));
+---
+<Base title={`#${t.name}`} description={`Posts tagged ${t.name}.`}><section class="section"><div class="wrap"><h1 style="text-align:center">#{t.name}</h1><p class="lede" style="text-align:center">{list.length} post{list.length === 1 ? '' : 's'} · <a href="/blog/">all posts</a></p>
+<h2 class="sr">Posts</h2><div class="grid">{list.map(p => <PostCard post={p} />)}</div></div></section></Base>

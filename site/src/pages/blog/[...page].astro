@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import PostCard from '../../components/PostCard.astro';
-import { allPosts } from '../../content/site';
+import { allPosts, allTags } from '../../content/site';
 export function getStaticPaths({ paginate }: any) { return paginate(allPosts, { pageSize: 12 }); }
 const { page } = Astro.props;
 ---
@@ -10,7 +10,8 @@ const { page } = Astro.props;
 <h1 style="text-align:center">All posts</h1>
 <p class="lede" style="text-align:center">Faith, family and food — {allPosts.length} posts and counting.</p>
 <form class="blog-search" role="search" onsubmit="return false"><label class="sr" for="q">Search posts</label><input id="q" type="search" placeholder="Search posts…" autocomplete="off"></form>
-<h2 class="sr">Posts</h2><div class="grid" id="list">{page.data.map((p: any) => <PostCard post={p} />)}</div>
+<h2 class="sr">Posts</h2>{allTags.length > 0 && <p class="tagcloud" aria-label="Browse by tag">{allTags.slice(0, 18).map(t => <a class="tag" href={`/tag/${t.slug}/`}>{t.name}</a>)}</p>}
+<div class="grid" id="list">{page.data.map((p: any) => <PostCard post={p} />)}</div>
 <p id="none" hidden style="text-align:center">No posts match that search.</p>
 {(page.url.prev || page.url.next) && <nav class="pager" aria-label="Pages">{page.url.prev ? <a href={page.url.prev}>← Newer</a> : <span></span>}<span>Page {page.currentPage} of {page.lastPage}</span>{page.url.next ? <a href={page.url.next}>Older →</a> : <span></span>}</nav>}
 </div></section></Base>
@@ -18,6 +19,6 @@ const { page } = Astro.props;
 (function(){var q=document.getElementById('q'),l=document.getElementById('list'),n=document.getElementById('none'),all=null,orig=l.innerHTML;
 q.addEventListener('input',function(){var v=q.value.trim().toLowerCase();if(!v){l.innerHTML=orig;n.hidden=true;return}
 (all?Promise.resolve(all):fetch('/posts.json').then(function(r){return r.json()}).then(function(j){return all=j})).then(function(j){
-var hit=j.filter(function(p){return (p.title+' '+(p.excerpt||'')+' '+(p.cats||[]).join(' ')).toLowerCase().indexOf(v)>-1});
+var hit=j.filter(function(p){return (p.title+' '+(p.excerpt||'')+' '+(p.cats||[]).join(' ')+' '+(p.tags||[]).join(' ')).toLowerCase().indexOf(v)>-1});
 l.innerHTML=hit.map(function(p){return '<a class="card" href="/'+p.slug+'/">'+(p.img?'<img src="'+p.img+'" alt="" loading="lazy">':'<div class="ph"></div>')+'<div class="b"><h3>'+p.title.replace(/</g,'&lt;')+'</h3></div></a>'}).join('');n.hidden=hit.length>0})})})();
 </script>

@@ -1,0 +1,25 @@
+name: Publish scheduled posts
+on:
+  schedule: [{ cron: '17 */4 * * *' }]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  due:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: site } }
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: node scripts/due-posts.mjs
+      - name: Commit the stamp so the site redeploys
+        run: |
+          if [ -n "$(git status --porcelain .deployed-at)" ]; then
+            git config user.name "scheduled-publish"
+            git config user.email "actions@users.noreply.github.com"
+            git add .deployed-at
+            git commit -m "Publish scheduled posts"
+            git push origin main
+          fi
