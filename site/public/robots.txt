@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /admin/
+Disallow: /edit/
 
 Sitemap: https://www.marriagemotherhood-meals.org/sitemap-index.xml

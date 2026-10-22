@@ -63,12 +63,59 @@ input:focus,textarea:focus,select:focus,button:focus-visible,a:focus-visible{out
 const cmsCallback = (cms: any) => {
   try {
     const PAGES = ['about-me', 'home-chefs', 'home-bakery'];
-    const land = () => {
+    const HUB_CSS = `@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500;600&display=swap');#hub{position:fixed;inset:0;z-index:99990;overflow:auto;background:radial-gradient(1200px 600px at 10% -10%,#ffe3f4 0,transparent 60%),radial-gradient(900px 500px at 100% 0,#fff0e6 0,transparent 55%),#fffaf7;font-family:Poppins,system-ui,sans-serif;color:#2a1a24;animation:hubIn .5s ease both}
+#hub.out{opacity:0;transition:opacity .25s}
+#hub .in{max-width:880px;margin:0 auto;padding:clamp(24px,6vw,64px) 20px 120px}
+#hub img.logo{width:min(260px,70vw);display:block;margin:0 auto 28px}
+#hub h1{font:600 clamp(1.8rem,5vw,2.8rem)/1.1 Outfit,Poppins,sans-serif;margin:0 0 6px;text-align:center;letter-spacing:-.02em}
+#hub p.sub{margin:0 0 28px;text-align:center;font-size:1.05rem;color:#6b5560}
+#hub .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+#hub a.t{display:flex;align-items:center;gap:16px;padding:20px 22px;min-height:84px;border-radius:22px;background:#fff;color:inherit;text-decoration:none;box-shadow:0 1px 2px rgba(40,20,30,.05),0 10px 30px rgba(40,20,30,.08);transition:transform .3s cubic-bezier(.22,.8,.2,1),box-shadow .3s;animation:hubIn .6s both;cursor:pointer}
+#hub a.t:hover,#hub a.t:focus-visible{transform:translateY(-4px) scale(1.01);box-shadow:0 2px 4px rgba(40,20,30,.06),0 18px 44px rgba(176,36,111,.2);outline:none}
+#hub a.t b{display:block;font:600 1.15rem/1.2 Outfit,Poppins,sans-serif}#hub a.t small{display:block;margin-top:3px;color:#7a6570;font-size:.88rem;line-height:1.35}
+#hub a.t .i{font-size:2rem;flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:#fff0f8}
+#hub a.big{grid-column:1/-1;background:linear-gradient(135deg,#d6409f,#a63d7d);color:#fff;min-height:104px}#hub a.big small{color:rgba(255,255,255,.85)}#hub a.big .i{background:rgba(255,255,255,.2)}
+#hub .foot{margin-top:26px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+#hub .foot button,#hub .foot a{font:500 .92rem Poppins,sans-serif;padding:12px 18px;border-radius:999px;border:1px solid #e8dcd6;background:#fff;color:#4a3640;cursor:pointer;text-decoration:none}
+#hub .hint{margin-top:22px;text-align:center;font-size:.9rem;color:#8a7580}
+#hubstart{position:fixed;left:14px;bottom:86px;z-index:99991;border:0;border-radius:999px;padding:12px 16px;background:#2a1a24;color:#fff;font:600 14px Poppins,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.3);cursor:pointer;animation:hubIn .5s both}
+@keyframes hubIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media(max-width:640px){#hub .grid{grid-template-columns:1fr}#hub a.t{min-height:78px}}
+@media(prefers-reduced-motion:reduce){#hub,#hub a.t,#hubstart{animation:none}}`;
+    const hubTiles = [
+      ['big', '✍️', 'Write a new post', 'Start a fresh blog post — add a photo, type, publish.', '#/collections/new/post/~/'],
+      ['', '🏠', 'My home page', 'Change the words and photos people see first.', '#/collections/edit/home/home'],
+      ['', '👩‍🍳', 'Kids class info', 'Update the price, day and sign-up details.', '#/collections/edit/page/home-chefs'],
+      ['', '📚', 'My posts', 'Find, fix or hide a post you wrote before.', '#/collections/post/~'],
+      ['', '💁🏾‍♀️', 'About me', 'Your story and photo.', '#/collections/edit/page/about-me'],
+      ['', '🎨', 'Colors, menu & more', 'Logo, colors, announcement bar, menu.', '#/collections/edit/settings/settings'],
+      ['', '👀', 'See my live website', 'Opens your real website in a new tab.', 'https://www.marriagemotherhood-meals.org/'],
+    ];
+    const greet = () => { const h = new Date().getHours(); return h < 5 ? 'Up late' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'; };
+    let inst: any = null; window.addEventListener('beforeinstallprompt', (e: any) => { e.preventDefault(); inst = e; const b = document.getElementById('hubinstall'); if (b) b.style.display = ''; });
+    const closeHub = (go?: string) => { const h = document.getElementById('hub'); if (go) location.hash = go; if (h) { h.classList.add('out'); setTimeout(() => h.remove(), 260); } showStart(); };
+    const showStart = () => { if (document.getElementById('hubstart')) return; const b = document.createElement('button'); b.id = 'hubstart'; b.type = 'button'; b.textContent = '🏠 Start'; b.setAttribute('aria-label', 'Back to the start screen'); b.onclick = openHub; document.body.appendChild(b); };
+    const authed = async () => { try { const t = (cms as any).api?.tina; if (t && typeof t.isAuthenticated === 'function') return !!(await t.isAuthenticated()); } catch (e) { /* assume ok */ } return true; };
+    const openHub = async () => {
+      if (document.getElementById('hub')) return;
+      if (!(await authed())) { setTimeout(land, 1500); return; }
+      if (document.getElementById('hub')) return;
+      document.getElementById('hubstart')?.remove();
+      let first = true; try { first = !localStorage.getItem('mmm-hub-seen'); localStorage.setItem('mmm-hub-seen', '1'); } catch (e) { /* ignore */ }
+      const h = document.createElement('div'); h.id = 'hub';
+      h.innerHTML = `<div class="in"><img class="logo" src="/img/logo.png" alt="Marriage Motherhood Meals"><h1>${greet()}, Diamond ${new Date().getHours() < 18 ? '☀️' : '🌙'}</h1><p class="sub">${first ? 'Welcome! This is your little corner of the website. Tap anything to begin.' : 'What would you like to do today?'}</p><div class="grid">${hubTiles.map(([c, i, t, d, href], n) => `<a class="t ${c}" href="${href}" ${href.startsWith('http') ? 'target="_blank" rel="noopener"' : ''} style="animation-delay:${80 + n * 70}ms"><span class="i">${i}</span><span><b>${t}</b><small>${d}</small></span></a>`).join('')}</div><div class="foot"><button id="hubinstall" type="button" style="display:none">📱 Add the editor to my phone</button></div><p class="hint">Tip: on any page you can tap the words in the preview and just type.</p></div>`;
+      h.addEventListener('click', (e: any) => { const a = e.target.closest('a.t'); if (a && !a.getAttribute('href').startsWith('http')) { e.preventDefault(); closeHub(a.getAttribute('href')); } });
+      document.body.appendChild(h);
+      const ib = h.querySelector('#hubinstall') as HTMLElement; if (inst) ib.style.display = ''; ib.onclick = () => inst && inst.prompt();
+    };
+    const land: () => void = () => {
       const h = location.hash;
-      if (h && h !== '#/' && h !== '#/collections' && !h.startsWith('#/~')) return;
+      if (!h || h === '#/' || h === '#/collections' || h === '#/~' || h === '#/~/') { openHub(); return; }
+      if (!h.startsWith('#/~')) { if (!document.getElementById('hub')) showStart(); return; }
       const slug = h.replace(/^#\/~\/?/, '').replace(/[?].*$/, '').replace(/\/+$/, '');
       location.hash = !slug || slug === 'home' ? '#/collections/edit/home/home' : PAGES.includes(slug) ? `#/collections/edit/page/${slug}` : `#/collections/edit/post/${slug}`;
     };
+    const hs = document.createElement('style'); hs.textContent = HUB_CSS; document.head.appendChild(hs);
     land(); window.addEventListener('hashchange', land);
     const st = document.createElement('style'); st.textContent = SKIN; document.head.appendChild(st);
     const l = document.createElement('link'); l.rel = 'manifest'; l.href = '/admin-manifest.webmanifest'; document.head.appendChild(l);

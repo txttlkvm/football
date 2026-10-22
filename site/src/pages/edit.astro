@@ -1,0 +1,42 @@
+---
+// A friendly front door for the site owner: bookmark /edit/ and tap one button.
+---
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Open my editor</title><meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/favicon.png"><meta name="theme-color" content="#ff66c4">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;min-height:100dvh;display:grid;place-items:center;padding:24px;font-family:Poppins,system-ui,sans-serif;color:#2a1a24;background:radial-gradient(1000px 520px at 8% -10%,#ffe0f3 0,transparent 60%),radial-gradient(800px 480px at 100% 0,#fff0e6 0,transparent 55%),#fffaf7}
+main{width:100%;max-width:520px;text-align:center;animation:in .6s both}
+img{width:min(280px,72vw);margin:0 auto 26px;display:block}
+h1{font:600 clamp(1.9rem,6vw,2.6rem)/1.1 Outfit,sans-serif;margin:0 0 8px;letter-spacing:-.02em}
+p{margin:0 0 26px;color:#6b5560;font-size:1.05rem;line-height:1.55}
+a.go{display:flex;align-items:center;justify-content:center;gap:10px;min-height:68px;border-radius:999px;background:linear-gradient(135deg,#d6409f,#a63d7d);color:#fff;text-decoration:none;font:600 1.2rem Outfit,sans-serif;box-shadow:0 14px 34px -10px rgba(166,61,125,.7);transition:transform .3s cubic-bezier(.22,.8,.2,1),box-shadow .3s}
+a.go:hover,a.go:focus-visible{transform:translateY(-3px);box-shadow:0 20px 40px -10px rgba(166,61,125,.75);outline:none}
+ol{list-style:none;margin:30px 0 0;padding:0;text-align:left;display:grid;gap:12px}
+li{display:flex;gap:14px;align-items:flex-start;background:#fff;border-radius:18px;padding:14px 16px;box-shadow:0 1px 2px rgba(40,20,30,.05),0 8px 22px rgba(40,20,30,.06);font-size:.97rem;line-height:1.4}
+li span{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#fff0f8;color:#a63d7d;font-weight:600}
+.tip{margin-top:22px;font-size:.9rem;color:#8a7580}.tip b{color:#4a3640}
+@keyframes in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}@media(prefers-reduced-motion:reduce){main{animation:none}}
+</style></head>
+<body><main>
+<img src="/img/logo.png" alt="Marriage Motherhood Meals" width="560" height="123">
+<h1 id="hi">Welcome back</h1>
+<p>Everything you need to update your website is one tap away.</p>
+<a class="go" href="/admin/index.html#/">✍️ Open my editor</a>
+<ol>
+<li><span>1</span><div><b>Tap the button.</b> It opens your editor.</div></li>
+<li><span>2</span><div><b>Sign in</b> with your email and password. Your phone remembers you after the first time.</div></li>
+<li><span>3</span><div><b>Tap “Write a new post”</b> — or pick anything else on the start screen.</div></li>
+</ol>
+<p class="tip" id="tip">Tip: bookmark this page so it is always one tap away.</p>
+</main>
+<script is:inline>
+var h=new Date().getHours(),el=document.getElementById('hi');el.textContent=(h<5?'Up late':h<12?'Good morning':h<18?'Good afternoon':'Good evening')+', Diamond';
+var ua=navigator.userAgent,t=document.getElementById('tip');
+if(/iPhone|iPad/.test(ua))t.innerHTML='<b>On your iPhone:</b> tap the Share button, then “Add to Home Screen”, and the editor becomes an app on your phone.';
+else if(/Android/.test(ua))t.innerHTML='<b>On your Android:</b> tap the ⋮ menu, then “Add to Home screen” (or “Install app”) to keep the editor on your phone.';
+</script></body></html>

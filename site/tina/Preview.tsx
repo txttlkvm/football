@@ -69,6 +69,27 @@ async function build(kind: string, v: any, y = 0): Promise<string> {
 
 const pill = (on: boolean): React.CSSProperties => ({ font: 'inherit', fontSize: 14, minHeight: 40, padding: '8px 14px', borderRadius: 999, border: '1px solid ' + (on ? '#b0246f' : '#d8d8e0'), background: on ? '#fff0f8' : '#fff', color: on ? '#8a1b5a' : '#333', cursor: 'pointer' });
 
+const celebrate = (slug: string) => {
+  try {
+    const colors = ['#ff66c4', '#ffd166', '#7bdff2', '#b2f7ef', '#a63d7d', '#ffadad'];
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      for (let i = 0; i < 70; i++) {
+        const d = document.createElement('i');
+        const x = 20 + Math.random() * 60, size = 6 + Math.random() * 8;
+        d.style.cssText = `position:fixed;z-index:100000;left:${x}vw;top:-12px;width:${size}px;height:${size * 1.6}px;background:${colors[i % colors.length]};border-radius:2px;pointer-events:none`;
+        document.body.appendChild(d);
+        d.animate([{ transform: 'translate(0,0) rotate(0)', opacity: 1 }, { transform: `translate(${(Math.random() - 0.5) * 300}px,${window.innerHeight + 40}px) rotate(${Math.random() * 720}deg)`, opacity: 0.9 }], { duration: 1400 + Math.random() * 1400, easing: 'cubic-bezier(.2,.7,.3,1)' }).onfinish = () => d.remove();
+      }
+    }
+    const t = document.createElement('div');
+    t.setAttribute('role', 'status');
+    t.style.cssText = 'position:fixed;left:50%;bottom:96px;transform:translateX(-50%);z-index:100001;max-width:calc(100vw - 32px);padding:16px 22px;border-radius:20px;background:#2a1a24;color:#fff;font:500 15px Poppins,system-ui,sans-serif;box-shadow:0 18px 50px rgba(0,0,0,.35);text-align:center;line-height:1.4';
+    t.innerHTML = `<b style="font-size:17px">You did it! 🎉</b><br>Your change is saved and will be on the website in about a minute.${slug ? `<br><a href="https://www.marriagemotherhood-meals.org/${slug}/" target="_blank" rel="noopener" style="color:#ffb3df;font-weight:600">See it live →</a>` : ''}`;
+    document.body.appendChild(t);
+    setTimeout(() => { t.style.transition = 'opacity .5s'; t.style.opacity = '0'; setTimeout(() => t.remove(), 600); }, 8000);
+  } catch (e) { /* celebration is a bonus */ }
+};
+
 function Canvas({ kind, tinaForm, cms, inline }: any) {
   const ff = tinaForm?.finalForm ?? tinaForm;
   const formId = tinaForm?.id ?? 'form';
@@ -118,7 +139,7 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
         if (!navigator.onLine) { setAuto('Offline — your edits are kept on this device'); return; }
         try { setAuto('Saving…'); await ff.submit(); setAuto(ff.getState().dirty ? 'Not saved yet — your edits are kept on this device' : 'Auto-saved ✓ ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })); } catch (e) { setAuto('Could not auto-save — press Save'); }
       }, 30000);
-      try { if (s.submitSucceeded && !s.dirty) { localStorage.removeItem(draftKey); shell = null; setUndo(initRef.current); setAuto(kind === 'post' && ff.getState().values?.draft ? 'Saved as a hidden draft — switch off “Keep this post hidden” to publish' : 'Saved ✓ — live on the website in about 1–2 minutes'); } else if (s.dirty) localStorage.setItem(draftKey, JSON.stringify({ t: Date.now(), values: s.values })); } catch (e) { /* storage unavailable */ }
+      try { if (s.submitSucceeded && !s.dirty) { localStorage.removeItem(draftKey); shell = null; setUndo(initRef.current); { const vv = ff.getState().values || {}; const isPublished = kind !== 'settings' && vv.draft !== true; const sl = kind === 'post' ? String(tinaForm?.id || '').split('/').pop()?.replace(/\.md$/, '') : ''; if (isPublished) celebrate(sl || ''); } setAuto(kind === 'post' && ff.getState().values?.draft ? 'Saved as a hidden draft — switch off “Keep this post hidden” to publish' : 'Saved ✓ — live on the website in about 1–2 minutes'); } else if (s.dirty) localStorage.setItem(draftKey, JSON.stringify({ t: Date.now(), values: s.values })); } catch (e) { /* storage unavailable */ }
     }, { values: true, dirty: true, submitSucceeded: true, submitting: true, submitFailed: true, initialValues: true });
     const guard = (e: BeforeUnloadEvent) => { if (ff.getState().dirty) { e.preventDefault(); e.returnValue = ''; } };
     const ks = (e: KeyboardEvent) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); ff.submit(); } };

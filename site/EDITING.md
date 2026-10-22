@@ -1,6 +1,6 @@
 # How to edit the website (for Diamond)
 
-1. Go to **https://www.marriagemotherhood-meals.org/admin/** and log in with your email and password.
+1. Go to **https://www.marriagemotherhood-meals.org/edit/** (bookmark it!) and tap **Open my editor**. Sign in with your email and password. You will land on a friendly start screen — tap **Write a new post** or anything else.
 2. Pick what you want to change:
    - **Blog Posts** → click a post to edit it, or **Create New** to write one. Add a cover photo, tick categories, write in the big box (use the toolbar for bold, links, photos), and press **Save**.
    - **Pages** → About Me, Kids Classes, Bakery. Same idea. Turn on "Show the Register box" for any page that needs the sign-up button.
