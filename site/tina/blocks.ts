@@ -14,7 +14,22 @@ const bg = pick('background', 'Background', [['', 'White'], ['soft', 'Soft color
 const label = (_icon: string, name: string) => name;
 const item = (...keys: string[]) => ({ itemProps: (i: any) => ({ label: keys.map(k => i?.[k]).find(Boolean) || 'Untitled' }) });
 
-export const blockTemplates = [
+const baseTemplates: any[] = [
+  { name: 'split', label: label('', 'Side by side (any two things)'),
+    ui: { defaultItem: { ratio: '1/1', valign: 'center', mobileFirst: 'left', left: { kind: 'photo', image: '/img/hero.jpg', caption: '' }, right: { kind: 'text', text: '## A heading\n\nWrite something next to your photo.' } } },
+    fields: [pick('ratio', 'How wide is each side?', [['1/1', 'Equal halves'], ['1/2', 'Left narrow, right wide'], ['2/1', 'Left wide, right narrow'], ['1/3', 'Left small, right big'], ['3/1', 'Left big, right small']]), pick('valign', 'Line them up at the…', [['top', 'Top'], ['center', 'Middle'], ['bottom', 'Bottom']]), pick('mobileFirst', 'On a phone, show first…', [['left', 'The left side'], ['right', 'The right side']]),
+      ...(['left', 'right'] as const).map(side => ({ type: 'object', name: side, label: side === 'left' ? 'Left side' : 'Right side', fields: [pick('kind', 'What goes here?', [['text', 'Words'], ['photo', 'A photo'], ['quote', 'A big quote'], ['button', 'A button']]), rich('text', 'Words or quote'), img('image', 'Photo'), s('alt', 'Describe the photo'), s('caption', 'Caption (optional)'), s('buttonLabel', 'Button words'), s('buttonUrl', 'Button link')] })), bg] },
+  { name: 'testimonials', label: label('', 'Kind words (testimonials)'),
+    ui: { defaultItem: { title: 'Kind words', quotes: [{ text: 'A lovely thing someone said about you.', name: 'Name' }, { text: 'Another kind comment.', name: 'Name' }] } },
+    fields: [s('title', 'Title'), { type: 'object', name: 'quotes', label: 'Comments', list: true, ui: item('name'), fields: [text('text', 'What they said', 'Plain text'), s('name', 'Their name'), s('role', 'Who they are (optional)')] }, bg] },
+  { name: 'buttons', label: label('', 'Buttons'),
+    ui: { defaultItem: { align: 'center', links: [{ label: 'Sign up', url: '/', style: 'solid' }] } },
+    fields: [pick('align', 'Line up', [['left', 'Left'], ['center', 'Center'], ['right', 'Right']]), { type: 'object', name: 'links', label: 'Buttons', list: true, ui: item('label'), fields: [s('label', 'Button words'), s('url', 'Goes to (link)'), pick('style', 'Look', [['solid', 'Filled'], ['outline', 'Outline']])] }, bg] },
+  { name: 'divider', label: label('', 'Divider line'),
+    ui: { defaultItem: { style: 'line' } }, fields: [pick('style', 'Look', [['line', 'Thin line'], ['dots', 'Dots'], ['space', 'Just space']])] },
+  { name: 'embed', label: label('', 'Show something from another site (map, Jotform, Spotify…)'),
+    ui: { defaultItem: { title: '', frameHeight: 450 } },
+    fields: [s('title', 'Title (optional)'), s('url', 'Paste the “embed” link', { description: 'Works with Google Maps (Share → Embed a map → copy the link inside src="…"), Jotform, Spotify, Vimeo, Calendly.' }), { type: 'number', name: 'frameHeight', label: 'Height (pixels)' }, bg] },
   { name: 'hero', label: label('🌅', 'Big banner'),
     ui: { defaultItem: { heading: 'A big, friendly headline', text: 'One or two sentences that welcome people.', buttonLabel: 'Learn more', buttonUrl: '/', height: 'medium', image: '/img/hero.jpg' } },
     fields: [img('image', 'Background photo'), focus, s('heading', 'Headline'), text('text', 'Text under the headline', 'Plain text'), s('buttonLabel', 'Button 1 text'), s('buttonUrl', 'Button 1 link'), s('button2Label', 'Button 2 text (optional)'), s('button2Url', 'Button 2 link'), pick('height', 'Height', [['tall', 'Tall'], ['medium', 'Medium'], ['short', 'Short']])] },
@@ -62,6 +77,14 @@ export const blockTemplates = [
   { name: 'spacer', label: label('↕️', 'Empty space'),
     ui: { defaultItem: { size: 'medium' } }, fields: [pick('size', 'Size', [['small', 'Small'], ['medium', 'Medium'], ['large', 'Large']])] },
 ] as any[];
+const look = { type: 'object', name: 'look', label: 'Section look (spacing, width, background photo)', fields: [
+  pick('spacing', 'Space above and below', [['compact', 'Tight'], ['normal', 'Normal'], ['spacious', 'Roomy']]),
+  pick('width', 'How wide', [['narrow', 'Narrow (easy to read)'], ['normal', 'Normal'], ['wide', 'Wide'], ['full', 'Edge to edge']]),
+  pick('align', 'Line up the words', [['left', 'Left'], ['center', 'Center'], ['right', 'Right']]),
+  img('bgImage', 'Background photo (optional)'),
+  s('anchor', 'Link name (optional)', { description: 'Lets a menu link jump straight here, e.g. type “classes” and link to /your-page/#classes' }),
+] };
+export const blockTemplates = baseTemplates.map(t => (['hero', 'cta', 'spacer', 'divider'].includes(t.name) ? t : { ...t, fields: [...t.fields, look] }));
 
 export const blocksField = {
   type: 'object', name: 'blocks', label: 'Page sections (drag to reorder)', list: true,

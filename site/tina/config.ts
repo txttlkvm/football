@@ -1,6 +1,7 @@
 import { defineConfig } from 'tinacms';
 import { blocksField } from './blocks';
 import { previewField } from './Preview';
+import { PAGE_TEMPLATES, POST_TEMPLATES, LOOKS } from './templates';
 const branch = process.env.TINA_BRANCH || process.env.VERCEL_GIT_COMMIT_REF || process.env.HEAD || 'main';
 const cats = ['motherhood', 'marriage', 'meals', 'breakfast', 'lunch', 'dinner', 'bake-class'].map(v => ({ value: v, label: v[0].toUpperCase() + v.slice(1).replace('-', ' ') }));
 const RESERVED = ['tag', 'blog', 'edit', 'about-me', 'home-chefs', 'home-bakery', 'home', 'category', 'rss', 'admin', 'posts', 'sitemap', '404', 'index'];
@@ -88,13 +89,58 @@ const cmsCallback = (cms: any) => {
       ['', '👩‍🍳', 'Kids class info', 'Update the price, day and sign-up details.', '#/collections/edit/page/home-chefs'],
       ['', '📚', 'My posts', 'Find, fix or hide a post you wrote before.', '#/collections/post/~'],
       ['', '💁🏾‍♀️', 'About me', 'Your story and photo.', '#/collections/edit/page/about-me'],
-      ['', '🎨', 'Colors, menu & more', 'Logo, colors, announcement bar, menu.', '#/collections/edit/settings/settings'],
+      ['', '🧩', 'Start from a template', 'Pages and posts with the boring part done for you.', '#modal:templates'],
+      ['', '🎨', 'Change my look', 'One tap to try a new color and font style.', '#modal:looks'],
+      ['', '⚙️', 'Logo, menu & more', 'Logo, announcement bar, menu, comments.', '#/collections/edit/settings/settings'],
       ['', '👀', 'See my live website', 'Opens your real website in a new tab.', 'https://www.marriagemotherhood-meals.org/'],
     ];
     const greet = () => { const h = new Date().getHours(); return h < 5 ? 'Up late' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'; };
     let inst: any = null; window.addEventListener('beforeinstallprompt', (e: any) => { e.preventDefault(); inst = e; const b = document.getElementById('hubinstall'); if (b) b.style.display = ''; });
     const closeHub = (go?: string) => { const h = document.getElementById('hub'); if (go) location.hash = go; if (h) { h.classList.add('out'); setTimeout(() => h.remove(), 260); } showStart(); };
     const showStart = () => { if (document.getElementById('hubstart')) return; const b = document.createElement('button'); b.id = 'hubstart'; b.type = 'button'; b.textContent = '🏠 Start'; b.setAttribute('aria-label', 'Back to the start screen'); b.onclick = openHub; document.body.appendChild(b); };
+
+    const MODAL_CSS = `#mm{position:fixed;inset:0;z-index:99995;display:grid;place-items:center;padding:16px;background:rgba(30,10,22,.55);font-family:Poppins,system-ui,sans-serif;animation:hubIn .3s both}
+#mm .box{width:min(760px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:#fffaf7;border-radius:26px;padding:clamp(18px,4vw,32px);box-shadow:0 30px 80px rgba(0,0,0,.4);color:#2a1a24}
+#mm h2{font:600 1.6rem/1.15 Outfit,Poppins,sans-serif;margin:0 0 4px}#mm .sub{margin:0 0 18px;color:#6b5560;font-size:.98rem}
+#mm .cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#mm button.c{all:unset;box-sizing:border-box;cursor:pointer;display:flex;gap:14px;align-items:flex-start;padding:16px;border-radius:18px;background:#fff;box-shadow:0 1px 2px rgba(40,20,30,.05),0 8px 22px rgba(40,20,30,.07);transition:transform .25s,box-shadow .25s}
+#mm button.c:hover,#mm button.c:focus-visible{transform:translateY(-3px);box-shadow:0 14px 34px rgba(176,36,111,.2);outline:2px solid #b0246f}
+#mm button.c .i{font-size:1.8rem;flex:none}#mm button.c b{display:block;font:600 1.02rem Outfit,Poppins,sans-serif}#mm button.c small{display:block;color:#7a6570;font-size:.84rem;line-height:1.35;margin-top:2px}
+#mm .tag{display:inline-block;font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#a63d7d;margin-bottom:2px}
+#mm .sw{display:flex;gap:5px;margin-bottom:8px}#mm .sw i{width:26px;height:26px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #e8dcd6}
+#mm .row{display:flex;gap:10px;margin-top:6px}#mm input{flex:1;font:500 1.05rem Poppins,sans-serif;padding:14px 16px;border-radius:14px;border:2px solid #e8dcd6;background:#fff}#mm input:focus{outline:none;border-color:#b0246f}
+#mm .go{all:unset;cursor:pointer;padding:14px 22px;border-radius:999px;background:linear-gradient(135deg,#d6409f,#a63d7d);color:#fff;font:600 1rem Poppins,sans-serif}
+#mm .x{all:unset;cursor:pointer;float:right;font-size:1.4rem;line-height:1;padding:6px 10px;border-radius:999px;color:#6b5560}#mm .msg{margin-top:12px;font-size:.95rem;color:#b3261e}
+@media(max-width:640px){#mm .cards{grid-template-columns:1fr}}`;
+    const mst = document.createElement('style'); mst.textContent = MODAL_CSS; document.head.appendChild(mst);
+    const gql = async (query: string, variables: any = {}) => { const r = await (cms as any).api.tina.request(query, { variables }); return r; };
+    const slugy = (t: string, reserved: string[]) => { let x = t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60).replace(/-$/, '') || 'new-page'; return reserved.includes(x) ? x + '-page' : x; };
+    const closeModal = () => document.getElementById('mm')?.remove();
+    const modal = (title: string, sub: string, inner: string) => { closeModal(); const m = document.createElement('div'); m.id = 'mm'; m.innerHTML = `<div class="box" role="dialog" aria-label="${title}"><button class="x" aria-label="Close">✕</button><h2>${title}</h2><p class="sub">${sub}</p>${inner}<div class="msg" id="mmsg" role="status"></div></div>`; m.addEventListener('click', (e: any) => { if (e.target === m || e.target.closest('.x')) closeModal(); }); document.body.appendChild(m); return m; };
+    const RES = ['tag', 'blog', 'edit', 'about-me', 'home-chefs', 'home-bakery', 'home', 'category', 'rss', 'admin', 'posts', 'sitemap', '404', 'index'];
+    const openTemplates = () => {
+      const m = modal('Start from a template', 'Pick one — we fill in the layout, you change the words and photos.', `<div class="cards">${[...PAGE_TEMPLATES.map(x => ({ ...x, k: 'page' })), ...POST_TEMPLATES.map(x => ({ ...x, k: 'post' }))].map(x => `<button class="c" data-k="${x.k}" data-id="${x.id}"><span class="i">${x.icon}</span><span><span class="tag">${x.k === 'page' ? 'Page' : 'Blog post'}</span><b>${x.name}</b><small>${x.desc}</small></span></button>`).join('')}</div>`);
+      m.addEventListener('click', (e: any) => { const c = e.target.closest('button.c'); if (!c) return; const k = c.dataset.k, id = c.dataset.id; const tpl: any = (k === 'page' ? PAGE_TEMPLATES : POST_TEMPLATES).find(y => y.id === id);
+        const box = m.querySelector('.box') as HTMLElement; box.innerHTML = `<button class="x" aria-label="Close">✕</button><h2>${tpl.icon} ${tpl.name}</h2><p class="sub">What should it be called?</p><div class="row"><input id="mt" value="${tpl.title}" autofocus><button class="go" id="mgo">Create it</button></div><div class="msg" id="mmsg" role="status"></div>`;
+        const input = box.querySelector('#mt') as HTMLInputElement; input.focus(); input.select();
+        const go = async () => { const title = input.value.trim() || tpl.title; const msg = box.querySelector('#mmsg') as HTMLElement; msg.style.color = '#6b5560'; msg.textContent = 'Creating…';
+          try { let slug = slugy(title, RES); for (let n = 0; n < 6; n++) { try {
+            if (k === 'page') await gql('mutation($rp:String!,$p:PageMutation!){createDocument(collection:"page",relativePath:$rp,params:{page:$p}){__typename}}', { rp: `${slug}.md`, p: { title, layout: 'blocks', blocks: tpl.blocks } });
+            else await gql('mutation($rp:String!,$p:PostMutation!){createDocument(collection:"post",relativePath:$rp,params:{post:$p}){__typename}}', { rp: `${slug}.md`, p: { title, date: new Date().toISOString(), draft: true, categories: tpl.categories, body: tpl.body } });
+            closeModal(); closeHub(`#/collections/edit/${k}/${slug}`); return; } catch (err: any) { if (/exist|already/i.test(String(err?.message || err))) { slug = slugy(title, RES) + '-' + (n + 2); continue; } throw err; } } msg.textContent = 'Could not find a free name — try a different title.';
+          } catch (err: any) { msg.style.color = '#b3261e'; msg.textContent = 'Sorry, that did not work (' + String(err?.message || err).slice(0, 120) + ')'; } };
+        box.querySelector('#mgo')!.addEventListener('click', go); input.addEventListener('keydown', (ev: any) => { if (ev.key === 'Enter') go(); });
+      });
+    };
+    const openLooks = () => {
+      const m = modal('Change my look', 'Tap a style to apply it to your whole website. You can change it back any time.', `<div class="cards">${LOOKS.map(l => `<button class="c" data-id="${l.id}"><span><span class="sw"><i style="background:${l.accent}"></i><i style="background:${l.dark}"></i><i style="background:${l.soft}"></i></span><b>${l.name}</b><small>${l.headingFont} + ${l.bodyFont}</small></span></button>`).join('')}</div>`);
+      m.addEventListener('click', async (e: any) => { const c = e.target.closest('button.c'); if (!c) return; const look: any = LOOKS.find(l => l.id === c.dataset.id); const msg = m.querySelector('#mmsg') as HTMLElement; msg.style.color = '#6b5560'; msg.textContent = 'Applying…';
+        try { const r: any = await gql('{settings(relativePath:"settings.json"){_values}}'); const v: any = {}; Object.entries(r.settings._values).forEach(([k2, x]) => { if (!k2.startsWith('_')) v[k2] = x; });
+          v.theme = { ...(v.theme || {}), accent: look.accent, dark: look.dark, text: look.text, soft: look.soft, headingFont: look.headingFont, bodyFont: look.bodyFont };
+          await gql('mutation($p:SettingsMutation!){updateDocument(collection:"settings",relativePath:"settings.json",params:{settings:$p}){__typename}}', { p: v });
+          msg.style.color = '#1b7a3d'; msg.textContent = `✓ ${look.name} is saved. Your website will show it in about a minute.`;
+        } catch (err: any) { msg.style.color = '#b3261e'; msg.textContent = 'Sorry, that did not work (' + String(err?.message || err).slice(0, 120) + ')'; } });
+    };
     const authed = async () => { try { const t = (cms as any).api?.tina; if (t && typeof t.isAuthenticated === 'function') return !!(await t.isAuthenticated()); } catch (e) { /* assume ok */ } return true; };
     const openHub = async () => {
       if (document.getElementById('hub')) return;
@@ -104,7 +150,7 @@ const cmsCallback = (cms: any) => {
       let first = true; try { first = !localStorage.getItem('mmm-hub-seen'); localStorage.setItem('mmm-hub-seen', '1'); } catch (e) { /* ignore */ }
       const h = document.createElement('div'); h.id = 'hub';
       h.innerHTML = `<div class="in"><img class="logo" src="/img/logo.png" alt="Marriage Motherhood Meals"><h1>${greet()}, Diamond ${new Date().getHours() < 18 ? '☀️' : '🌙'}</h1><p class="sub">${first ? 'Welcome! This is your little corner of the website. Tap anything to begin.' : 'What would you like to do today?'}</p><div class="grid">${hubTiles.map(([c, i, t, d, href], n) => `<a class="t ${c}" href="${href}" ${href.startsWith('http') ? 'target="_blank" rel="noopener"' : ''} style="animation-delay:${80 + n * 70}ms"><span class="i">${i}</span><span><b>${t}</b><small>${d}</small></span></a>`).join('')}</div><div class="foot"><button id="hubinstall" type="button" style="display:none">📱 Add the editor to my phone</button></div><p class="hint">Tip: on any page you can tap the words in the preview and just type.</p></div>`;
-      h.addEventListener('click', (e: any) => { const a = e.target.closest('a.t'); if (a && !a.getAttribute('href').startsWith('http')) { e.preventDefault(); closeHub(a.getAttribute('href')); } });
+      h.addEventListener('click', (e: any) => { const a = e.target.closest('a.t'); if (a && !a.getAttribute('href').startsWith('http')) { e.preventDefault(); const hr = a.getAttribute('href'); if (hr === '#modal:templates') openTemplates(); else if (hr === '#modal:looks') openLooks(); else closeHub(hr); } });
       document.body.appendChild(h);
       const ib = h.querySelector('#hubinstall') as HTMLElement; if (inst) ib.style.display = ''; ib.onclick = () => inst && inst.prompt();
     };
