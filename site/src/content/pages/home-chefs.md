@@ -1,19 +1,19 @@
 ---
-title: "Manna's Bakehouse Future Home Chefs"
-description: "Weekly baking and cooking classes that prepare youth with fundamental kitchen skills."
-image: "/img/breakfast-table-with-oatmeal-porridge-croissants-and-muffins.jpg"
+title: Manna's Bakehouse Future Home Chefs
+image: /img/breakfast-table-with-oatmeal-porridge-croissants-and-muffins.jpg
 showRegisterCta: true
+description: Weekly baking and cooking classes that prepare youth with fundamental kitchen skills.
 blocks:
-  - _template: facts
-    title: "Class details"
-    background: soft
+  - title: Class details
     items:
-      - label: "Price"
-        value: "$150 per month"
-      - label: "Day"
-        value: "Thursdays"
-      - label: "Start date, times & ages"
-        value: "See the flyer below"
+      - label: Price
+        value: $150 per month
+      - label: Day
+        value: Thursdays
+      - label: 'Start date, times & ages'
+        value: See the flyer above
+    background: soft
+    _template: facts
 ---
 
 ## Welcome to Manna's Future Home Chefs
