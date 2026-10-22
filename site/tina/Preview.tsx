@@ -108,8 +108,22 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
   const latest = React.useRef('');
   const [auto, setAuto] = React.useState<string>('');
   const idle = React.useRef<any>();
-  const [undo, setUndo] = React.useState<any>(null);
-  const initRef = React.useRef<any>(null);
+  const histKey = 'tina-versions:' + formId;
+  const clone = (o: any) => JSON.parse(JSON.stringify(o ?? {}));
+  const readHist = () => { try { return JSON.parse(localStorage.getItem(histKey) || '[]'); } catch { return []; } };
+  const [versions, setVersions] = React.useState<any[]>(() => { const h = readHist(); if (h.length) return h; const seed = [{ t: Date.now(), label: 'Before today’s changes', values: clone(ff.getState().initialValues) }]; try { localStorage.setItem(histKey, JSON.stringify(seed)); } catch (e) { /* ignore */ } return seed; });
+  const [showHist, setShowHist] = React.useState(false);
+  const undoStack = React.useRef<any[]>([]);
+  const redoStack = React.useRef<any[]>([]);
+  const cur = React.useRef<any>({ js: JSON.stringify(ff.getState().values), obj: clone(ff.getState().values) });
+  const applying = React.useRef(false);
+  const snapTimer = React.useRef<any>();
+  const [, bump] = React.useState(0);
+  const apply = (vals: any) => { applying.current = true; ff.batch(() => { Object.keys(vals).forEach(k => { if (k !== '_sys' && k !== '__typename' && k !== 'id') ff.change(k, vals[k]); }); }); setTimeout(() => { applying.current = false; }, 80); };
+  const doUndo = () => { clearTimeout(snapTimer.current); const prev = undoStack.current.pop(); if (!prev) return; redoStack.current.push(clone(ff.getState().values)); cur.current = { js: JSON.stringify(prev), obj: prev }; apply(prev); bump(n => n + 1); };
+  const doRedo = () => { const nxt = redoStack.current.pop(); if (!nxt) return; undoStack.current.push(clone(ff.getState().values)); cur.current = { js: JSON.stringify(nxt), obj: nxt }; apply(nxt); bump(n => n + 1); };
+  const loadVersion = (v: any) => { undoStack.current.push(clone(ff.getState().values)); redoStack.current = []; cur.current = { js: JSON.stringify(v.values), obj: clone(v.values) }; apply(v.values); setShowHist(false); setAuto('Earlier version loaded — press Save to keep it'); bump(n => n + 1); };
+  const fmtT = (t: number) => new Date(t).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 
   const push = React.useCallback((doc: string) => {
     latest.current = doc;
@@ -130,7 +144,7 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
     const off = ff.subscribe((s: any) => {
       schedule();
       clearTimeout(idle.current);
-      if (!s.submitting) initRef.current = s.initialValues;
+      { const js = JSON.stringify(s.values); if (js !== cur.current.js && !applying.current) { clearTimeout(snapTimer.current); snapTimer.current = setTimeout(() => { undoStack.current.push(cur.current.obj); if (undoStack.current.length > 60) undoStack.current.shift(); redoStack.current = []; cur.current = { js, obj: clone(s.values) }; bump(n => n + 1); }, 500); } }
       if (s.submitFailed && !s.dirty === false && !s.submitSucceeded) setAuto('Not saved — no connection? Your work is kept on this device. Press Save to try again.');
       const v = s.values || {};
       const safe = kind === 'post' && v.draft === true && tinaForm?.crudType !== 'create';
@@ -139,10 +153,10 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
         if (!navigator.onLine) { setAuto('Offline — your edits are kept on this device'); return; }
         try { setAuto('Saving…'); await ff.submit(); setAuto(ff.getState().dirty ? 'Not saved yet — your edits are kept on this device' : 'Auto-saved ✓ ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })); } catch (e) { setAuto('Could not auto-save — press Save'); }
       }, 30000);
-      try { if (s.submitSucceeded && !s.dirty) { localStorage.removeItem(draftKey); shell = null; setUndo(initRef.current); { const vv = ff.getState().values || {}; const isPublished = kind !== 'settings' && vv.draft !== true; const sl = kind === 'post' ? String(tinaForm?.id || '').split('/').pop()?.replace(/\.md$/, '') : ''; if (isPublished) celebrate(sl || ''); } setAuto(kind === 'post' && ff.getState().values?.draft ? 'Saved as a hidden draft — switch off “Keep this post hidden” to publish' : 'Saved ✓ — live on the website in about 1–2 minutes'); } else if (s.dirty) localStorage.setItem(draftKey, JSON.stringify({ t: Date.now(), values: s.values })); } catch (e) { /* storage unavailable */ }
+      try { if (s.submitSucceeded && !s.dirty) { localStorage.removeItem(draftKey); shell = null; { const h = readHist(); const js = JSON.stringify(s.values); if (!h.length || JSON.stringify(h[0].values) !== js) { const nh = [{ t: Date.now(), label: 'Saved', values: clone(s.values) }, ...h].slice(0, 15); try { localStorage.setItem(histKey, JSON.stringify(nh)); } catch (e) { /* storage full */ } setVersions(nh); } } { const vv = ff.getState().values || {}; const isPublished = kind !== 'settings' && vv.draft !== true; const sl = kind === 'post' ? String(tinaForm?.id || '').split('/').pop()?.replace(/\.md$/, '') : ''; if (isPublished) celebrate(sl || ''); } setAuto(kind === 'post' && ff.getState().values?.draft ? 'Saved as a hidden draft — switch off “Keep this post hidden” to publish' : 'Saved ✓ — live on the website in about 1–2 minutes'); } else if (s.dirty) localStorage.setItem(draftKey, JSON.stringify({ t: Date.now(), values: s.values })); } catch (e) { /* storage unavailable */ }
     }, { values: true, dirty: true, submitSucceeded: true, submitting: true, submitFailed: true, initialValues: true });
     const guard = (e: BeforeUnloadEvent) => { if (ff.getState().dirty) { e.preventDefault(); e.returnValue = ''; } };
-    const ks = (e: KeyboardEvent) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); ff.submit(); } };
+    const ks = (e: KeyboardEvent) => { const k = e.key.toLowerCase(); if ((e.ctrlKey || e.metaKey) && k === 's') { e.preventDefault(); ff.submit(); } else if ((e.ctrlKey || e.metaKey) && (k === 'z' || k === 'y') && !(e.target as HTMLElement)?.closest?.('input,textarea,select,[contenteditable],[data-slate-editor]')) { e.preventDefault(); (k === 'y' || e.shiftKey) ? doRedo() : doUndo(); } };
     window.addEventListener('keydown', ks);
     window.addEventListener('beforeunload', guard);
     return () => { off(); clearTimeout(timer.current); clearTimeout(idle.current); window.removeEventListener('beforeunload', guard); window.removeEventListener('keydown', ks); };
@@ -202,7 +216,7 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
   }, []);
   const big = !inline && vp.w >= 1000;
   const left = 560;
-  const cw = big ? vp.w - left - 16 : Math.min(w, vp.w - 32), ch = big ? vp.h - 118 - 76 - 170 : 540;
+  const cw = big ? vp.w - left - 16 : Math.min(w, vp.w - 32), ch = big ? vp.h - 118 - 76 - 190 : 540;
   const base = big ? (mode === 'phone' ? 390 : 1100) : Math.max(280, cw), k = Math.min(1, cw / base), h = big ? ch / k : ch;
   const frameEl = (
     <div ref={wrap} style={{ width: '100%', height: ch, overflow: 'hidden', borderRadius: big ? 14 : 8, background: big ? '#ece9f0' : '#f2f2f6', position: 'relative' }}>
@@ -217,6 +231,9 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
           <button type="button" aria-label="Phone view" style={{ ...pill(mode === 'phone'), border: 0, borderRadius: 0 }} onClick={() => setMode('phone')}>📱 Phone</button>
           <button type="button" aria-label="Computer view" style={{ ...pill(mode === 'desktop'), border: 0, borderRadius: 0 }} onClick={() => setMode('desktop')}>🖥 Computer</button>
         </span>
+        <button type="button" aria-label="Undo" title="Undo (Ctrl+Z)" disabled={!undoStack.current.length} style={{ ...pill(false), opacity: undoStack.current.length ? 1 : 0.4 }} onClick={doUndo}>↶ Undo</button>
+        <button type="button" aria-label="Redo" title="Redo (Ctrl+Shift+Z)" disabled={!redoStack.current.length} style={{ ...pill(false), opacity: redoStack.current.length ? 1 : 0.4 }} onClick={doRedo}>↷ Redo</button>
+        <button type="button" style={pill(showHist)} onClick={() => setShowHist(!showHist)}>🕘 Earlier versions</button>
         <button type="button" style={pill(false)} onClick={popOut}>Full screen ↗</button>
         <button type="button" style={pill(false)} onClick={() => setOpen(!open)}>{open ? 'Hide preview' : 'Show preview'}</button>
         <span role="status" aria-live="polite" style={{ marginLeft: 'auto', fontSize: 13, fontWeight: 600, color: /^(Could|Not saved|Offline)/.test(auto) ? '#b3261e' : /^Unsaved/.test(auto) ? '#92400e' : '#1b7a3d' }}>{auto || (kind === 'post' ? '● Drafts save automatically' : '● Press Save to publish')}</span>
@@ -227,8 +244,11 @@ function Canvas({ kind, tinaForm, cms, inline }: any) {
           <button type="button" style={{ ...pill(true), flex: 1, fontWeight: 700 }} onClick={() => { ff.change('draft', false); ff.submit(); }}>Publish now</button>
         </div>
       )}
-      {undo && (
-        <div style={{ marginTop: 8 }}><button type="button" style={pill(false)} onClick={() => { Object.keys(undo).forEach(k => { if (k !== '_sys' && k !== '__typename' && k !== 'id') ff.change(k, undo[k]); }); setUndo(null); setAuto('Previous version loaded — press Save to keep it'); }}>↩ Undo last save</button></div>
+      {showHist && (
+        <div style={{ marginTop: 8, padding: 10, border: '1px solid #e1e1ea', borderRadius: 10, background: '#fafafc', maxHeight: 220, overflow: 'auto' }}>
+          <div style={{ fontSize: 12, color: '#6b6660', marginBottom: 6 }}>Earlier versions saved on this device. Pick one to bring it back, then press Save.</div>
+          {versions.map((v: any, n: number) => (<button key={n} type="button" onClick={() => loadVersion(v)} style={{ ...pill(false), display: 'block', width: '100%', textAlign: 'left', marginBottom: 6, whiteSpace: 'normal' }}>{fmtT(v.t)} — {v.label || 'Saved'}{n === 0 ? ' (latest)' : ''}</button>))}
+        </div>
       )}
       {tip && kind !== 'settings' && (
         <div style={{ marginTop: 10, padding: '8px 12px', background: '#fff1fa', border: '1px solid #ffc2e6', borderRadius: 8, fontSize: 14, color: '#5a1d44', whiteSpace: 'normal' }}>

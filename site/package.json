@@ -4,10 +4,11 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "dev": "astro dev",
+    "dev": "node scripts/optimize-images.mjs && astro dev",
     "build": "node scripts/build.mjs",
     "preview": "astro preview",
-    "check:tina": "tinacms build --local --skip-cloud-checks && git diff --exit-code tina/tina-lock.json"
+    "check:tina": "tinacms build --local --skip-cloud-checks && git diff --exit-code tina/tina-lock.json",
+    "optimize": "node scripts/optimize-images.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.19",

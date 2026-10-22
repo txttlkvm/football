@@ -5,9 +5,11 @@ const now = new Date();
 export const allPosts = (await getCollection('posts'))
   .filter(e => !e.data.draft && +(e.data.publishDate ?? e.data.date) <= +now)
   .map(e => ({
-    slug: e.id, entry: e, title: e.data.title, date: e.data.publishDate ?? e.data.date, cats: e.data.categories, img: e.data.image ?? null,
+    slug: e.id, entry: e, title: e.data.title, date: e.data.publishDate ?? e.data.date, cats: e.data.categories, tags: e.data.tags, img: e.data.image ?? null,
     excerpt: e.data.excerpt, description: e.data.description ?? e.data.excerpt, featured: e.data.featured, hasImg: /!\[|<img/.test(e.body ?? ''),
   })).sort((a, b) => +b.date - +a.date);
+export const tagSlug = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+export const allTags = [...new Map(allPosts.flatMap(p => p.tags).map(t => [tagSlug(t), t])).entries()].map(([slug, name]) => ({ slug, name, count: allPosts.filter(p => p.tags.some(x => tagSlug(x) === slug)).length })).filter(t => t.slug).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 export const allPages = (await getCollection('pages')).filter(e => !e.data.draft);
 export const categories = [
   { slug: 'marriage', name: 'Marriage' }, { slug: 'motherhood', name: 'Motherhood' }, { slug: 'meals', name: 'Meals' },
@@ -21,6 +23,6 @@ export const REGISTER_URL = settings.registerUrl;
 import { existsSync } from 'node:fs';
 export const renderCtx = {
   formsKey: (settings as any).formsKey || '',
-  posts: allPosts.map(p => ({ slug: p.slug, title: p.title, date: p.date, img: p.img, excerpt: p.excerpt, cats: p.cats, featured: p.featured })),
+  posts: allPosts.map(p => ({ slug: p.slug, title: p.title, date: p.date, img: p.img, excerpt: p.excerpt, cats: p.cats, tags: p.tags, featured: p.featured })),
   posterFor: (src: string) => { const p = src.replace(/\.(mp4|webm|mov)$/i, '-poster.jpg'); return p !== src && src.startsWith('/') && existsSync('public' + p) ? p : ''; },
 };

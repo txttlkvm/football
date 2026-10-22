@@ -1,6 +1,6 @@
 // Turns the editor's blocks, saved in posts as {{< name key="value" >}}, into real HTML using the shared renderer.
 import { existsSync } from 'node:fs';
-import { embeds } from '../lib/render.mjs';
+import { embeds, rimg } from '../lib/render.mjs';
 const attrsOf = (s) => Object.fromEntries([...s.matchAll(/(\w+)=(?:"((?:[^"\\]|\\.)*)"|“([^”]*)”)/g)].map((m) => [m[1], (m[2] ?? m[3]).replace(/\\"/g, '"')]));
 const posterFor = (src) => { const p = src.replace(/\.(mp4|webm|mov)$/i, '-poster.jpg'); return p !== src && src.startsWith('/') && existsSync('public' + p) ? p : ''; };
 const fixText = (t) => t.replace(/(https?:)÷/g, '$1//');   // the editor can turn a typed "//" into "÷"
@@ -12,6 +12,7 @@ function walk(node) {
       const m = /^\{\{<\s*(\w+)\s+([\s\S]*?)\s*>\}\}$/.exec(fixText(flat).trim());
       if (m && embeds[m[1]]) return { type: 'html', value: embeds[m[1]](attrsOf(m[2]), { posterFor }) };
     }
+    if (ch.type === 'image' && ch.url) return { type: 'html', value: rimg(ch.url, ch.alt || '', '(max-width:760px) 100vw, 720px', 'loading="lazy"') };
     if (ch.type === 'text') ch.value = fixText(ch.value);
     if (ch.type === 'link' && ch.url) ch.url = fixText(ch.url);
     walk(ch);

@@ -3,7 +3,7 @@ import { blocksField } from './blocks';
 import { previewField } from './Preview';
 const branch = process.env.TINA_BRANCH || process.env.VERCEL_GIT_COMMIT_REF || process.env.HEAD || 'main';
 const cats = ['motherhood', 'marriage', 'meals', 'breakfast', 'lunch', 'dinner', 'bake-class'].map(v => ({ value: v, label: v[0].toUpperCase() + v.slice(1).replace('-', ' ') }));
-const RESERVED = ['about-me', 'home-chefs', 'home-bakery', 'home', 'category', 'rss', 'admin', 'posts', 'sitemap', '404', 'index'];
+const RESERVED = ['tag', 'blog', 'edit', 'about-me', 'home-chefs', 'home-bakery', 'home', 'category', 'rss', 'admin', 'posts', 'sitemap', '404', 'index'];
 const slugify = (v: any) => {
   let t = (v?.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60).replace(/-$/, '');
   if (!t) t = 'post-' + new Date().toISOString().slice(0, 10);
@@ -158,6 +158,7 @@ export default defineConfig({
           { type: 'rich-text', name: 'body', label: 'Write your post', isBody: true, templates: embeds, toolbarOverride: ['heading', 'link', 'image', 'quote', 'ul', 'ol', 'bold', 'italic', 'hr', 'embed'] },
           { type: 'string', name: 'excerpt', label: 'Short summary (shown on cards)', ui: { component: 'textarea' } },
           { type: 'string', name: 'categories', label: 'Categories (tick any)', list: true, options: cats },
+          { type: 'string', name: 'tags', label: 'Tags (type a word and press Enter)', description: 'Optional. Handy words like “sourdough” or “toddlers”. Readers can click a tag to see similar posts.', list: true },
           { type: 'datetime', name: 'date', label: 'Date shown on the post', required: true },
           { type: 'boolean', name: 'featured', label: 'Feature this post at the top of the home page' },
           { type: 'datetime', name: 'publishDate', label: 'Schedule: hide until this date (optional)', description: 'Leave empty to publish immediately. A scheduled post appears the next time the site updates after this date.' },
@@ -223,6 +224,9 @@ export default defineConfig({
           { type: 'string', name: 'registerUrl', label: 'Class sign-up link' },
           { type: 'string', name: 'mobileCta', label: 'Phone menu: top button text' },
           { type: 'string', name: 'formsKey', label: 'Contact form key', description: 'Free at web3forms.com — enter your email there, they send you a key. Paste it here to turn on the Contact form section.' },
+          { type: 'object', name: 'comments', label: 'Reader comments', description: 'Optional. Lets readers comment on posts using Disqus (free account at disqus.com — you will get a short “shortname”).', fields: [
+            { type: 'string', name: 'provider', label: 'Comments', options: [{ value: 'none', label: 'Off' }, { value: 'disqus', label: 'On (Disqus)' }] },
+            { type: 'string', name: 'disqusShortname', label: 'Your Disqus shortname' } ] },
           { type: 'string', name: 'footerText', label: 'Footer text' },
           { type: 'object', name: 'social', label: 'Social links (footer)', list: true, ui: { itemProps: (i: any) => ({ label: i?.label }) }, fields: [
             { type: 'string', name: 'label', label: 'Name (e.g. Instagram)' }, { type: 'string', name: 'url', label: 'Link' } ] },
