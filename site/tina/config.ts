@@ -62,7 +62,14 @@ body,button,input,textarea,select{font-family:'Poppins',system-ui,sans-serif!imp
 input:focus,textarea:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid #8a1b5a!important;outline-offset:2px}`;
 const cmsCallback = (cms: any) => {
   try {
-    if (!location.hash || location.hash === '#/') location.hash = '#/collections/edit/home/home';
+    const PAGES = ['about-me', 'home-chefs', 'home-bakery'];
+    const land = () => {
+      const h = location.hash;
+      if (h && h !== '#/' && h !== '#/collections' && !h.startsWith('#/~')) return;
+      const slug = h.replace(/^#\/~\/?/, '').replace(/[?].*$/, '').replace(/\/+$/, '');
+      location.hash = !slug || slug === 'home' ? '#/collections/edit/home/home' : PAGES.includes(slug) ? `#/collections/edit/page/${slug}` : `#/collections/edit/post/${slug}`;
+    };
+    land(); window.addEventListener('hashchange', land);
     const st = document.createElement('style'); st.textContent = SKIN; document.head.appendChild(st);
     const l = document.createElement('link'); l.rel = 'manifest'; l.href = '/admin-manifest.webmanifest'; document.head.appendChild(l);
     const m = document.createElement('meta'); m.name = 'theme-color'; m.content = '#ff66c4'; document.head.appendChild(m);
