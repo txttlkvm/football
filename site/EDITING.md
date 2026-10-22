@@ -12,3 +12,12 @@
 6. After **Save**, the site updates by itself in about a minute.
 
 Made a mistake? Everything is saved in Git history, so any version can be restored. Ask Claude.
+
+## New things you can do
+- **Start from a template:** on the start screen tap **Start from a template** for a ready-made page (landing, class, about, menu, contact) or post (recipe, story, weekly update). Tap **Change my look** to try a whole new color and font style in one tap.
+- **Undo / redo:** the **↶ Undo** and **↷ Redo** buttons above the preview (or Ctrl+Z / Ctrl+Shift+Z). **🕘 Earlier versions** brings back an older saved version from this device.
+- **Tags:** on a post, add tags like “sourdough”. Readers can click a tag to see similar posts (`/tag/sourdough/`).
+- **Comments:** turn on in **Logo, menu & more → Reader comments** (free Disqus account needed).
+- **Scheduled posts:** set “Schedule” on a post. A background job checks every few hours and publishes it once the date passes.
+- **Section look:** every section has “Section look” — change spacing, width, a background photo, or a link name.
+- **Side by side:** the “Side by side” section puts any two things next to each other (photo + words, quote + button…).
