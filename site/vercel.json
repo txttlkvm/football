@@ -3,6 +3,17 @@
   "trailingSlash": true,
   "redirects": [
     {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "marriagemotherhood-meals.vercel.app"
+        }
+      ],
+      "destination": "https://www.marriagemotherhood-meals.org/$1",
+      "permanent": true
+    },
+    {
       "source": "/home/",
       "destination": "/",
       "permanent": true
