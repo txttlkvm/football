@@ -6,7 +6,9 @@ date: 2026-10-23T03:45:27.864Z
 featured: false
 ---
 
-Have you ever desired to learn a new skill or hobby? Then you realize you're a wife, mom of five children and many more roles Yes, that was me! I thought of all the reasons why I shouldn't start something new instead of thinking of the many reasons why I should.
+Have you ever desired to learn a new skill or hobby? Then you realize you're a wife, mom of five children and it seems impossible to do more. Yes, that was me! I thought of all the reasons why I shouldn't start something new instead of thinking of the many reasons why I should.
+
+There are many things I desire to learn like how to sew, how to train to run a marathon and how to learn repair basic things around the house. The list can go on and on.
 
 Recently, I began piano lessons with the intention that one day I would be able to play piano with my children and encourage them to go further in their learning. Three out of five of our children have piano lessons. I am amazed at how much they have learned in a short amount of time. Although learning to play the piano at age 32 can seem a little intimidating I was eager to take on the challenge.
 
