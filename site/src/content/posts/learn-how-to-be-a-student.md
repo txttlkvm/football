@@ -16,4 +16,4 @@ As a child, I don't remember having the desire to play the piano. It's always be
 
 &#x20;As they have seen me walk out of the door to go to my lesson or sit on the side to watch me play, I often think what is this doing for my children? Could it be that their eyes are delighting in seeing their mom join them in the hard work it takes to learn piano? I remember going to my eldest daughter first piano class and thinking how hard it must be to understand. To my surprise, she picked up on the notes and keys quickly. Now, I am learning much from her.
 
-&#x20;I urge my children to learn how to be a student. Not only because they are my students but also because in life, we are constantly learning. When you get 
+&#x20;I urge my children to learn how to be a student. Not only because they are my students but also because in life, we are constantly learning. We are either learning intentionally or
