@@ -1,6 +1,6 @@
 ---
 title: 'Learning how to be a student '
-draft: true
+draft: false
 categories: []
 date: 2026-10-23T03:45:27.864Z
 featured: false
